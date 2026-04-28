@@ -14,16 +14,221 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      generations: {
+        Row: {
+          aspect_ratio: string | null
+          completed_at: string | null
+          created_at: string
+          credits_used: number
+          id: string
+          image_urls: string[] | null
+          num_variations: number | null
+          persona_id: string | null
+          prompt: string | null
+          resolution: string | null
+          status: Database["public"]["Enums"]["generation_status"]
+          template_id: string | null
+          user_id: string
+        }
+        Insert: {
+          aspect_ratio?: string | null
+          completed_at?: string | null
+          created_at?: string
+          credits_used?: number
+          id?: string
+          image_urls?: string[] | null
+          num_variations?: number | null
+          persona_id?: string | null
+          prompt?: string | null
+          resolution?: string | null
+          status?: Database["public"]["Enums"]["generation_status"]
+          template_id?: string | null
+          user_id: string
+        }
+        Update: {
+          aspect_ratio?: string | null
+          completed_at?: string | null
+          created_at?: string
+          credits_used?: number
+          id?: string
+          image_urls?: string[] | null
+          num_variations?: number | null
+          persona_id?: string | null
+          prompt?: string | null
+          resolution?: string | null
+          status?: Database["public"]["Enums"]["generation_status"]
+          template_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "generations_persona_id_fkey"
+            columns: ["persona_id"]
+            isOneToOne: false
+            referencedRelation: "personas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "generations_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      personas: {
+        Row: {
+          attributes: Json | null
+          canonical_grid_url: string | null
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          reference_image_url: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          attributes?: Json | null
+          canonical_grid_url?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          reference_image_url?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          attributes?: Json | null
+          canonical_grid_url?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          reference_image_url?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          credits: number
+          full_name: string | null
+          id: string
+          tier: Database["public"]["Enums"]["subscription_tier"]
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          credits?: number
+          full_name?: string | null
+          id: string
+          tier?: Database["public"]["Enums"]["subscription_tier"]
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          credits?: number
+          full_name?: string | null
+          id?: string
+          tier?: Database["public"]["Enums"]["subscription_tier"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      templates: {
+        Row: {
+          category: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          is_public: boolean
+          name: string
+          preview_url: string | null
+          prompt: string | null
+          rating: number | null
+          uses_count: number
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_public?: boolean
+          name: string
+          preview_url?: string | null
+          prompt?: string | null
+          rating?: number | null
+          uses_count?: number
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_public?: boolean
+          name?: string
+          preview_url?: string | null
+          prompt?: string | null
+          rating?: number | null
+          uses_count?: number
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "creator" | "agency"
+      generation_status:
+        | "queued"
+        | "processing"
+        | "enhancing"
+        | "upscaling"
+        | "completed"
+        | "failed"
+      subscription_tier: "free" | "starter" | "pro" | "agency" | "enterprise"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +355,17 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "creator", "agency"],
+      generation_status: [
+        "queued",
+        "processing",
+        "enhancing",
+        "upscaling",
+        "completed",
+        "failed",
+      ],
+      subscription_tier: ["free", "starter", "pro", "agency", "enterprise"],
+    },
   },
 } as const

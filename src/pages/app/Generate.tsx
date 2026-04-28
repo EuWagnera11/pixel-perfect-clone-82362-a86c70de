@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Sparkles, Image as ImageIcon } from "lucide-react";
+import { ImageUpload } from "@/components/ImageUpload";
 
 const ratios = ["1:1", "3:4", "9:16", "4:5"];
 const resolutions = ["1K", "2K", "4K"];
@@ -12,6 +13,7 @@ export default function Generate() {
   const [ratio, setRatio] = useState("4:5");
   const [res, setRes] = useState("2K");
   const [vars, setVars] = useState(4);
+  const [refPath, setRefPath] = useState<string | null>(null);
   const cost = vars * (res === "4K" ? 4 : res === "2K" ? 2 : 1);
 
   return (

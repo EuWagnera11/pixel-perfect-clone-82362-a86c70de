@@ -76,14 +76,13 @@ export default function Dashboard() {
       {/* Quick actions */}
       <div className="grid gap-4 lg:grid-cols-3">
         {[
-          { title: "Criar persona", desc: "Suba 1-3 fotos. Gere o grid canônico.", to: "/app/personas", icon: Users },
-          { title: "Explorar templates", desc: "25+ cenas curadas, prontas pra usar.", to: "/app/templates", icon: LayoutTemplateIcon() },
-          { title: "Comprar créditos", desc: "Faça upgrade ou recarregue seu saldo.", to: "/app/billing", icon: Sparkles },
+          { title: "Criar persona", desc: "Suba 1-3 fotos. Gere o grid canônico.", to: "/app/personas", Icon: Users },
+          { title: "Explorar templates", desc: "25+ cenas curadas, prontas pra usar.", to: "/app/templates", Icon: Plus },
+          { title: "Comprar créditos", desc: "Faça upgrade ou recarregue seu saldo.", to: "/app/billing", Icon: Sparkles },
         ].map((q, i) => (
           <Link key={i} to={q.to} className="group rounded-xl border border-border bg-background p-6 transition-all hover:border-foreground/20 hover:shadow-elegant">
             <div className="mb-4 grid h-10 w-10 place-items-center rounded-md bg-primary-light text-primary">
-              {typeof q.icon === "function" ? null : <q.icon className="h-5 w-5" />}
-              {typeof q.icon === "function" ? <Plus className="h-5 w-5" /> : null}
+              <q.Icon className="h-5 w-5" />
             </div>
             <div className="text-base font-semibold">{q.title}</div>
             <p className="mt-1 text-sm text-muted-foreground">{q.desc}</p>
@@ -93,5 +92,3 @@ export default function Dashboard() {
     </div>
   );
 }
-
-function LayoutTemplateIcon() { return () => null; }

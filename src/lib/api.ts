@@ -443,10 +443,44 @@ export const api = {
 
   // ──────────── BILLING ────────────
   billing: {
-    me: () => http.get<{ tier: string; credits: number; tiers: any; packs: any }>("/billing/me"),
-    checkout: (body: { tier?: string; pack?: string }) =>
+    me: () => http.get<{
+      tier: string;
+      credits: number;
+      tiers: Record<string, { credits: number; amount_brl: number; interval: "month" | "year"; tier: string; welcome_bonus: number }>;
+      packs:  Record<string, { credits: number; amount_brl: number }>;
+      addons: Record<string, { amount_brl: number; label: string }>;
+    }>("/billing/me"),
+    checkout: (body: { tier?: string; pack?: string; addon?: string }) =>
       http.post<{ url: string; session_id: string }>("/billing/checkout", body),
     portal: () => http.get<{ url: string }>("/billing/portal"),
+  },
+
+  // ──────────── CATALOG (modelos + capacidade do user) ────────────
+  catalog: {
+    models: () => http.get<{
+      images: Array<{ id: string; name: string; tier: string; resolutions: Record<string, number> }>;
+      videos: Array<{ id: string; name: string; tier: string; variants: Array<{ duration: string; audio: boolean; cost: number }> }>;
+      enhance: Array<{ id: string; cost: number }>;
+      edit:    Array<{ id: string; cost: number }>;
+      audio:   Array<{ id: string; cost: number }>;
+      swap:    Array<{ id: string; cost: number }>;
+      specialized: Array<{ id: string; cost: number }>;
+    }>("/catalog/models"),
+    capacity: () => http.get<{
+      balance: number;
+      tier: string;
+      images: Record<string, Record<string, number>>;
+      videos: Record<string, Array<{ duration: string; audio: boolean; available: number }>>;
+      enhance: Record<string, number>;
+      edit:    Record<string, number>;
+      audio:   Record<string, number>;
+      swap:    Record<string, number>;
+      specialized: Record<string, number>;
+    }>("/catalog/capacity"),
+    costPreview: (params: { model: string; resolution?: string; duration?: string; audio?: boolean }) => {
+      const q = new URLSearchParams(params as any).toString();
+      return http.get<{ cost: number; kind: "image" | "video" }>(`/catalog/cost-preview?${q}`);
+    },
   },
 
   // ──────────── UPLOADS ────────────

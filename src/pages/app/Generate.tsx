@@ -3,11 +3,11 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Sparkles, Image as ImageIcon, Loader2 } from "lucide-react";
 import { ImageUpload } from "@/components/ImageUpload";
+import { ModelSelector } from "@/components/ModelSelector";
 import { api, ApiError, type Generation } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 
 const ratios = ["1:1", "3:4", "9:16", "4:5"];
-const resolutions = ["1K", "2K", "4K"];
 const variations = [1, 2, 4, 6];
 
 function Pills({ label, options, value, onChange }: { label: string; options: string[]; value: string; onChange: (v: string) => void }) {
@@ -35,15 +35,23 @@ export default function Generate() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [ratio, setRatio] = useState("4:5");
-  const [resolution, setResolution] = useState("2K");
+  const [model, setModel] = useState({ model: "nano-banana-pro-flash", resolution: "2k" });
   const [numVars, setNumVars] = useState(4);
   const [refPath, setRefPath] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [generation, setGeneration] = useState<Generation | null>(null);
+  const [costPreview, setCostPreview] = useState<number | null>(null);
 
   const personaId = params.get("persona") ?? undefined;
   const templateId = params.get("template") ?? undefined;
-  const cost = numVars * (resolution === "4K" ? 4 : resolution === "2K" ? 2 : 1);
+  const totalCost = (costPreview ?? 0) * numVars;
+
+  // Atualiza custo via API quando model/resolution muda
+  useEffect(() => {
+    api.catalog.costPreview({ model: model.model, resolution: model.resolution })
+      .then(r => setCostPreview(r.cost))
+      .catch(() => setCostPreview(null));
+  }, [model.model, model.resolution]);
 
   // Poll status while running
   useEffect(() => {
@@ -69,9 +77,10 @@ export default function Generate() {
         persona_id: personaId,
         template_id: templateId,
         num_variations: numVars,
-        resolution,
+        resolution: model.resolution as "1k" | "2k" | "4k",
         aspect_ratio: ratio,
-      });
+        model: model.model,
+      } as any);
       setGeneration(g);
       toast({ title: "Geração iniciada", description: "Aguarde alguns segundos..." });
     } catch (e) {
@@ -99,7 +108,7 @@ export default function Generate() {
         </div>
 
         <Pills label="Aspect ratio" options={ratios} value={ratio} onChange={setRatio} />
-        <Pills label="Resolução" options={resolutions} value={resolution} onChange={setResolution} />
+        <ModelSelector value={model} onChange={setModel} />
         <Pills label="Variações" options={variations.map(String)} value={String(numVars)} onChange={v => setNumVars(Number(v))} />
 
         <ImageUpload
@@ -113,13 +122,13 @@ export default function Generate() {
         <div className="rounded-md border border-primary/30 bg-primary-light p-4">
           <div className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">Custo estimado</div>
           <div className="mt-1 flex items-baseline gap-1">
-            <span className="text-2xl font-semibold text-primary">{cost}</span>
+            <span className="text-2xl font-semibold text-primary">{totalCost || "..."}</span>
             <span className="text-sm text-muted-foreground">créditos</span>
           </div>
         </div>
 
-        <Button type="button" size="lg" variant="hero" className="w-full" onClick={handleGenerate} disabled={submitting}>
-          {submitting ? <><Loader2 className="animate-spin" /> Enviando...</> : <><Sparkles /> Gerar ({cost} créditos)</>}
+        <Button type="button" size="lg" variant="hero" className="w-full" onClick={handleGenerate} disabled={submitting || !costPreview}>
+          {submitting ? <><Loader2 className="animate-spin" /> Enviando...</> : <><Sparkles /> Gerar ({totalCost} créditos)</>}
         </Button>
       </div>
 

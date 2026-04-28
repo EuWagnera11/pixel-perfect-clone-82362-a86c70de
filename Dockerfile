@@ -3,13 +3,13 @@ FROM oven/bun:1.1-alpine AS builder
 
 WORKDIR /app
 
-ENV NODE_ENV=production
-
-# Só package.json — bun resolve deps fresh (lockfile desatualizado)
+# Sem NODE_ENV=production aqui — bun precisa instalar devDependencies
+# (vite, tailwind, typescript estão em devDeps)
 COPY package.json ./
-RUN bun install --production=false --no-progress
+RUN bun install --no-progress
 
 COPY . .
+ENV NODE_ENV=production
 RUN bun run build
 
 FROM nginx:1.27-alpine

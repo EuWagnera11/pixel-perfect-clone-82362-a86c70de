@@ -1,28 +1,25 @@
-# Refine — single-stage build (debug-friendly)
-FROM node:20-alpine
+# Refine — minimal build with low memory
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Tools
-RUN apk add --no-cache curl
+# Use less memory during install/build
+ENV NODE_OPTIONS=--max-old-space-size=1536
+ENV NPM_CONFIG_FUND=false
+ENV NPM_CONFIG_AUDIT=false
+ENV NPM_CONFIG_PROGRESS=false
 
-# Deps
 COPY package.json package-lock.json ./
-RUN npm ci --no-audit --no-fund
+RUN npm ci --omit=optional
 
-# Source
 COPY . .
+RUN npm run build && rm -rf node_modules src public
 
-# Build
-ENV NODE_ENV=production
-ENV CI=true
-RUN npm run build
+FROM nginx:1.27-alpine
+COPY --from=builder /app/dist /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Serve estático
-RUN npm install -g serve
+RUN echo 'OK' > /usr/share/nginx/html/_health
 
 EXPOSE 80
-HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
-  CMD curl -f http://localhost:80/ || exit 1
-
-CMD ["serve", "-s", "dist", "-l", "80"]
+CMD ["nginx", "-g", "daemon off;"]

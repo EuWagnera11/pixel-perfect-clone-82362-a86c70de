@@ -1,25 +1,23 @@
-# Refine — Vite + React production build
-# Stage 1: build com bun (lock file é bun.lockb)
+# Refine — Vite + React production build (node 20 + nginx alpine)
 
-FROM oven/bun:1.1-alpine AS deps
+FROM node:20-alpine AS deps
 WORKDIR /app
-COPY package.json bun.lockb ./
-RUN bun install --frozen-lockfile
+COPY package.json package-lock.json* ./
+RUN npm ci --no-audit --no-fund --prefer-offline
 
-FROM oven/bun:1.1-alpine AS builder
+FROM node:20-alpine AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 ENV NODE_ENV=production
-RUN bun run build
+ENV CI=true
+RUN npm run build
 
-# Stage 2: serve via nginx alpine — leve + rápido
+# Stage 2: nginx alpine — leve e rápido
 FROM nginx:1.27-alpine AS runtime
-RUN apk add --no-cache brotli && rm -rf /var/cache/apk/*
 COPY --from=builder /app/dist /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Health endpoint
 RUN echo 'OK' > /usr/share/nginx/html/_health
 
 EXPOSE 80

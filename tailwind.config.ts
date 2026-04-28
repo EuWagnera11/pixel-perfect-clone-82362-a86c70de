@@ -12,12 +12,25 @@ export default {
         mono: ['Geist Mono', 'ui-monospace', 'monospace'],
       },
       colors: {
-        border: "hsl(var(--border))",
+        border: {
+          DEFAULT: "hsl(var(--border))",
+          strong: "hsl(var(--border-strong))",
+        },
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
-        surface: "hsl(var(--surface))",
-        foreground: "hsl(var(--foreground))",
+        surface: {
+          DEFAULT: "hsl(var(--surface))",
+          2: "hsl(var(--surface-2))",
+          3: "hsl(var(--surface-3))",
+        },
+        foreground: {
+          DEFAULT: "hsl(var(--foreground))",
+          dim: "hsl(var(--foreground-dim))",
+          muted: "hsl(var(--foreground-muted))",
+        },
+        sophia: "hsl(var(--sophia))",
+        "accent-warm": "hsl(var(--accent-warm))",
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",

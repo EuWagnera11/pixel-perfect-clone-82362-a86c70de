@@ -20,7 +20,6 @@ import Suite from "./pages/app/Suite";
 import AudioStudio from "./pages/app/AudioStudio";
 import EditStudio from "./pages/app/EditStudio";
 import SpecializedStudio from "./pages/app/SpecializedStudio";
-import CaptionsStudio from "./pages/app/CaptionsStudio";
 import DriveStudio from "./pages/app/DriveStudio";
 import BatchStudio from "./pages/app/BatchStudio";
 import LearnStudio from "./pages/app/LearnStudio";
@@ -55,7 +54,6 @@ const App = () => (
               <Route path="audio" element={<AudioStudio />} />
               <Route path="edit" element={<EditStudio />} />
               <Route path="specialized" element={<SpecializedStudio />} />
-              <Route path="captions" element={<CaptionsStudio />} />
               <Route path="drive" element={<DriveStudio />} />
               <Route path="batch" element={<BatchStudio />} />
               <Route path="learn" element={<LearnStudio />} />

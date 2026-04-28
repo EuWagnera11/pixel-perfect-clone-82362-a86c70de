@@ -24,8 +24,8 @@ const tools = [
   { icon: Users, title: "Face Swap", desc: "Troque rostos preservando expressão e iluminação.", tag: "Pro", media: tplStudio },
   { icon: MapPin, title: "Scene Swap", desc: "Mesma persona, qualquer cenário do mundo.", tag: "Core", media: tplMediterranean },
   { icon: Shirt, title: "Cloth Swap", desc: "Troque outfits sem perder a pose original.", tag: "Pro", media: tplBeach },
-  { icon: FolderInput, title: "Drive Import", desc: "Importe pastas inteiras do Google Drive de uma vez.", tag: "Beta", media: tplRooftop },
-  { icon: Brain, title: "Style Learning", desc: "A IA aprende seu estilo a partir de 50+ refs.", tag: "AI", media: tplCafe },
+  { icon: FolderInput, title: "Bulk Import", desc: "Importe centenas de imagens via URLs ou upload em lote.", tag: "Workflow", media: tplRooftop },
+  { icon: Brain, title: "Style Learning", desc: "Descreva seu estilo + suba refs e a IA replica.", tag: "Custom", media: tplCafe },
   { icon: Layers, title: "Batch Mass", desc: "Gere 100+ imagens em paralelo. Templates curados.", tag: "Scale", media: tplOotd },
   { icon: RefreshCw, title: "Recreate", desc: "Recrie qualquer foto com sua persona.", tag: "Magic", media: tplBeach },
 ];

@@ -46,12 +46,6 @@ import {
   Home as HomeIcon,
   Camera,
   AudioLines,
-  // AI Texto
-  Type,
-  Hash,
-  ListOrdered,
-  GalleryHorizontal,
-  Megaphone,
   // Workflow
   HardDrive,
   Brain,
@@ -69,7 +63,6 @@ type CategoryKey =
   | "transformar"
   | "melhorar"
   | "profissional"
-  | "texto"
   | "workflow";
 
 type Tool = Omit<ToolCardProps, "icon" | "delay"> & {
@@ -85,7 +78,6 @@ const categories: { key: CategoryKey; label: string; description: string }[] = [
   { key: "transformar", label: "Transformar", description: "Troque rostos, roupas e cenas." },
   { key: "melhorar", label: "Melhorar", description: "Upscale e enhancement de qualidade studio." },
   { key: "profissional", label: "Profissional", description: "Templates editoriais por nicho." },
-  { key: "texto", label: "AI Texto", description: "Copy e legendas geradas por contexto." },
   { key: "workflow", label: "Workflow", description: "Automações e batch para escala." },
 ];
 
@@ -95,7 +87,6 @@ const categoryMeta: Record<Exclude<CategoryKey, "all">, { label: string; tone: T
   transformar: { label: "Transformar", tone: "violet" },
   melhorar: { label: "Melhorar", tone: "emerald" },
   profissional: { label: "Profissional", tone: "sky" },
-  texto: { label: "AI Texto", tone: "rose" },
   workflow: { label: "Workflow", tone: "copper" },
 };
 
@@ -480,68 +471,16 @@ const tools: Tool[] = [
     keywords: ["lip", "sync", "boca"],
   },
 
-  // ============ AI TEXTO ============
-  {
-    icon: Type,
-    title: "Caption Generator",
-    description: "Legendas no tom da sua marca, prontas pra postar.",
-    to: "/app/text/caption",
-    category: "texto",
-    badge: "AI Texto",
-    tone: "rose",
-    keywords: ["legenda", "caption", "post"],
-  },
-  {
-    icon: Hash,
-    title: "Hashtag Generator",
-    description: "Hashtags que performam, baseadas em nicho e contexto.",
-    to: "/app/text/hashtag",
-    category: "texto",
-    badge: "AI Texto",
-    tone: "rose",
-    keywords: ["hashtag", "tag"],
-  },
-  {
-    icon: ListOrdered,
-    title: "Story Sequence",
-    description: "Sequência narrativa de stories conectados por arco.",
-    to: "/app/text/story",
-    category: "texto",
-    badge: "AI Texto",
-    tone: "rose",
-    keywords: ["story", "stories", "sequência"],
-  },
-  {
-    icon: GalleryHorizontal,
-    title: "Carousel Generator",
-    description: "Carrosséis 1080x1350 com hierarquia tipográfica.",
-    to: "/app/text/carousel",
-    category: "texto",
-    badge: "AI Texto",
-    tone: "rose",
-    keywords: ["carrossel", "carousel"],
-  },
-  {
-    icon: Megaphone,
-    title: "Brand Voice",
-    description: "Treine seu tom de voz e replique em todos os textos.",
-    to: "/app/text/brand-voice",
-    category: "texto",
-    badge: "AI Texto",
-    tone: "rose",
-    keywords: ["marca", "tom", "voice"],
-  },
-
   // ============ WORKFLOW ============
   {
     icon: HardDrive,
-    title: "Drive Import",
-    description: "Importe pastas inteiras do Google Drive direto pra Suite.",
-    to: "/app/workflow/drive",
+    title: "Bulk Import",
+    description: "Importe múltiplas imagens via URLs ou upload em lote.",
+    to: "/app/drive",
     category: "workflow",
     badge: "Workflow",
     tone: "copper",
-    keywords: ["drive", "google", "import"],
+    keywords: ["bulk", "import", "lote"],
   },
   {
     icon: Brain,

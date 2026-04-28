@@ -399,20 +399,6 @@ export const api = {
     get: (id: string) => http.get<AudioGen>(`/audio/${id}`),
   },
 
-  // ──────────── CAPTIONS / AI TEXT ────────────
-  captions: {
-    caption: (body: { image_url: string; tone?: string; language?: string; max_length?: number }) =>
-      http.post<{ caption: string; credits_used: number }>("/captions/caption", body),
-    hashtags: (body: { image_url: string; count?: number; language?: string }) =>
-      http.post<{ hashtags: string[]; credits_used: number }>("/captions/hashtags", body),
-    story: (body: { theme: string; n_posts?: number; language?: string }) =>
-      http.post<{ posts: any[]; credits_used: number }>("/captions/story", body),
-    carousel: (body: { brief: string; n_posts?: number }) =>
-      http.post<{ prompts: string[]; credits_used: number }>("/captions/carousel", body),
-    brandVoice: (body: { text_samples: string[] }) =>
-      http.post<{ analysis: any; credits_used: number }>("/captions/brand-voice", body),
-  },
-
   // ──────────── WORLDS / PRESETS / MUSIC LIBRARY ────────────
   worlds: {
     list: (category?: string) => http.get<World[]>(`/worlds${category ? "?category=" + category : ""}`),

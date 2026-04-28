@@ -554,7 +554,6 @@ export default function Suite() {
       transformar: 0,
       melhorar: 0,
       profissional: 0,
-      texto: 0,
       workflow: 0,
     };
     tools.forEach(t => {

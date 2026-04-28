@@ -1,13 +1,13 @@
-# Refine — bun build (low memory, fast install)
+# Refine — bun fresh resolve (lockfile fora de sync no repo)
 FROM oven/bun:1.1-alpine AS builder
 
 WORKDIR /app
 
 ENV NODE_ENV=production
-ENV NODE_OPTIONS=--max-old-space-size=1024
 
-COPY package.json bun.lockb ./
-RUN bun install --frozen-lockfile --production=false
+# Só package.json — bun resolve deps fresh (lockfile desatualizado)
+COPY package.json ./
+RUN bun install --production=false --no-progress
 
 COPY . .
 RUN bun run build

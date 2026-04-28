@@ -115,7 +115,7 @@ export default function AuthPage({ mode }: { mode: "login" | "signup" }) {
             </Link>
           </p>
         </div>
-        <p className="text-xs text-muted-foreground">© 2026 Cubo Studio</p>
+        <p className="text-xs text-muted-foreground">© 2026 Refine by Cubo</p>
       </div>
 
       {/* Right brand panel */}

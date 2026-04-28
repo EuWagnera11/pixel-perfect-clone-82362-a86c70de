@@ -76,20 +76,22 @@ export default function Landing() {
             className="lg:col-span-7"
           >
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary-light px-3 py-1 font-mono text-xs uppercase tracking-wider text-primary">
-              <Sparkles className="h-3 w-3" /> AI Influencer Studio
+              <Sparkles className="h-3 w-3" /> Refine · AI Influencer Studio
             </div>
             <h1 className="text-balance text-5xl font-bold leading-[1.05] tracking-tight md:text-6xl lg:text-[72px]">
-              Crie sua influencer IA em <span className="text-primary">minutos</span>.
-              <br />Não em meses.
+              IA influencer com qualidade <span className="text-primary">editorial</span>.
+              <br />Em minutos. Não em meses.
             </h1>
             <p className="mt-6 max-w-xl text-balance text-lg leading-relaxed text-muted-foreground">
-              Pipeline de produção que rivaliza Aitana e Olivia Roa. Para creators, agências e brands que querem qualidade editorial — sem prompt random.
+              Pipeline 4K que rivaliza Aitana e Olivia Roa. Identidade fixa, carrosséis automáticos, brand-ready. Para creators, agências e marcas que querem fugir do prompt random.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <Button size="lg" variant="hero" asChild>
                 <Link to={ctaTo}>{ctaLabel} <ArrowRight /></Link>
               </Button>
-              <Button size="lg" variant="outline">Ver demo Sophia</Button>
+              <Button size="lg" variant="outline" asChild>
+                <a href="https://soph.ia.com.br" target="_blank" rel="noreferrer">Ver Sophia ↗</a>
+              </Button>
             </div>
             <div className="mt-8 flex items-center gap-6 font-mono text-xs uppercase tracking-wider text-muted-foreground">
               <span>3 gerações grátis</span>
@@ -107,7 +109,7 @@ export default function Landing() {
             <div className="relative">
               <div className="absolute -inset-4 rounded-[2rem] bg-primary/10 blur-3xl" aria-hidden />
               <div className="relative overflow-hidden rounded-2xl shadow-elegant ring-1 ring-foreground/5">
-                <img src={heroSophia} alt="Sophia, persona IA criada com Cubo Studio" className="h-full w-full object-cover" width={800} height={1000} />
+                <img src={heroSophia} alt="Sophia, persona IA criada com Refine" className="h-full w-full object-cover" width={800} height={1000} />
               </div>
               <div className="absolute -bottom-4 -left-4 rounded-xl border border-border bg-background/95 px-4 py-3 shadow-elegant backdrop-blur">
                 <div className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">Persona ativa</div>
@@ -122,10 +124,10 @@ export default function Landing() {
       <section className="border-y border-border/60 bg-surface py-10">
         <div className="container-cubo">
           <p className="mb-6 text-center font-mono text-xs uppercase tracking-wider text-muted-foreground">
-            Confiado por creators e agências brasileiras
+            Plataforma da Cubo · usada por creators, agências e marcas
           </p>
           <div className="grid grid-cols-2 items-center gap-8 opacity-60 md:grid-cols-6">
-            {["Refine", "Lumen", "Atelier", "Norte", "Verbo", "Cubo"].map(b => (
+            {["Cubo", "Sophia", "Lumen", "Atelier", "Norte", "Verbo"].map(b => (
               <div key={b} className="text-center font-mono text-sm tracking-wider text-muted-foreground">{b.toUpperCase()}</div>
             ))}
           </div>
@@ -138,7 +140,7 @@ export default function Landing() {
           <div className="mb-14 max-w-2xl">
             <div className="mb-3 font-mono text-xs uppercase tracking-wider text-primary">Recursos</div>
             <h2 className="text-balance text-4xl font-semibold tracking-tight md:text-5xl">
-              Tudo que estúdios profissionais usam. Sem o estúdio.
+              Tudo que estúdios editoriais usam. Sem o estúdio.
             </h2>
           </div>
           <div className="grid gap-px overflow-hidden rounded-2xl bg-border md:grid-cols-2 lg:grid-cols-3">
@@ -252,8 +254,15 @@ export default function Landing() {
           <div className="lg:col-span-2">
             <CuboLogo />
             <p className="mt-4 max-w-sm text-sm text-muted-foreground">
-              Studio de produção para IA influencers fotorrealistas. Feito por <a href="https://refinecubo.com.br" className="underline hover:text-foreground">Cubo</a> em São Paulo.
+              Plataforma de IA influencer com qualidade editorial. Feita por <a href="https://refinecubo.com.br" className="underline hover:text-foreground">Cubo</a> em São Paulo.
             </p>
+            <div className="mt-6 flex gap-3 font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
+              <a href="https://soph.ia.com.br" className="hover:text-foreground">Sophia ↗</a>
+              <span>·</span>
+              <a href="https://refinecubo.com.br" className="hover:text-foreground">Cubo ↗</a>
+              <span>·</span>
+              <a href="https://api.refinecubo.com.br/docs" className="hover:text-foreground">API ↗</a>
+            </div>
           </div>
           {[
             { title: "Produto", links: ["Recursos", "Templates", "Planos", "Casos"] },
@@ -270,7 +279,7 @@ export default function Landing() {
         </div>
         <div className="border-t border-border">
           <div className="container-cubo flex h-16 items-center justify-between text-xs text-muted-foreground">
-            <span>© 2026 Cubo Studio. Todos os direitos reservados.</span>
+            <span>© 2026 Refine by Cubo. Todos os direitos reservados.</span>
             <span className="font-mono">São Paulo · Brasil</span>
           </div>
         </div>

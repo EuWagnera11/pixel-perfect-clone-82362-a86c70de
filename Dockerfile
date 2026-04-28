@@ -1,19 +1,16 @@
-# Refine — minimal build with low memory
-FROM node:20-alpine AS builder
+# Refine — bun build (low memory, fast install)
+FROM oven/bun:1.1-alpine AS builder
 
 WORKDIR /app
 
-# Use less memory during install/build
-ENV NODE_OPTIONS=--max-old-space-size=1536
-ENV NPM_CONFIG_FUND=false
-ENV NPM_CONFIG_AUDIT=false
-ENV NPM_CONFIG_PROGRESS=false
+ENV NODE_ENV=production
+ENV NODE_OPTIONS=--max-old-space-size=1024
 
-COPY package.json package-lock.json ./
-RUN npm ci --omit=optional
+COPY package.json bun.lockb ./
+RUN bun install --frozen-lockfile --production=false
 
 COPY . .
-RUN npm run build && rm -rf node_modules src public
+RUN bun run build
 
 FROM nginx:1.27-alpine
 COPY --from=builder /app/dist /usr/share/nginx/html

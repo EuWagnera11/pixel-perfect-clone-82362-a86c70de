@@ -253,7 +253,7 @@
 
   /* Suite cards (tools grid) */
   .tool-card {
-    @apply group relative overflow-hidden rounded-2xl border border-border bg-surface transition-all duration-500;
+    @apply relative overflow-hidden rounded-2xl border border-border bg-surface transition-all duration-500;
     background: var(--gradient-card);
   }
   .tool-card:hover {

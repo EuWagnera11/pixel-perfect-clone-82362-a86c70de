@@ -8,6 +8,7 @@ import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft } from "lucide-react";
+import { ImageUpload } from "@/components/ImageUpload";
 
 export default function PersonaNew() {
   const { user } = useAuth();
@@ -15,7 +16,7 @@ export default function PersonaNew() {
   const navigate = useNavigate();
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [refUrl, setRefUrl] = useState("");
+  const [refPath, setRefPath] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const submit = async (e: FormEvent) => {
@@ -26,7 +27,7 @@ export default function PersonaNew() {
       user_id: user.id,
       name,
       description: description || null,
-      reference_image_url: refUrl || null,
+      reference_image_url: refPath || null,
     });
     setLoading(false);
     if (error) { toast({ title: "Erro", description: error.message, variant: "destructive" }); return; }
@@ -51,11 +52,13 @@ export default function PersonaNew() {
           <Label htmlFor="desc">Descrição</Label>
           <Textarea id="desc" value={description} onChange={e => setDescription(e.target.value)} placeholder="Brasileira, 24 anos, estética editorial natural..." rows={4} />
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="ref">URL de imagem de referência (opcional)</Label>
-          <Input id="ref" type="url" value={refUrl} onChange={e => setRefUrl(e.target.value)} placeholder="https://..." />
-          <p className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">Upload de arquivo virá em breve</p>
-        </div>
+        <ImageUpload
+          bucket="persona-photos"
+          label="Foto de referência (opcional)"
+          hint="Foto frontal, boa iluminação — JPG, PNG ou WebP até 10 MB"
+          value={refPath}
+          onChange={(path) => setRefPath(path)}
+        />
         <Button type="submit" size="lg" className="w-full" disabled={loading}>
           {loading ? "Criando..." : "Criar persona"}
         </Button>

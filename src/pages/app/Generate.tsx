@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Sparkles, Image as ImageIcon } from "lucide-react";
+import { ImageUpload } from "@/components/ImageUpload";
 
 const ratios = ["1:1", "3:4", "9:16", "4:5"];
 const resolutions = ["1K", "2K", "4K"];
@@ -12,6 +13,7 @@ export default function Generate() {
   const [ratio, setRatio] = useState("4:5");
   const [res, setRes] = useState("2K");
   const [vars, setVars] = useState(4);
+  const [refPath, setRefPath] = useState<string | null>(null);
   const cost = vars * (res === "4K" ? 4 : res === "2K" ? 2 : 1);
 
   return (
@@ -26,6 +28,14 @@ export default function Generate() {
         <Pills label="Aspect ratio" options={ratios} value={ratio} onChange={setRatio} />
         <Pills label="Resolução" options={resolutions} value={res} onChange={setRes} />
         <Pills label="Variações" options={variations.map(String)} value={String(vars)} onChange={v => setVars(Number(v))} />
+
+        <ImageUpload
+          bucket="generation-refs"
+          label="Imagem de referência (opcional)"
+          hint="Inspiração para estilo/pose — JPG, PNG, WebP"
+          value={refPath}
+          onChange={(path) => setRefPath(path)}
+        />
 
         <div className="rounded-md border border-primary/30 bg-primary-light p-4">
           <div className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">Custo estimado</div>

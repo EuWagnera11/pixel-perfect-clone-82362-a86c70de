@@ -473,6 +473,17 @@ const tools: Tool[] = [
 
   // ============ WORKFLOW ============
   {
+    icon: Clapperboard,
+    title: "Content Calendar",
+    description: "Gera o mês inteiro em 1 clique. Pack curado ou prompts custom.",
+    to: "/app/calendar",
+    category: "workflow",
+    badge: "Calendar",
+    tone: "copper",
+    status: "new",
+    keywords: ["calendário", "calendar", "mês", "mass", "massa", "30 dias"],
+  },
+  {
     icon: HardDrive,
     title: "Bulk Import",
     description: "Importe múltiplas imagens via URLs ou upload em lote.",

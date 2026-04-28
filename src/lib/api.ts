@@ -421,6 +421,26 @@ export const api = {
     },
   },
 
+  // ──────────── CONTENT CALENDAR (mass content) ────────────
+  calendar: {
+    packs: () => http.get<{ key: string; name: string; description: string; category: string; duration_days: number }[]>("/calendar/packs"),
+    getPack: (key: string) => http.get<any>(`/calendar/packs/${key}`),
+    create: (body: {
+      persona_id: string;
+      name: string;
+      brief?: string;
+      pack_key?: string;
+      custom_prompts?: string[];
+      n_posts?: number;
+      start_date?: string;
+      enhance_skin?: boolean;
+      upscale?: boolean;
+    }) => http.post<{ id: string; n_posts: number; total_credits: number; start_date: string; end_date: string }>("/calendar", body),
+    list: () => http.get<any[]>("/calendar"),
+    get: (id: string) => http.get<any>(`/calendar/${id}`),
+    remove: (id: string) => http.delete<void>(`/calendar/${id}`),
+  },
+
   // ──────────── BILLING ────────────
   billing: {
     me: () => http.get<{ tier: string; credits: number; tiers: any; packs: any }>("/billing/me"),

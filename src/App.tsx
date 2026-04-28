@@ -26,6 +26,7 @@ import LearnStudio from "./pages/app/LearnStudio";
 import RecreateStudio from "./pages/app/RecreateStudio";
 import PresetsCatalog from "./pages/app/PresetsCatalog";
 import WorldsCatalog from "./pages/app/WorldsCatalog";
+import CalendarStudio from "./pages/app/CalendarStudio";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -60,6 +61,7 @@ const App = () => (
               <Route path="recreate" element={<RecreateStudio />} />
               <Route path="presets" element={<PresetsCatalog />} />
               <Route path="worlds" element={<WorldsCatalog />} />
+              <Route path="calendar" element={<CalendarStudio />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>

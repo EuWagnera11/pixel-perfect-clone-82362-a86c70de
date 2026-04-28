@@ -29,6 +29,14 @@ export default function Generate() {
         <Pills label="Resolução" options={resolutions} value={res} onChange={setRes} />
         <Pills label="Variações" options={variations.map(String)} value={String(vars)} onChange={v => setVars(Number(v))} />
 
+        <ImageUpload
+          bucket="generation-refs"
+          label="Imagem de referência (opcional)"
+          hint="Inspiração para estilo/pose — JPG, PNG, WebP"
+          value={refPath}
+          onChange={(path) => setRefPath(path)}
+        />
+
         <div className="rounded-md border border-primary/30 bg-primary-light p-4">
           <div className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">Custo estimado</div>
           <div className="mt-1 flex items-baseline gap-1">

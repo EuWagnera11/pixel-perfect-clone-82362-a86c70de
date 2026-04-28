@@ -1,20 +1,93 @@
-import { useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Sparkles, Image as ImageIcon } from "lucide-react";
+import { Sparkles, Image as ImageIcon, Loader2 } from "lucide-react";
 import { ImageUpload } from "@/components/ImageUpload";
+import { api, ApiError, type Generation } from "@/lib/api";
+import { useToast } from "@/hooks/use-toast";
 
 const ratios = ["1:1", "3:4", "9:16", "4:5"];
 const resolutions = ["1K", "2K", "4K"];
 const variations = [1, 2, 4, 6];
 
+function Pills({ label, options, value, onChange }: { label: string; options: string[]; value: string; onChange: (v: string) => void }) {
+  return (
+    <div>
+      <div className="mb-2 font-mono text-[10px] uppercase tracking-wider text-muted-foreground">{label}</div>
+      <div className="flex flex-wrap gap-2">
+        {options.map(o => (
+          <button
+            type="button"
+            key={o}
+            onClick={() => onChange(o)}
+            className={`rounded-md border px-4 py-1.5 text-sm font-medium transition-colors ${value === o ? "border-primary bg-primary-light text-primary" : "border-border bg-background text-muted-foreground hover:border-foreground/20 hover:text-foreground"}`}
+          >
+            {o}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function Generate() {
   const [params] = useSearchParams();
+  const navigate = useNavigate();
+  const { toast } = useToast();
   const [ratio, setRatio] = useState("4:5");
-  const [res, setRes] = useState("2K");
-  const [vars, setVars] = useState(4);
+  const [resolution, setResolution] = useState("2K");
+  const [numVars, setNumVars] = useState(4);
   const [refPath, setRefPath] = useState<string | null>(null);
-  const cost = vars * (res === "4K" ? 4 : res === "2K" ? 2 : 1);
+  const [submitting, setSubmitting] = useState(false);
+  const [generation, setGeneration] = useState<Generation | null>(null);
+
+  const personaId = params.get("persona") ?? undefined;
+  const templateId = params.get("template") ?? undefined;
+  const cost = numVars * (resolution === "4K" ? 4 : resolution === "2K" ? 2 : 1);
+
+  // Poll status while running
+  useEffect(() => {
+    if (!generation || generation.status === "completed" || generation.status === "failed") return;
+    const id = generation.id;
+    const t = setInterval(async () => {
+      try {
+        const next = await api.generations.get(id);
+        setGeneration(next);
+        if (next.status === "completed" || next.status === "failed") clearInterval(t);
+      } catch (e) {
+        clearInterval(t);
+      }
+    }, 2500);
+    return () => clearInterval(t);
+  }, [generation?.id, generation?.status]);
+
+  const handleGenerate = async () => {
+    setSubmitting(true);
+    setGeneration(null);
+    try {
+      const g = await api.generations.create({
+        persona_id: personaId,
+        template_id: templateId,
+        num_variations: numVars,
+        resolution,
+        aspect_ratio: ratio,
+      });
+      setGeneration(g);
+      toast({ title: "Geração iniciada", description: "Aguarde alguns segundos..." });
+    } catch (e) {
+      const msg = e instanceof ApiError ? e.message : e instanceof Error ? e.message : "Erro desconhecido";
+      const offline = e instanceof TypeError; // fetch network error
+      toast({
+        title: offline ? "Backend offline" : "Falha ao gerar",
+        description: offline
+          ? "api.refinecubo.com.br ainda não respondeu. Verifique se o FastAPI está no ar."
+          : msg,
+        variant: "destructive",
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <div className="mx-auto grid max-w-6xl animate-fade-in gap-8 lg:grid-cols-5">
@@ -26,8 +99,8 @@ export default function Generate() {
         </div>
 
         <Pills label="Aspect ratio" options={ratios} value={ratio} onChange={setRatio} />
-        <Pills label="Resolução" options={resolutions} value={res} onChange={setRes} />
-        <Pills label="Variações" options={variations.map(String)} value={String(vars)} onChange={v => setVars(Number(v))} />
+        <Pills label="Resolução" options={resolutions} value={resolution} onChange={setResolution} />
+        <Pills label="Variações" options={variations.map(String)} value={String(numVars)} onChange={v => setNumVars(Number(v))} />
 
         <ImageUpload
           bucket="generation-refs"
@@ -45,39 +118,45 @@ export default function Generate() {
           </div>
         </div>
 
-        <Button size="lg" variant="hero" className="w-full">
-          <Sparkles /> Gerar ({cost} créditos)
+        <Button type="button" size="lg" variant="hero" className="w-full" onClick={handleGenerate} disabled={submitting}>
+          {submitting ? <><Loader2 className="animate-spin" /> Enviando...</> : <><Sparkles /> Gerar ({cost} créditos)</>}
         </Button>
       </div>
 
       {/* Preview */}
-      <div className="rounded-2xl border border-dashed border-border bg-surface p-12 lg:col-span-3">
-        <div className="flex h-full min-h-[400px] flex-col items-center justify-center text-center">
-          <div className="mb-4 grid h-14 w-14 place-items-center rounded-full bg-background">
-            <ImageIcon className="h-7 w-7 text-muted-foreground" />
+      <div className="rounded-2xl border border-dashed border-border bg-surface p-6 lg:col-span-3">
+        {!generation && (
+          <div className="flex h-full min-h-[400px] flex-col items-center justify-center text-center">
+            <div className="mb-4 grid h-14 w-14 place-items-center rounded-full bg-background">
+              <ImageIcon className="h-7 w-7 text-muted-foreground" />
+            </div>
+            <h3 className="text-lg font-semibold">Sua geração aparecerá aqui</h3>
+            <p className="mt-1 max-w-sm text-sm text-muted-foreground">Configure as opções à esquerda e clique em gerar.</p>
           </div>
-          <h3 className="text-lg font-semibold">Sua geração aparecerá aqui</h3>
-          <p className="mt-1 max-w-sm text-sm text-muted-foreground">Escolha persona e template à esquerda. Clique em gerar e acompanhe o progresso em tempo real.</p>
-        </div>
-      </div>
-    </div>
-  );
-}
+        )}
 
-function Pills({ label, options, value, onChange }: { label: string; options: string[]; value: string; onChange: (v: string) => void }) {
-  return (
-    <div>
-      <div className="mb-2 font-mono text-[10px] uppercase tracking-wider text-muted-foreground">{label}</div>
-      <div className="flex flex-wrap gap-2">
-        {options.map(o => (
-          <button
-            key={o}
-            onClick={() => onChange(o)}
-            className={`rounded-md border px-4 py-1.5 text-sm font-medium transition-colors ${value === o ? "border-primary bg-primary-light text-primary" : "border-border bg-background text-muted-foreground hover:border-foreground/20 hover:text-foreground"}`}
-          >
-            {o}
-          </button>
-        ))}
+        {generation && generation.status !== "completed" && generation.status !== "failed" && (
+          <div className="flex h-full min-h-[400px] flex-col items-center justify-center text-center">
+            <Loader2 className="mb-4 h-8 w-8 animate-spin text-primary" />
+            <h3 className="text-lg font-semibold">Gerando suas fotos...</h3>
+            <p className="mt-1 max-w-sm text-sm text-muted-foreground">Status: {generation.status}</p>
+          </div>
+        )}
+
+        {generation?.status === "completed" && (
+          <div className="grid grid-cols-2 gap-3">
+            {generation.image_urls.map((url, i) => (
+              <img key={i} src={url} alt="" className="w-full rounded-xl object-cover" />
+            ))}
+          </div>
+        )}
+
+        {generation?.status === "failed" && (
+          <div className="flex h-full min-h-[400px] flex-col items-center justify-center text-center">
+            <h3 className="text-lg font-semibold text-destructive">Geração falhou</h3>
+            <Button variant="outline" className="mt-4" onClick={handleGenerate}>Tentar novamente</Button>
+          </div>
+        )}
       </div>
     </div>
   );

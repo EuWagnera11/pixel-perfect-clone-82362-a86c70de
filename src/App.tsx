@@ -3,8 +3,20 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import Index from "./pages/Index.tsx";
-import NotFound from "./pages/NotFound.tsx";
+import { AuthProvider } from "@/lib/auth";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
+import Landing from "./pages/Landing";
+import AuthPage from "./pages/Auth";
+import AppLayout from "./components/AppLayout";
+import Dashboard from "./pages/app/Dashboard";
+import Personas from "./pages/app/Personas";
+import PersonaNew from "./pages/app/PersonaNew";
+import Templates from "./pages/app/Templates";
+import Generate from "./pages/app/Generate";
+import Generations from "./pages/app/Generations";
+import Billing from "./pages/app/Billing";
+import Settings from "./pages/app/Settings";
+import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
@@ -14,11 +26,24 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <AuthProvider>
+          <Routes>
+            <Route path="/" element={<Landing />} />
+            <Route path="/login" element={<AuthPage mode="login" />} />
+            <Route path="/signup" element={<AuthPage mode="signup" />} />
+            <Route path="/app" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
+              <Route index element={<Dashboard />} />
+              <Route path="personas" element={<Personas />} />
+              <Route path="personas/new" element={<PersonaNew />} />
+              <Route path="templates" element={<Templates />} />
+              <Route path="generate" element={<Generate />} />
+              <Route path="generations" element={<Generations />} />
+              <Route path="billing" element={<Billing />} />
+              <Route path="settings" element={<Settings />} />
+            </Route>
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

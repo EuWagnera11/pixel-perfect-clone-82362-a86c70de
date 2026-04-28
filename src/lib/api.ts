@@ -11,7 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
  *   - Catalog: templates, worlds, model presets, music library
  *   - Billing: checkout, portal, history
  */
-export const API_URL = import.meta.env.VITE_API_URL ?? "https://api.refinecubo.com.br";
+export const API_URL = import.meta.env.VITE_API_URL ?? "https://refinecubo.com.br/api";
 
 export class ApiError extends Error {
   constructor(public status: number, public body: unknown, message: string) {

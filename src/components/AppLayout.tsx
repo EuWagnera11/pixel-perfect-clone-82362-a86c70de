@@ -9,10 +9,10 @@ import { cn } from "@/lib/utils";
 
 const nav = [
   { to: "/app", label: "Início", icon: LayoutDashboard, end: true },
+  { to: "/app/suite", label: "Suite", icon: Sparkles, accent: true },
   { to: "/app/personas", label: "Personas", icon: Users },
-  { to: "/app/generate", label: "Gerar", icon: Sparkles, accent: true },
-  { to: "/app/templates", label: "Templates", icon: LayoutTemplate },
   { to: "/app/generations", label: "Galeria", icon: ImageIcon },
+  { to: "/app/templates", label: "Templates", icon: LayoutTemplate },
   { to: "/app/billing", label: "Plano", icon: CreditCard },
   { to: "/app/settings", label: "Ajustes", icon: Settings },
 ];

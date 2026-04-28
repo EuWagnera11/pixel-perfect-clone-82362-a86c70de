@@ -1,9 +1,15 @@
 import { supabase } from "@/integrations/supabase/client";
 
 /**
- * Cubo API client.
- * Base URL comes from VITE_API_URL (public).
- * Every request automatically attaches the current Supabase JWT as Bearer token.
+ * Refine API client.
+ * Cobre 50+ endpoints da plataforma:
+ *   - Image: generations, swaps, edit, specialized
+ *   - Video: generations (kling/hailuo), batch, lip sync
+ *   - Audio: TTS, voice clone, music, sound effects
+ *   - AI text: captions, hashtags, story, carousel, brand voice
+ *   - Workflow: drive imports, style learning, recreate, batch
+ *   - Catalog: templates, worlds, model presets, music library
+ *   - Billing: checkout, portal, history
  */
 export const API_URL = import.meta.env.VITE_API_URL ?? "https://api.refinecubo.com.br";
 
@@ -16,15 +22,12 @@ export class ApiError extends Error {
 type ReqOpts = Omit<RequestInit, "body" | "headers"> & {
   body?: unknown;
   headers?: Record<string, string>;
-  /** Skip auth header even if session exists. */
   anonymous?: boolean;
-  /** Treat response as raw (no JSON parse). */
   raw?: boolean;
 };
 
 async function request<T = unknown>(path: string, opts: ReqOpts = {}): Promise<T> {
   const { body, headers = {}, anonymous, raw, ...rest } = opts;
-
   const finalHeaders: Record<string, string> = { Accept: "application/json", ...headers };
 
   if (!anonymous) {
@@ -44,38 +47,33 @@ async function request<T = unknown>(path: string, opts: ReqOpts = {}): Promise<T
   }
 
   const res = await fetch(`${API_URL}${path}`, { ...rest, headers: finalHeaders, body: payload });
-
   if (raw) return res as unknown as T;
 
   const text = await res.text();
   const json = text ? safeJson(text) : null;
-
   if (!res.ok) {
-    const msg =
-      (json && typeof json === "object" && "message" in json && String((json as any).message)) ||
-      `Request failed: ${res.status}`;
+    const msg = (json && typeof json === "object" && "detail" in json && String((json as any).detail))
+      || (json && typeof json === "object" && "message" in json && String((json as any).message))
+      || `Request failed: ${res.status}`;
     throw new ApiError(res.status, json ?? text, msg);
   }
   return json as T;
 }
 
 function safeJson(text: string): unknown {
-  try {
-    return JSON.parse(text);
-  } catch {
-    return text;
-  }
+  try { return JSON.parse(text); } catch { return text; }
 }
 
 const http = {
-  get: <T = unknown>(p: string, o?: ReqOpts) => request<T>(p, { ...o, method: "GET" }),
-  post: <T = unknown>(p: string, body?: unknown, o?: ReqOpts) => request<T>(p, { ...o, method: "POST", body }),
-  patch: <T = unknown>(p: string, body?: unknown, o?: ReqOpts) => request<T>(p, { ...o, method: "PATCH", body }),
-  put: <T = unknown>(p: string, body?: unknown, o?: ReqOpts) => request<T>(p, { ...o, method: "PUT", body }),
+  get:    <T = unknown>(p: string, o?: ReqOpts) => request<T>(p, { ...o, method: "GET" }),
+  post:   <T = unknown>(p: string, body?: unknown, o?: ReqOpts) => request<T>(p, { ...o, method: "POST", body }),
+  patch:  <T = unknown>(p: string, body?: unknown, o?: ReqOpts) => request<T>(p, { ...o, method: "PATCH", body }),
+  put:    <T = unknown>(p: string, body?: unknown, o?: ReqOpts) => request<T>(p, { ...o, method: "PUT", body }),
   delete: <T = unknown>(p: string, o?: ReqOpts) => request<T>(p, { ...o, method: "DELETE" }),
 };
 
-// ---------- Domain types (loose – refine when OpenAPI is live) ----------
+// ============== TYPES ==============
+
 export type Persona = {
   id: string;
   name: string;
@@ -95,9 +93,12 @@ export type Template = {
   prompt?: string;
   rating?: number;
   uses_count?: number;
+  media_type?: "image" | "video" | "audio" | "music";
+  complexity?: "easy" | "medium" | "hard";
+  credits_cost?: number;
 };
 
-export type GenerationStatus = "queued" | "running" | "completed" | "failed";
+export type GenerationStatus = "queued" | "processing" | "enhancing" | "upscaling" | "completed" | "failed";
 
 export type Generation = {
   id: string;
@@ -105,69 +106,353 @@ export type Generation = {
   prompt?: string;
   persona_id?: string;
   template_id?: string;
-  num_variations: number;
-  resolution: string;
-  aspect_ratio: string;
-  image_urls: string[];
+  learned_style_id?: string;
+  num_variations?: number;
+  resolution?: string;
+  aspect_ratio?: string;
+  image_urls?: string[];
+  video_urls?: string[];
+  media_type?: "image" | "video";
   credits_used: number;
   created_at: string;
   completed_at?: string | null;
 };
 
-export type Balance = { credits: number; tier: string };
-export type CheckoutResponse = { url: string };
-export type SignedUploadResponse = { upload_url: string; public_url: string; key: string };
-export type Job = { id: string; status: string; progress?: number; result?: unknown };
+export type World = {
+  id: string;
+  name: string;
+  description?: string;
+  category?: string;
+  prompt_template: string;
+  reference_images?: string[];
+  preview_url?: string;
+  is_public: boolean;
+  uses_count: number;
+};
 
-// ---------- API surface ----------
+export type ModelPreset = {
+  id: string;
+  name: string;
+  description?: string;
+  category: string;
+  gender?: string;
+  ethnicity?: string;
+  reference_image_url: string;
+  base_prompt: string;
+  preview_urls?: string[];
+  uses_count: number;
+  rating: number;
+  is_premium: boolean;
+};
+
+export type Voice = {
+  id: string;
+  name: string;
+  description?: string;
+  external_voice_id: string;
+  language: string;
+  gender?: string;
+  preview_url?: string;
+  is_clone: boolean;
+};
+
+export type AudioGen = {
+  id: string;
+  type: "tts" | "voice_clone" | "music" | "lip_sync" | "sound_effect";
+  status: string;
+  output_url?: string;
+  text_input?: string;
+  voice_preset?: string;
+  duration_seconds?: number;
+  credits_used: number;
+  created_at: string;
+};
+
+export type EditJob = {
+  id: string;
+  type: string;
+  status: string;
+  source_image_url: string;
+  output_urls?: string[];
+  prompt?: string;
+  credits_used: number;
+};
+
+export type DriveImport = {
+  id: string;
+  source_url: string;
+  status: "pending" | "importing" | "analyzing" | "ready" | "failed";
+  total_files: number;
+  imported_files: number;
+  storage_paths?: string[];
+  created_at: string;
+};
+
+export type LearnedStyle = {
+  id: string;
+  name: string;
+  description?: string;
+  status: "analyzing" | "ready" | "failed";
+  example_count: number;
+  prompt_template?: string;
+  style_summary?: any;
+};
+
+export type RecreateJob = {
+  id: string;
+  persona_id: string;
+  drive_import_id: string;
+  status: string;
+  total_files: number;
+  completed_files: number;
+  generation_ids?: string[];
+};
+
+export type BatchJob = {
+  id: string;
+  type: string;
+  status: string;
+  total_jobs: number;
+  completed_jobs: number;
+  generation_ids?: string[];
+  total_credits_used: number;
+};
+
+export type Balance = { credits: number; tier: string };
+export type Job = { id: string; status: string; progress?: number; result?: unknown };
+export type SignedUploadResponse = { upload_url: string; token?: string; path: string; bucket: string };
+
+// ============== API ==============
+
 export const api = {
-  auth: {
-    me: () => http.get("/api/auth/me"),
-    signup: (body: { email: string; password: string; full_name?: string }) =>
-      http.post("/api/auth/signup", body, { anonymous: true }),
-    login: (body: { email: string; password: string }) =>
-      http.post("/api/auth/login", body, { anonymous: true }),
-    google: (body: { id_token: string }) => http.post("/api/auth/google", body, { anonymous: true }),
-    refresh: (body: { refresh_token: string }) => http.post("/api/auth/refresh", body, { anonymous: true }),
-  },
+  // ──────────── PERSONAS ────────────
   personas: {
-    list: () => http.get<Persona[]>("/api/personas"),
-    get: (id: string) => http.get<Persona>(`/api/personas/${id}`),
-    create: (body: Partial<Persona>) => http.post<Persona>("/api/personas", body),
-    update: (id: string, body: Partial<Persona>) => http.patch<Persona>(`/api/personas/${id}`, body),
-    remove: (id: string) => http.delete<void>(`/api/personas/${id}`),
-    generateGrid: (id: string) => http.post<Job>(`/api/personas/${id}/generate-grid`),
+    list: () => http.get<Persona[]>("/personas"),
+    get: (id: string) => http.get<Persona>(`/personas/${id}`),
+    create: (body: Partial<Persona>) => http.post<Persona>("/personas", body),
+    update: (id: string, body: Partial<Persona>) => http.patch<Persona>(`/personas/${id}`, body),
+    remove: (id: string) => http.delete<void>(`/personas/${id}`),
   },
+
+  // ──────────── TEMPLATES ────────────
+  templates: {
+    list: (params?: { category?: string; media_type?: string }) => {
+      const q = new URLSearchParams(params as any).toString();
+      return http.get<Template[]>(`/templates${q ? "?" + q : ""}`);
+    },
+    get: (id: string) => http.get<Template>(`/templates/${id}`),
+    categories: () => http.get<{ name: string; count: number }[]>("/templates/categories/list"),
+  },
+
+  // ──────────── GENERATIONS (image + video) ────────────
   generations: {
-    list: () => http.get<Generation[]>("/api/generations"),
-    get: (id: string) => http.get<Generation>(`/api/generations/${id}`),
+    list: (limit = 50, offset = 0) => http.get<Generation[]>(`/generations?limit=${limit}&offset=${offset}`),
+    get: (id: string) => http.get<Generation>(`/generations/${id}`),
     create: (body: {
       persona_id?: string;
       template_id?: string;
+      learned_style_id?: string;
       prompt?: string;
-      num_variations?: number;
-      resolution?: string;
       aspect_ratio?: string;
-    }) => http.post<Generation>("/api/generations", body),
-    remove: (id: string) => http.delete<void>(`/api/generations/${id}`),
-    regenerate: (id: string) => http.post<Generation>(`/api/generations/${id}/regenerate`),
+      resolution?: "1k" | "2k" | "4k";
+      num_variations?: number;
+      media_type?: "image" | "video";
+      enhance_skin?: boolean;
+      upscale?: boolean;
+      // video
+      image_url?: string;
+      video_engine?: "kling_v3" | "kling_v2_1" | "hailuo" | "wan_2_1" | "runway";
+      duration?: string;
+    }) => http.post<{ id: string; status: string; credits_used: number }>("/generations", body),
+    remove: (id: string) => http.delete<void>(`/generations/${id}`),
   },
-  templates: {
-    list: () => http.get<Template[]>("/api/templates"),
-    get: (id: string) => http.get<Template>(`/api/templates/${id}`),
+
+  // ──────────── SWAPS ────────────
+  swaps: {
+    face: (body: { source_image_url: string; target_image_url: string }) =>
+      http.post<{ id: string; status: string; credits_used: number }>("/swaps/face", body),
+    scene: (body: { persona_id: string; scene_prompt: string }) =>
+      http.post<{ id: string; status: string; credits_used: number }>("/swaps/scene", body),
+    cloth: (body: { person_image_url: string; outfit_prompt: string }) =>
+      http.post<{ id: string; status: string; credits_used: number }>("/swaps/cloth", body),
   },
+
+  // ──────────── BATCH ────────────
+  batch: {
+    images: (body: { persona_id: string; template_ids: string[]; num_per_template?: number }) =>
+      http.post<{ id: string; total_jobs: number; credits_used: number }>("/batch/images", body),
+    videos: (body: { image_urls: string[]; prompt: string; engine?: string }) =>
+      http.post<{ id: string; total_jobs: number; credits_used: number }>("/batch/videos", body),
+    list: () => http.get<BatchJob[]>("/batch"),
+    get: (id: string) => http.get<BatchJob>(`/batch/${id}`),
+  },
+
+  // ──────────── DRIVE / LEARN / RECREATE ────────────
+  drive: {
+    imports: {
+      create: (body: { source_url: string; folder_name?: string }) =>
+        http.post<DriveImport>("/drive/imports", body),
+      list: () => http.get<DriveImport[]>("/drive/imports"),
+      get: (id: string) => http.get<DriveImport>(`/drive/imports/${id}`),
+    },
+    learn: {
+      create: (body: { drive_import_id: string; name: string; description?: string }) =>
+        http.post<LearnedStyle>("/drive/learn", body),
+      list: () => http.get<LearnedStyle[]>("/drive/learn"),
+      get: (id: string) => http.get<LearnedStyle>(`/drive/learn/${id}`),
+    },
+    recreate: {
+      create: (body: { persona_id: string; drive_import_id: string; skin_enhance?: boolean; magnific?: boolean; preserve_logos?: boolean }) =>
+        http.post<RecreateJob>("/drive/recreate", body),
+      list: () => http.get<RecreateJob[]>("/drive/recreate"),
+      get: (id: string) => http.get<RecreateJob>(`/drive/recreate/${id}`),
+    },
+  },
+
+  // ──────────── ENHANCE ────────────
+  enhance: {
+    upscale: (body: { image_url: string; scale?: 2 | 4; engine?: string; creativity?: number; hdr?: number; resemblance?: number }) =>
+      http.post<{ task_id: string; credits_used: number }>("/enhance/upscale", body),
+    skin: (body: { image_url: string; mode?: "faithful" | "flexible"; skin_detail?: number; smart_grain?: number }) =>
+      http.post<{ task_id: string; credits_used: number }>("/enhance/skin", body),
+    backgroundRemove: (body: { image_url: string }) =>
+      http.post<{ task_id: string; credits_used: number }>("/enhance/background-remove", body),
+    relight: (body: { image_url: string; prompt: string }) =>
+      http.post<{ task_id: string; credits_used: number }>("/enhance/relight", body),
+    task: (taskId: string, kind = "enhance") =>
+      http.get<any>(`/enhance/task/${taskId}?kind=${kind}`),
+  },
+
+  // ──────────── EDIT (inpaint, outpaint, etc) ────────────
+  edit: {
+    inpaint: (body: { image_url: string; mask_url: string; prompt: string }) =>
+      http.post<{ id: string; task_id: string; credits_used: number }>("/edit/inpaint", body),
+    outpaint: (body: { image_url: string; prompt?: string; direction?: string; expansion_factor?: number }) =>
+      http.post<{ id: string; task_id: string; credits_used: number }>("/edit/outpaint", body),
+    removeObject: (body: { image_url: string; mask_url: string }) =>
+      http.post<{ id: string; task_id: string; credits_used: number }>("/edit/remove-object", body),
+    sketchToImage: (body: { sketch_url: string; prompt: string; strength?: number }) =>
+      http.post<{ id: string; task_id: string; credits_used: number }>("/edit/sketch-to-image", body),
+    styleTransfer: (body: { source_url: string; style_reference_url: string; prompt?: string; strength?: number }) =>
+      http.post<{ id: string; task_id: string; credits_used: number }>("/edit/style-transfer", body),
+    replaceBackground: (body: { image_url: string; prompt: string }) =>
+      http.post<{ id: string; task_id: string; credits_used: number }>("/edit/replace-background", body),
+    expand: (body: { image_url: string; target_aspect_ratio?: string }) =>
+      http.post<{ id: string; task_id: string; credits_used: number }>("/edit/expand", body),
+    colorize: (body: { image_url: string; prompt?: string }) =>
+      http.post<{ id: string; task_id: string; credits_used: number }>("/edit/colorize", body),
+    list: () => http.get<EditJob[]>("/edit"),
+    get: (id: string) => http.get<EditJob>(`/edit/${id}`),
+  },
+
+  // ──────────── SPECIALIZED ────────────
+  specialized: {
+    multiView: (body: { persona_ref: string; num_angles?: number }) =>
+      http.post<{ id: string; urls: string[]; credits_used: number }>("/specialized/multi-view", body),
+    hairChange: (body: { image_url: string; color?: string; style?: string }) =>
+      http.post<{ task_id: string; credits_used: number }>("/specialized/hair-change", body),
+    expressionChange: (body: { image_url: string; expression: string }) =>
+      http.post<{ task_id: string; credits_used: number }>("/specialized/expression-change", body),
+    ageChange: (body: { image_url: string; target_age: number }) =>
+      http.post<{ task_id: string; credits_used: number }>("/specialized/age-change", body),
+    twin: (body: { persona_ref: string; scene_prompt: string }) =>
+      http.post<{ task_id: string; credits_used: number }>("/specialized/twin", body),
+    headshotPro: (body: { persona_ref: string; style?: "corporate" | "creative" | "casual" | "editorial" }) =>
+      http.post<{ task_id: string; credits_used: number }>("/specialized/headshot-pro", body),
+    ecommerce: (body: { product_image_url: string; mode?: "white_bg" | "lifestyle" | "luxury"; scene_prompt?: string }) =>
+      http.post<{ task_id: string; credits_used: number }>("/specialized/ecommerce", body),
+    realEstate: (body: { property_image_url: string; style?: string }) =>
+      http.post<{ task_id: string; credits_used: number }>("/specialized/real-estate", body),
+    food: (body: { food_image_url: string; mood?: string }) =>
+      http.post<{ task_id: string; credits_used: number }>("/specialized/food", body),
+    magazineCover: (body: { persona_ref: string; magazine_name?: string; theme?: string; headline?: string }) =>
+      http.post<{ task_id: string; credits_used: number }>("/specialized/magazine-cover", body),
+    youtubeThumbnail: (body: { persona_ref: string; theme: string; big_text?: string }) =>
+      http.post<{ task_id: string; credits_used: number }>("/specialized/youtube-thumbnail", body),
+    passport: (body: { persona_ref: string }) =>
+      http.post<{ task_id: string; credits_used: number }>("/specialized/passport", body),
+    maternity: (body: { persona_ref: string; weeks?: number }) =>
+      http.post<{ task_id: string; credits_used: number }>("/specialized/maternity", body),
+    wedding: (body: { persona_ref: string; scene?: string }) =>
+      http.post<{ task_id: string; credits_used: number }>("/specialized/wedding", body),
+    familyPortrait: (body: { persona_refs: string[]; scene?: string }) =>
+      http.post<{ task_id: string; credits_used: number }>("/specialized/family-portrait", body),
+    photoRestoration: (body: { image_url: string; colorize?: boolean; upscale?: boolean }) =>
+      http.post<{ id: string; final: string; steps: Record<string, string>; credits_used: number }>("/specialized/photo-restoration", body),
+  },
+
+  // ──────────── AUDIO ────────────
+  audio: {
+    tts: (body: { text: string; voice?: string; language?: string; stability?: number; similarity_boost?: number; style?: number }) =>
+      http.post<{ id: string; url: string; credits_used: number }>("/audio/tts", body),
+    music: (body: { prompt: string; duration?: number; genre?: string; mood?: string }) =>
+      http.post<{ id: string; url: string; duration: number; credits_used: number }>("/audio/music", body),
+    sfx: (body: { prompt: string; duration?: number }) =>
+      http.post<{ url: string; credits_used: number }>("/audio/sfx", body),
+    lipSync: (body: { video_url: string; audio_url: string }) =>
+      http.post<{ id: string; task_id: string; credits_used: number }>("/audio/lip-sync", body),
+    voiceClone: (formData: FormData) =>
+      http.post<{ id: string; voice_id: string; credits_used: number }>("/audio/voices/clone", formData),
+    voices: () => http.get<{ presets: Record<string, string>; user_voices: Voice[] }>("/audio/voices"),
+    deleteVoice: (id: string) => http.delete<void>(`/audio/voices/${id}`),
+    list: () => http.get<AudioGen[]>("/audio"),
+    get: (id: string) => http.get<AudioGen>(`/audio/${id}`),
+  },
+
+  // ──────────── CAPTIONS / AI TEXT ────────────
+  captions: {
+    caption: (body: { image_url: string; tone?: string; language?: string; max_length?: number }) =>
+      http.post<{ caption: string; credits_used: number }>("/captions/caption", body),
+    hashtags: (body: { image_url: string; count?: number; language?: string }) =>
+      http.post<{ hashtags: string[]; credits_used: number }>("/captions/hashtags", body),
+    story: (body: { theme: string; n_posts?: number; language?: string }) =>
+      http.post<{ posts: any[]; credits_used: number }>("/captions/story", body),
+    carousel: (body: { brief: string; n_posts?: number }) =>
+      http.post<{ prompts: string[]; credits_used: number }>("/captions/carousel", body),
+    brandVoice: (body: { text_samples: string[] }) =>
+      http.post<{ analysis: any; credits_used: number }>("/captions/brand-voice", body),
+  },
+
+  // ──────────── WORLDS / PRESETS / MUSIC LIBRARY ────────────
+  worlds: {
+    list: (category?: string) => http.get<World[]>(`/worlds${category ? "?category=" + category : ""}`),
+    create: (body: Partial<World>) => http.post<World>("/worlds", body),
+    remove: (id: string) => http.delete<void>(`/worlds/${id}`),
+    categories: () => http.get<{ name: string; count: number }[]>("/worlds/categories"),
+  },
+  presets: {
+    list: (params?: { category?: string; gender?: string }) => {
+      const q = new URLSearchParams(params as any).toString();
+      return http.get<ModelPreset[]>(`/presets${q ? "?" + q : ""}`);
+    },
+    categories: () => http.get<{ name: string; count: number }[]>("/presets/categories"),
+    use: (id: string) => http.post<{ persona_id: string; name: string }>(`/presets/${id}/use`),
+  },
+  musicLibrary: {
+    list: (params?: { genre?: string; mood?: string }) => {
+      const q = new URLSearchParams(params as any).toString();
+      return http.get<any[]>(`/music-library${q ? "?" + q : ""}`);
+    },
+  },
+
+  // ──────────── BILLING ────────────
   billing: {
-    balance: () => http.get<Balance>("/api/billing/balance"),
-    checkout: (body: { price_id?: string; plan?: string }) =>
-      http.post<CheckoutResponse>("/api/billing/checkout", body),
-    portal: () => http.post<CheckoutResponse>("/api/billing/portal"),
-    history: () => http.get<unknown[]>("/api/billing/history"),
+    me: () => http.get<{ tier: string; credits: number; tiers: any; packs: any }>("/billing/me"),
+    checkout: (body: { tier?: string; pack?: string }) =>
+      http.post<{ url: string; session_id: string }>("/billing/checkout", body),
+    portal: () => http.get<{ url: string }>("/billing/portal"),
   },
+
+  // ──────────── UPLOADS ────────────
   uploads: {
-    personaPhoto: (body: { filename: string; content_type: string }) =>
-      http.post<SignedUploadResponse>("/api/uploads/persona-photo", body),
+    signedUrl: (body: { bucket: string; filename: string; content_type?: string }) =>
+      http.post<SignedUploadResponse>("/uploads/signed-url", body),
+    signedDownload: (params: { bucket: string; path: string; ttl?: number }) => {
+      const q = new URLSearchParams(params as any).toString();
+      return http.post<{ url: string }>(`/uploads/signed-download?${q}`);
+    },
   },
-  jobs: {
-    get: (jobId: string) => http.get<Job>(`/api/jobs/${jobId}`),
-  },
+
+  // ──────────── SYSTEM ────────────
+  health: () => http.get<{ status: string; version: string }>("/health"),
 };

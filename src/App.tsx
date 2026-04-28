@@ -16,6 +16,17 @@ import Generate from "./pages/app/Generate";
 import Generations from "./pages/app/Generations";
 import Billing from "./pages/app/Billing";
 import Settings from "./pages/app/Settings";
+import Suite from "./pages/app/Suite";
+import AudioStudio from "./pages/app/AudioStudio";
+import EditStudio from "./pages/app/EditStudio";
+import SpecializedStudio from "./pages/app/SpecializedStudio";
+import CaptionsStudio from "./pages/app/CaptionsStudio";
+import DriveStudio from "./pages/app/DriveStudio";
+import BatchStudio from "./pages/app/BatchStudio";
+import LearnStudio from "./pages/app/LearnStudio";
+import RecreateStudio from "./pages/app/RecreateStudio";
+import PresetsCatalog from "./pages/app/PresetsCatalog";
+import WorldsCatalog from "./pages/app/WorldsCatalog";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -40,6 +51,17 @@ const App = () => (
               <Route path="generations" element={<Generations />} />
               <Route path="billing" element={<Billing />} />
               <Route path="settings" element={<Settings />} />
+              <Route path="suite" element={<Suite />} />
+              <Route path="audio" element={<AudioStudio />} />
+              <Route path="edit" element={<EditStudio />} />
+              <Route path="specialized" element={<SpecializedStudio />} />
+              <Route path="captions" element={<CaptionsStudio />} />
+              <Route path="drive" element={<DriveStudio />} />
+              <Route path="batch" element={<BatchStudio />} />
+              <Route path="learn" element={<LearnStudio />} />
+              <Route path="recreate" element={<RecreateStudio />} />
+              <Route path="presets" element={<PresetsCatalog />} />
+              <Route path="worlds" element={<WorldsCatalog />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>

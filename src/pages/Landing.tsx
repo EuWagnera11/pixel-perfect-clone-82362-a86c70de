@@ -40,10 +40,77 @@ const templates = [
 ];
 
 const tiers = [
-  { name: "Starter", price: "R$ 30", credits: "50 imagens / mês", features: ["1 persona", "Templates basic", "Resolução 2K", "10 vídeos/mês"], cta: "Começar" },
-  { name: "Pro", price: "R$ 97", credits: "300 imagens / mês", features: ["3 personas", "Todos os templates", "Magnific upscale 4K", "30 vídeos/mês", "Drive import", "Style learning"], cta: "Escolher Pro", featured: true },
-  { name: "Agency", price: "R$ 297", credits: "1.500 imagens / mês", features: ["15 personas", "White-label", "API access", "150 vídeos/mês", "Batch ilimitado", "Suporte prioritário"], cta: "Escolher Agency" },
-  { name: "Enterprise", price: "Custom", credits: "Sob medida", features: ["Modelo dedicada", "SLA 99.9%", "Onboarding 1:1", "Treinamento custom"], cta: "Falar conosco" },
+  {
+    name: "Starter",
+    price: "R$ 47",
+    credits: "100 imagens / mês",
+    features: ["1 persona", "Templates basic", "Resolução 2K", "5 vídeos/mês", "TTS 50k chars", "1 voz clonada"],
+    cta: "Começar",
+  },
+  {
+    name: "Creator",
+    price: "R$ 147",
+    credits: "500 imagens / mês",
+    features: [
+      "3 personas",
+      "Todos os 100+ templates",
+      "Magnific upscale 4K",
+      "30 vídeos/mês (Kling V3)",
+      "TTS 200k chars",
+      "3 vozes clonadas",
+      "Drive import",
+      "Style learning",
+    ],
+    cta: "Escolher Creator",
+    featured: true,
+  },
+  {
+    name: "Pro",
+    price: "R$ 297",
+    credits: "1.500 imagens / mês",
+    features: [
+      "10 personas",
+      "TODAS as 50+ ferramentas",
+      "100 vídeos/mês",
+      "TTS 1M chars",
+      "10 vozes clonadas",
+      "Music generation",
+      "Lip sync ilimitado",
+      "Recreate ilimitado",
+      "Suporte prioritário",
+    ],
+    cta: "Escolher Pro",
+  },
+  {
+    name: "Agency",
+    price: "R$ 697",
+    credits: "5.000 imagens / mês",
+    features: [
+      "30 personas",
+      "White-label completo",
+      "API access",
+      "300 vídeos/mês",
+      "TTS ilimitado",
+      "Batch ilimitado",
+      "Manager dedicado",
+      "Branded subdomain",
+    ],
+    cta: "Escolher Agency",
+  },
+  {
+    name: "Enterprise",
+    price: "Custom",
+    credits: "Sob medida",
+    features: [
+      "Modelos dedicadas",
+      "SLA 99.9%",
+      "Onboarding 1:1",
+      "Treinamento custom da IA",
+      "Servidor dedicado",
+      "Compliance LGPD/GDPR",
+    ],
+    cta: "Falar conosco",
+  },
 ];
 
 const trustBrands = ["CUBO", "SOPHIA", "LUMEN", "ATELIER", "NORTE", "VERBO", "COSTA", "EFEMERA", "MIRA", "STUDIO 21"];
@@ -404,7 +471,7 @@ export default function Landing() {
             </p>
           </div>
 
-          <div className="grid gap-4 lg:grid-cols-4">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
             {tiers.map((t, i) => (
               <motion.div
                 key={t.name}

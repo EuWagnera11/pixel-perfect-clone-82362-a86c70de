@@ -177,6 +177,11 @@
         aspect_ratio: ratio,
         resolution: "1k",
         num_variations: 1,
+        // Pipeline minimo — skin enhancer e upscaler usam endpoints Freepik
+        // descontinuados pos rebrand Magnific. Sem eles, o job apenas gera
+        // a imagem crua (custo 180 cr ao inves de 730).
+        enhance_skin: false,
+        upscale: false,
       };
       const created = await api("/generations", { method: "POST", body });
       showToast(`Enfileirado · ${created.credits_used} cr · ${modelLabel}`);

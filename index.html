@@ -801,8 +801,8 @@ function viewHome(){
       <button class="open">${ICO("M5 12h14M13 5l7 7-7 7")}</button>
       <div class="body"><span class="tag" style="background:var(--purple);color:#0a0a0b;border-color:transparent">REALISTIC 3D</span><h3>Realistic 3D</h3><p>Personagens 3D realistas estilo Pixar.</p></div>
     </div>
-    <div class="hero-tile" data-tab="character" data-hover-video="${A}sci-fi-pose.mp4">
-      <img src="${IMG('persona-portrait.png')}" alt="Character" />
+    <div class="hero-tile" data-tab="character">
+      <img src="${A}character-tile.png" alt="Character" />
       <button class="open">${ICO("M5 12h14M13 5l7 7-7 7")}</button>
       <div class="body"><span class="tag">PERSONA · TRAINER</span><h3>Character Studio</h3><p>Personas consistentes com 8 fotos.</p></div>
     </div>
@@ -909,7 +909,7 @@ function viewEdit(){
 function viewCharacter(){
   return `
   <div class="head"><div><div class="eyebrow"><span class="dot"></span>AI Character · Persona</div><h1>Personas <em>consistentes</em></h1><p>Treine uma persona uma vez, use em qualquer cena.</p></div><div class="head-actions"><button class="tool-btn primary">${ICO("M12 5v14M5 12h14")}Treinar nova</button></div></div>
-  <div class="char-hero"><div class="char-portrait"><img src="${IMG('persona-redhead.jpg')}" alt="Persona" /></div><div class="char-info"><div class="label">Persona em destaque</div><h2>Sofia · Editorial</h2><p>28 anos, fundo branco profissional, expressão confiante. Treinada em 12 fotos. Pronta pra qualquer cena.</p><div class="char-stats"><div class="char-stat"><strong>12</strong><span>Fotos treino</span></div><div class="char-stat"><strong>847</strong><span>Gerações</span></div><div class="char-stat"><strong>96.4%</strong><span>Consistência</span></div></div><div class="char-cta"><button class="tool-btn primary">${ICO("M12 5v14M5 12h14")}Usar em cena</button><button class="tool-btn">${ICO("M3 7h18")}Editar</button></div></div></div>
+  <div class="char-hero"><div class="char-portrait"><img src="${A}sofia-hero.png" alt="Persona" /></div><div class="char-info"><div class="label">Persona em destaque</div><h2>Sofia · Editorial</h2><p>28 anos, fundo branco profissional, expressão confiante. Treinada em 12 fotos. Pronta pra qualquer cena.</p><div class="char-stats"><div class="char-stat"><strong>12</strong><span>Fotos treino</span></div><div class="char-stat"><strong>847</strong><span>Gerações</span></div><div class="char-stat"><strong>96.4%</strong><span>Consistência</span></div></div><div class="char-cta"><button class="tool-btn primary">${ICO("M12 5v14M5 12h14")}Usar em cena</button><button class="tool-btn">${ICO("M3 7h18")}Editar</button></div></div></div>
   <div class="sec-title">Suas personas<span class="line"></span></div>
   <div class="persona-grid">
     ${[['Sofia','12 fotos · 847','persona-redhead.jpg'],['Diego','8 fotos · 312','persona-m1.jpg'],['Ana','15 fotos · 1.2k','persona-f3.jpg'],['Lucas','10 fotos · 502','persona-m2.jpg'],['Júlia','9 fotos · 280','persona-f1.jpg']].map(([n,m,s])=>`<div class="persona"><img src="${IMG(s)}" alt="${n}" /><div class="info"><strong>${n}</strong><span>${m}</span></div></div>`).join('')}

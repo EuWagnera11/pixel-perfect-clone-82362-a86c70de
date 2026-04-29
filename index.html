@@ -343,6 +343,9 @@ img{display:block;max-width:100%}
 .campaign .meta strong{font-size:12.5px;font-weight:600;color:#fff;display:block}
 .campaign .meta span{font-size:10.5px;color:rgba(255,255,255,.7)}
 .campaign .badge{position:absolute;top:10px;left:10px;z-index:2;font-size:9.5px;font-weight:700;letter-spacing:.06em;padding:3px 7px;border-radius:5px;background:rgba(0,0,0,.55);color:#fff;backdrop-filter:blur(8px)}
+.campaign .badge.badge-live{background:rgba(52,211,153,.85);color:#0a0a0b}
+.campaign .badge.badge-draft{background:rgba(255,138,61,.85);color:#0a0a0b}
+.campaign .badge.badge-paused{background:rgba(120,120,128,.7);color:#fff}
 
 /* DEPTH */
 .node-canvas{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
@@ -523,6 +526,7 @@ img{display:block;max-width:100%}
 .toast .ok svg{width:10px;height:10px}
 
 @media (max-width:1280px){:root{--rail-w:268px;--sidebar-w:218px}.variations,.persona-grid,.assets-grid,.r3d-grid,.tools-bento{grid-template-columns:repeat(3,1fr)}.styles{grid-template-columns:repeat(4,1fr)}.formats,.campaigns,.product-grid,.home-hero,.r3d-presets{grid-template-columns:repeat(2,1fr)}.quick-tools{grid-template-columns:repeat(4,1fr)}}
+@media (max-width:768px){:root{--sidebar-w:0px;--rail-w:0px}.sidebar,.rail{display:none}.app{grid-template-columns:1fr}.home-hero,.formats,.campaigns,.product-grid,.r3d-presets,.r3d-grid,.persona-grid,.assets-grid,.variations,.tools-bento,.quick-tools,.styles{grid-template-columns:repeat(2,1fr)!important}.tabbar{padding:8px 12px}.canvas{padding:14px}.dock-inner{margin:0 8px}.stage-inner,.video-stage{height:auto;aspect-ratio:9/16}.head h1{font-size:24px}.hero-tile.featured{grid-column:span 2;grid-row:auto}.hero-tile.wide{grid-column:span 2}}
 @media (max-width:1024px){.rail{display:none}.app{grid-template-columns:var(--sidebar-w) 1fr}}
 </style>
 </head>
@@ -620,8 +624,10 @@ const POOLS = {
 const SLOT_POOL = {
   // Sophia editorials (4:5)
   'editorial-1.jpg':'editorial','editorial-2.jpg':'editorial','editorial-3.jpg':'editorial','editorial-4.jpg':'editorial',
-  // Sophia personas (4:5)
-  'persona-redhead.jpg':'persona','persona-f1.jpg':'persona','persona-f2.jpg':'persona','persona-f3.jpg':'persona','persona-f5.jpg':'persona','persona-m1.jpg':'persona','persona-m2.jpg':'persona',
+  // Sophia personas (4:5) — apenas slots femininos randomizam (pool é só Sophia f).
+  // persona-redhead.jpg, persona-m1.jpg, persona-m2.jpg ficam fixos servindo arquivo literal
+  // (m1/m2 são homens reais; redhead é a Sofia canônica).
+  'persona-f1.jpg':'persona','persona-f2.jpg':'persona','persona-f3.jpg':'persona','persona-f5.jpg':'persona',
   // Persona tryptic
   'persona-portrait.png':'persona-tryptic',
   // Maps (NOT randomized - related quad: 1=source, 2=depth, 3=seg, 4=normal)
@@ -843,7 +849,7 @@ function viewImage(){
       <button class="icon-btn">${ICO("M5 12h.01M12 12h.01M19 12h.01")}</button>
     </div>
     <div class="stage-controls">
-      <button class="var-pill active">1</button><button class="var-pill">2</button><button class="var-pill">3</button><button class="var-pill">4</button>
+      ${[['editorial-2.jpg','1'],['editorial-3.jpg','2'],['editorial-4.jpg','3'],['persona-f2.jpg','4']].map((p,i)=>`<button class="var-pill ${i===0?'active':''}" data-img="${IMG(p[0])}">${p[1]}</button>`).join('')}
     </div>
     <div class="stage-watermark">REFINE <span class="lime-tag">AI</span></div>
   </div></div>
@@ -853,16 +859,16 @@ function viewImage(){
   </div>
   <div class="sec-title">Style packs<span class="line"></span></div>
   <div class="styles">
-    ${[['Editorial','editorial-1.jpg'],['Cyberpunk','art-3.jpg'],['Fantasy','fantasy-2.png'],['Cinematic','place-2.png'],['Portrait','persona-f3.jpg'],['Surreal','art-5.jpg']].map(([n,s])=>`<div class="style"><img src="${IMG(s)}" alt="${n}" /><span class="name">${n}</span></div>`).join('')}
+    ${[['Editorial','editorial-1.jpg'],['Cyberpunk','bg-1.jpg'],['Fantasy','fantasy-2.png'],['Cinematic','place-2.png'],['Portrait','persona-f3.jpg'],['Surreal','fantasy-3.png']].map(([n,s])=>`<div class="style" data-img="${IMG(s)}"><img src="${IMG(s)}" alt="${n}" /><span class="name">${n}</span></div>`).join('')}
   </div>`;
 }
 
 function viewVideo(){
   return `
   <div class="head"><div><div class="eyebrow"><span class="dot"></span>AI Video · Kling 3.0 Omni</div><h1>Cenas <em>em movimento</em></h1><p>Vídeos cinematográficos a partir de prompt ou imagem.</p></div><div class="head-actions"><button class="tool-btn">${ICO("M3 7h18")}Smart Shot</button><button class="tool-btn primary">${ICO("M21 15v4M7 10l5 5 5-5")}Exportar MP4</button></div></div>
-  <div class="video-stage"><video autoplay muted loop playsinline poster="${IMG('place-1.png')}" style="width:100%;height:100%;object-fit:cover"><source src="${A}video-stage.mp4" type="video/mp4"></video><div class="video-overlay"></div><div class="video-meta"><span class="chip">Kling 3.0 Omni</span><span class="chip">9:16 · 5s · 24fps</span><span class="chip">seed 47829</span></div><button class="video-play"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button><div class="timeline"><div class="tl-bar"><i></i></div><div class="tl-info"><span>00:01.84</span><span>00:05.00</span></div></div></div>
+  <div class="video-stage"><video id="videoStageEl" autoplay muted loop playsinline poster="${IMG('place-1.png')}" style="width:100%;height:100%;object-fit:cover"><source src="${A}video-stage.mp4" type="video/mp4"></video><div class="video-overlay"></div><div class="video-meta"><span class="chip">Kling 3.0 Omni</span><span class="chip">9:16 · 5s · 24fps</span><span class="chip">seed 47829</span></div><button class="video-play" id="videoStagePlayBtn"><svg id="videoStagePlayIcon" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg></button><div class="timeline"><div class="tl-bar"><i id="videoStageProgress"></i></div><div class="tl-info"><span id="videoStageCurrent">00:00.00</span><span id="videoStageDur">00:05.00</span></div></div></div>
   <div class="sec-title">Storyboard<span class="line"></span></div>
-  <div class="storyboard">${['place-2.png','place-3.png','place-4.png','fantasy-1.png','fantasy-2.png','fantasy-3.png','art-1.jpg','bg-1.jpg'].map((s,i)=>`<div class="frame ${i===2?'active':''}"><img src="${IMG(s)}" alt="" /><span class="num">${(i+1).toString().padStart(2,'0')}</span></div>`).join('')}</div>
+  <div class="storyboard">${['place-2.png','place-3.png','place-4.png','fantasy-1.png','fantasy-2.png','fantasy-3.png','place-1.png','bg-1.jpg'].map((s,i)=>`<div class="frame ${i===2?'active':''}"><img src="${IMG(s)}" alt="" /><span class="num">${(i+1).toString().padStart(2,'0')}</span></div>`).join('')}</div>
   <div class="sec-title">Movimento de câmera<span class="line"></span></div>
   <div class="cam-controls">${[['Static','M5 12h14','active'],['Pan','M3 12h18M14 6l6 6-6 6',''],['Tilt','M12 3v18M6 14l6 6 6-6',''],['Zoom','M11 11l-3-3m3 3 3-3m-3 3-3 3m3-3 3 3','active'],['Dolly','M4 17h16M4 7h16',''],['Orbit','M12 12m-9 0a9 9 0 1 0 18 0 9 9 0 1 0-18 0','']].map(([n,p,a])=>`<div class="cam ${a}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="${p}"/></svg><span>${n}</span></div>`).join('')}</div>`;
 }
@@ -872,10 +878,10 @@ function viewAudio(){
   return `
   <div class="head"><div><div class="eyebrow"><span class="dot"></span>AI Audio · Suno Studio v4</div><h1>Trilhas <em>que emocionam</em></h1><p>Componha música, vozes e SFX originais.</p></div><div class="head-actions"><button class="tool-btn">${ICO("M9 18V5l12-2v13")}Letra</button><button class="tool-btn primary">${ICO("M21 15v4")}Exportar WAV</button></div></div>
   <audio id="suno-audio" preload="metadata" src="${A}midnight-lofi.mp3"></audio>
-  <div class="audio-player"><div class="audio-cover"><img src="${IMG('art-2.jpg')}" alt="capa" /></div><div class="audio-info"><div class="label">Em reprodução</div><h2>Midnight Lo-Fi · Refine Suite</h2><div class="meta">90 BPM · A minor · 0:42 / 1:48 · Suno v4</div></div><div class="audio-controls"><button class="ctrl"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 20 9 12l10-8zM5 4h2v16H5z"/></svg></button><button class="ctrl play" onclick="const a=document.getElementById('suno-audio');a.paused?a.play():a.pause();"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button><button class="ctrl"><svg viewBox="0 0 24 24" fill="currentColor"><path d="m5 4 10 8-10 8zM17 4h2v16h-2z"/></svg></button></div></div>
-  <div class="waveform">${bars.join('')}<div class="wf-cursor"></div></div>
+  <div class="audio-player"><div class="audio-cover"><img id="audioCover" src="${IMG('art-2.jpg')}" alt="capa" /></div><div class="audio-info"><div class="label">Em reprodução</div><h2 id="audioTitle">Midnight Lo-Fi · Refine Suite</h2><div class="meta" id="audioMeta">90 BPM · A minor · 0:42 / 1:48 · Suno v4</div></div><div class="audio-controls"><button class="ctrl"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 20 9 12l10-8zM5 4h2v16H5z"/></svg></button><button class="ctrl play" id="audioPlayBtn"><svg id="audioPlayIcon" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button><button class="ctrl"><svg viewBox="0 0 24 24" fill="currentColor"><path d="m5 4 10 8-10 8zM17 4h2v16h-2z"/></svg></button></div></div>
+  <div class="waveform" id="audioWaveform">${bars.join('')}<div class="wf-cursor" id="audioCursor"></div></div>
   <div class="sec-title">Suas trilhas<span class="line"></span></div>
-  <div class="tracks">${[['Midnight Lo-Fi','90 BPM · A min','1:48','art-2.jpg','midnight-lofi.mp3','active'],['Sunset Drive','105 BPM · D maj','2:14','art-1.jpg','sunset-drive.mp3',''],['Neon Pulse','128 BPM · F min','3:22','art-3.jpg','neon-pulse.mp3',''],['Soft Piano','72 BPM · C maj','1:36','art-4.jpg','soft-piano.mp3','']].map(([n,m,t,s,mp3,a])=>`<div class="track ${a}" data-src="${A}${mp3}" onclick="const x=document.getElementById('suno-audio');x.src=this.dataset.src;x.play();"><div class="track-cover"><img src="${IMG(s)}" alt="" /></div><div class="track-name"><strong>${n}</strong><span>${m}</span></div><div class="track-mini-wave">${Array.from({length:24},(_,i)=>`<i style="height:${20+Math.abs(Math.sin(i+s.length))*70}%"></i>`).join('')}</div><div class="track-time">${t}</div><button class="icon-btn" style="border:0;width:28px;height:28px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="1.4"/></svg></button></div>`).join('')}</div>`;
+  <div class="tracks" id="trackList">${[['Midnight Lo-Fi','Refine Suite','90 BPM · A minor','1:48','art-2.jpg','midnight-lofi.mp3','active'],['Sunset Drive','Refine Suite','105 BPM · D maj','2:14','art-1.jpg','sunset-drive.mp3',''],['Neon Pulse','Refine Suite','128 BPM · F min','3:22','art-3.jpg','neon-pulse.mp3',''],['Soft Piano','Refine Suite','72 BPM · C maj','1:36','art-4.jpg','soft-piano.mp3','']].map(([n,art,m,t,s,mp3,a])=>`<div class="track ${a}" data-src="${A}${mp3}" data-name="${n}" data-artist="${art}" data-meta="${m}" data-dur="${t}" data-cover="${IMG(s)}"><div class="track-cover"><img src="${IMG(s)}" alt="" /></div><div class="track-name"><strong>${n}</strong><span>${m.split(' · ')[0]}</span></div><div class="track-mini-wave">${Array.from({length:24},(_,i)=>`<i style="height:${20+Math.abs(Math.sin(i+s.length))*70}%"></i>`).join('')}</div><div class="track-time">${t}</div><button class="icon-btn" style="border:0;width:28px;height:28px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="1.4"/></svg></button></div>`).join('')}</div>`;
 }
 
 function viewEdit(){
@@ -890,7 +896,7 @@ function viewEdit(){
     ["Cloth Swap","M6 3 4 7l3 2v12h10V9l3-2-2-4-4 2-3-1-3 1z"]
   ];
   return `
-  <div class="head"><div><div class="eyebrow"><span class="dot"></span>AI Edit · ${ACTIVE}</div><h1>Edições <em>sob medida</em></h1><p>Selecione uma ferramenta no painel à direita pra aplicar na imagem.</p></div><div class="head-actions"><button class="tool-btn">${ICO("M9 14l-4-4 4-4")}Desfazer</button><button class="tool-btn primary">${ICO("M21 15v4")}Salvar</button></div></div>
+  <div class="head"><div><div class="eyebrow"><span class="dot"></span><span id="editEyebrowText">AI Edit · ${ACTIVE}</span></div><h1>Edições <em>sob medida</em></h1><p>Selecione uma ferramenta no painel à direita pra aplicar na imagem.</p></div><div class="head-actions"><button class="tool-btn">${ICO("M9 14l-4-4 4-4")}Desfazer</button><button class="tool-btn primary">${ICO("M21 15v4")}Salvar</button></div></div>
   <div class="edit-stage">
     <div class="before-after" style="height:560px"><img class="before" src="${IMG('edit-before.png')}" alt="antes" /><img class="after" src="${IMG('edit-after.png')}" alt="depois" /><div class="ba-divider"></div><div class="ba-handle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6-6 6 6 6M15 6l6 6-6 6"/></svg></div><span class="ba-label before">Antes</span><span class="ba-label after">Depois</span></div>
     <aside class="tools-panel">
@@ -914,10 +920,10 @@ function viewCharacter(){
 function viewProduct(){
   return `
   <div class="head"><div><div class="eyebrow"><span class="dot"></span>AI Product · Generation Suite</div><h1>Imagens <em>publicitárias</em></h1><p>Pack-shots editoriais, mock-ups e cenas de produto com sua marca aplicada automaticamente.</p></div><div class="head-actions"><button class="tool-btn">${ICO("M3 12 12 3l9 9")}Brand kit</button><button class="tool-btn primary">${ICO("M12 5v14M5 12h14")}Novo produto</button></div></div>
-  <div class="product-hero"><div class="img-side"><img src="${IMG('product-hero.jpg')}" alt="Hero produto" /></div><div class="info-side"><div class="label">EM DESTAQUE · COCA-COLA × ADVENTURE TIME</div><h2>Crie produtos <em>icônicos</em></h2><p>Suba sua arte ou descreva. O motor adapta cores, tipografia e cenário pra entregar pack-shots prontos pro mercado em segundos.</p><div class="actions"><button class="tool-btn primary">${ICO("M12 5v14M5 12h14")}Criar produto</button><button class="tool-btn">${ICO("M3 3h7v7H3z")}Templates</button></div></div></div>
+  <div class="product-hero"><div class="img-side"><img src="${IMG('product-hero.jpg')}" alt="Hero produto" /></div><div class="info-side"><div class="label">EM DESTAQUE · REFINE STUDIO × CINEMATIC RUINS</div><h2>Crie produtos <em>icônicos</em></h2><p>Suba sua arte ou descreva. O motor adapta cores, tipografia e cenário pra entregar pack-shots prontos pro mercado em segundos.</p><div class="actions"><button class="tool-btn primary">${ICO("M12 5v14M5 12h14")}Criar produto</button><button class="tool-btn">${ICO("M3 3h7v7H3z")}Templates</button></div></div></div>
   <div class="sec-title">Pack-shots recentes<span class="line"></span></div>
   <div class="product-grid">
-    ${[['Bebida · Premium','neon scene','product-hero.jpg'],['Cosmético · Sérum','editorial','product-2.png'],['Beauty · Glow','soft pastel','product-3.png'],['Eletrônico · Tech','dark studio','product-4.png'],['Moda · Lookbook','editorial','product-5.png'],['Fragrância · Lux','marble','product-1.png'],['Tech · Smart','futurist','art-3.jpg'],['Food · Premium','editorial','editorial-4.jpg']].map(([n,t,s])=>`<div class="prod"><img src="${IMG(s)}" alt="${n}" /><div class="info"><strong>${n}</strong><span>${t}</span></div></div>`).join('')}
+    ${[['Bebida · Premium','cinematic ruins','product-hero.jpg'],['Cosmético · Sérum','editorial','product-2.png'],['Fragrância · Lux','marble','product-3.png'],['Acessório · Couro','dark wood','product-4.png'],['Eletrônico · Audio','studio','product-5.png'],['Tech · Smart','spotlight','product-1.png'],['Beauty · Glow','soft pastel','product-06.jpg'],['Food · Premium','editorial','product-08.png']].map(([n,t,s])=>`<div class="prod"><img src="${IMG(s)}" alt="${n}" /><div class="info"><strong>${n}</strong><span>${t}</span></div></div>`).join('')}
   </div>`;
 }
 
@@ -934,7 +940,7 @@ function viewR3D(){
   </div>
   <div class="sec-title">Sua coleção 3D<span class="line"></span></div>
   <div class="r3d-grid">
-    ${[['Totodile','3D · Pokémon','char3d-1.png'],['Aqua Beast','3D · Creature','char3d-2.jpg'],['Stone Golem','3D · Mineral','char3d-3.jpg'],['Cyber Mech','3D · Tech','char3d-4.png'],['Fluffy Pet','3D · Mascot','char3d-5.png'],['Forest Spirit','3D · Fantasy','char3d-6.png'],['Game Asset','PROP · 3D','asset-game4.png'],['Mystic Stone','PROP · Magic','asset-game5.png']].map(([n,t,s])=>`<div class="r3d-card"><img src="${IMG(s)}" alt="${n}" /><div class="info"><strong>${n}</strong><span>${t}</span></div></div>`).join('')}
+    ${[['Companion Pet','3D · Mascot','char3d-1.png'],['Forest Creature','3D · Fantasy','char3d-2.jpg'],['Magic Beast','3D · Cute','char3d-3.jpg'],['Cute Mascot','3D · Pixar','char3d-4.png'],['Fluffy Friend','3D · Mascot','char3d-5.png'],['Story Companion','3D · Fantasy','char3d-6.png'],['Espada Encantada','PROP · Arma','asset-game4.png'],['Ampulheta Mística','PROP · Relíquia','asset-game5.png']].map(([n,t,s])=>`<div class="r3d-card"><img src="${IMG(s)}" alt="${n}" /><div class="info"><strong>${n}</strong><span>${t}</span></div></div>`).join('')}
   </div>`;
 }
 
@@ -983,7 +989,7 @@ function viewDepth(){
       ['Segmentation','Máscara semântica','M3 6h18l-2 13H5z','purple'],
       ['Canny Edge','Bordas','M12 19V5','accent'],
       ['OpenPose','Pose humana','M5 12l7-7','pink']
-    ].map(([n,d,p,c])=>`<div class="quick ${c==='emerald'?'lime':c}"><div class="qico" style="background:rgba(52,211,153,.14);color:var(--emerald)">${ICO(p)}</div><strong>${n}</strong><span>${d}</span></div>`).join('')}
+    ].map(([n,d,p,c])=>{const colorMap={emerald:'#34d399',cyan:'#06b6d4',purple:'#c084fc',accent:'#ff6a1a',pink:'#ec4899'};const col=colorMap[c]||'#34d399';return `<div class="quick ${c==='emerald'?'lime':c}"><div class="qico" style="background:${col}22;color:${col}">${ICO(p)}</div><strong>${n}</strong><span>${d}</span></div>`}).join('')}
   </div>`;
 }
 
@@ -1004,7 +1010,7 @@ function viewAssets(){
       ['asset-game2.jpg','Cristal ametista','GAME · GEM'],
       ['asset-game3.jpg','Grimório rúnico','GAME · TOME'],
       ['asset-game4.png','Espada lendária','GAME · WEAPON'],
-      ['asset-game5.png','Poção da vida','GAME · POTION'],
+      ['asset-game5.png','Elixir esmeralda','GAME · POTION'],
       ['asset-game6.png','Tábua rúnica','GAME · RUNE'],
       ['asset-1.png','Bússola steampunk','3D · STEAMPUNK'],
       ['asset-2.png','Elmo do dragão','3D · ARMOR'],
@@ -1030,7 +1036,7 @@ function viewMarketing(){
   </div>
   <div class="sec-title">Campanhas recentes<span class="line"></span></div>
   <div class="campaigns">
-    ${[['Black Friday','12 peças · ontem','LIVE','editorial-1.jpg'],['Lançamento SS26','8 peças · 23 abr','RASCUNHO','editorial-3.jpg'],['Influencer Drop','6 peças · 21 abr','LIVE','persona-f5.jpg'],['Brand Awareness','15 peças · 18 abr','PAUSADO','place-3.png']].map(([n,m,b,s])=>`<div class="campaign"><img src="${IMG(s)}" alt="${n}" /><span class="badge">${b}</span><div class="meta"><strong>${n}</strong><span>${m}</span></div></div>`).join('')}
+    ${[['Black Friday','12 peças · ontem','LIVE','editorial-1.jpg'],['Lançamento SS26','8 peças · 23 abr','RASCUNHO','editorial-3.jpg'],['Influencer Drop','6 peças · 21 abr','LIVE','persona-f5.jpg'],['Brand Awareness','15 peças · 18 abr','PAUSADO','place-3.png']].map(([n,m,b,s])=>{const bClass=b==='LIVE'?'live':b==='RASCUNHO'?'draft':'paused';return `<div class="campaign"><img src="${IMG(s)}" alt="${n}" /><span class="badge badge-${bClass}">${b}</span><div class="meta"><strong>${n}</strong><span>${m}</span></div></div>`}).join('')}
   </div>`;
 }
 
@@ -1097,15 +1103,68 @@ function viewAll(){
 }
 
 // Generic placeholder for any tool that doesn't have a dedicated view
+// Catálogo global de ferramentas (alimenta viewAll + viewGeneric label fallback)
+const ALL_TOOLS = [
+  {n:"Image",d:"Texto → imagem em 4K",c:"criar",key:"image"},
+  {n:"Video",d:"Texto/imagem → vídeo",c:"criar",key:"video"},
+  {n:"Audio",d:"Trilhas, vozes, SFX",c:"criar",key:"audio",isnew:true},
+  {n:"Product Gen",d:"Pack-shots editoriais",c:"criar",key:"product",isnew:true},
+  {n:"Realistic 3D",d:"Personagens 3D Pixar",c:"criar",key:"r3d",isnew:true},
+  {n:"Assets Gen",d:"Props, ícones, materiais",c:"criar",key:"assets",isnew:true},
+  {n:"Character",d:"Personas consistentes",c:"criar",key:"character"},
+  {n:"Edit Image",d:"Inpaint, outpaint, máscara",c:"editar",key:"edit"},
+  {n:"Outpaint",d:"Expandir canvas",c:"editar",key:"outpaint"},
+  {n:"Remove Object",d:"Apagar elementos",c:"editar",key:"removeobj"},
+  {n:"Sketch to Image",d:"Rabisco em foto",c:"editar",key:"sketch"},
+  {n:"Style Transfer",d:"Aplicar referência",c:"editar",key:"styletransfer"},
+  {n:"Replace Background",d:"Trocar cenário",c:"editar",key:"replacebg"},
+  {n:"Expand",d:"Esticar canvas",c:"editar",key:"expand"},
+  {n:"Colorize",d:"Colorir P&B",c:"editar",key:"colorize"},
+  {n:"Scene Swap",d:"Trocar cenário",c:"transformar",key:"sceneswap"},
+  {n:"Hair Change",d:"Mudar cabelo",c:"transformar",key:"hairchange"},
+  {n:"Expression",d:"Mudar expressão",c:"transformar",key:"expression"},
+  {n:"Age Change",d:"Envelhecer",c:"transformar",key:"agechange"},
+  {n:"Twin",d:"Multiplicar persona",c:"transformar",key:"twin"},
+  {n:"Face Swap",d:"Trocar rosto",c:"transformar",key:"faceswap"},
+  {n:"Cloth Swap",d:"Trocar roupa",c:"transformar",key:"clothswap"},
+  {n:"Skin Enhance",d:"Retouch profissional",c:"melhorar",key:"skin"},
+  {n:"Background Remove",d:"Recortar fundo",c:"melhorar",key:"bgremove"},
+  {n:"Relight",d:"Re-iluminar",c:"melhorar",key:"relight"},
+  {n:"Photo Restoration",d:"Restaurar antiga",c:"melhorar",key:"restore"},
+  {n:"Upscale",d:"Aumentar até 4K",c:"melhorar",key:"upscale"},
+  {n:"Depth Map",d:"Mapas de profundidade",c:"melhorar",key:"depth",isnew:true},
+  {n:"Headshot Pro",d:"LinkedIn-ready",c:"profissional",key:"headshot"},
+  {n:"Real Estate",d:"Fotos de imóveis",c:"profissional",key:"realestate"},
+  {n:"Food Photography",d:"Pratos editoriais",c:"profissional",key:"food"},
+  {n:"Magazine Cover",d:"Capa de revista",c:"profissional",key:"magazine"},
+  {n:"YouTube Thumbnail",d:"Thumbs que convertem",c:"profissional",key:"yt"},
+  {n:"Passport Photo",d:"Foto 3x4 oficial",c:"profissional",key:"passport"},
+  {n:"Maternity",d:"Ensaio gestante",c:"profissional",key:"maternity"},
+  {n:"Wedding",d:"Ensaios de casamento",c:"profissional",key:"wedding"},
+  {n:"Family Portrait",d:"Retrato família",c:"profissional",key:"family"},
+  {n:"Multi-View",d:"9 ângulos",c:"profissional",key:"multiview"},
+  {n:"Lip Sync",d:"Áudio + boca",c:"profissional",key:"lipsync"},
+  {n:"E-commerce",d:"Pack-shots produto",c:"profissional",key:"ecommerce"},
+  {n:"Bulk Import",d:"Importar lote",c:"workflow",key:"bulk"},
+  {n:"Style Learning",d:"Treinar estilo",c:"workflow",key:"stylelearn"},
+  {n:"Recreate",d:"Recriar a partir de ref",c:"workflow",key:"recreate"},
+  {n:"Marketing Studio",d:"Campanhas completas",c:"workflow",key:"marketing"}
+];
+
 function viewGeneric(toolKey){
-  // Find tool name from NAV
-  let tool = {label:toolKey, ico:"M5 5h14v14H5z"};
+  // 1. Tenta NAV (label/ícone primário); 2. ALL_TOOLS (fallback bento)
+  let tool = null;
   for(const g of NAV){
     if(g.items){
       const f = g.items.find(it=>it.key===toolKey);
-      if(f){ tool = f; break }
+      if(f){ tool = {label:f.label, ico:f.ico}; break; }
     }
   }
+  if(!tool){
+    const t = ALL_TOOLS.find(t=>t.key===toolKey);
+    if(t) tool = {label:t.n, ico:"M5 5h14v14H5z"};
+  }
+  if(!tool) tool = {label:toolKey.charAt(0).toUpperCase()+toolKey.slice(1), ico:"M5 5h14v14H5z"};
   return `
   <div class="head"><div><div class="eyebrow"><span class="dot"></span>FERRAMENTA</div><h1>${tool.label}</h1><p>Esta ferramenta está em construção. Volte em breve para experimentar a interface dedicada.</p></div><div class="head-actions"><button class="tool-btn primary" data-tab="all">${ICO("M3 3h7v7H3z M14 3h7v7h-7z")}Voltar pra todas</button></div></div>
   <div class="tool-page">
@@ -1156,7 +1215,7 @@ const EDIT_TOOLS = {
   twin:"Twin", skin:"Skin Enhance", bgremove:"Background Remove",
   relight:"Relight", restore:"Photo Restoration", upscale:"Upscale"
 };
-let activeEditTool = "Inpaint";
+let activeEditTool = "Style Transfer";
 
 function setTab(key){
   if(!key) return;
@@ -1165,7 +1224,7 @@ function setTab(key){
     activeEditTool = EDIT_TOOLS[key];
     key = "edit";
   } else if(key === "edit"){
-    activeEditTool = "Inpaint";
+    activeEditTool = "Style Transfer";
   }
   currentTab = key;
   let cfg = TAB_CONFIG[key];
@@ -1194,13 +1253,43 @@ function setTab(key){
   document.querySelectorAll('#view [data-tab]').forEach(el=>{
     el.addEventListener('click',e=>{e.stopPropagation();setTab(el.dataset.tab)});
   });
-  // Variation pills
-  document.querySelectorAll('.var-pill').forEach(v=>v.addEventListener('click',()=>{document.querySelectorAll('.var-pill').forEach(x=>x.classList.remove('active'));v.classList.add('active')}));
-  document.querySelectorAll('.variation').forEach(vc=>vc.addEventListener('click',()=>{const img=vc.querySelector('img');const stage=$('stageImg');if(stage&&img){stage.src=img.src;document.querySelector('.stage-inner')?.style.setProperty('--stage-bg', `url("${img.src}")`)}}));
-  document.querySelectorAll('.tool-card').forEach(t=>t.addEventListener('click',()=>{document.querySelectorAll('.tool-card').forEach(x=>x.classList.remove('active'));t.classList.add('active')}));
-  document.querySelectorAll('.cam').forEach(c=>c.addEventListener('click',()=>{document.querySelectorAll('.cam').forEach(x=>x.classList.remove('active'));c.classList.add('active')}));
-  document.querySelectorAll('.frame').forEach(f=>f.addEventListener('click',()=>{document.querySelectorAll('.frame').forEach(x=>x.classList.remove('active'));f.classList.add('active')}));
-  // Before/after slider
+  // Helper: troca a imagem do stage + backdrop blur
+  const swapStage = src => {
+    const stage = $('stageImg');
+    if(!stage || !src) return;
+    stage.src = src;
+    document.querySelector('.stage-inner')?.style.setProperty('--stage-bg', `url("${src}")`);
+  };
+  // Variation pills — agora trocam a imagem do stage também
+  document.querySelectorAll('#view .var-pill').forEach(v=>v.addEventListener('click',()=>{
+    document.querySelectorAll('#view .var-pill').forEach(x=>x.classList.remove('active'));
+    v.classList.add('active');
+    if(v.dataset.img) swapStage(v.dataset.img);
+  }));
+  document.querySelectorAll('#view .variation').forEach(vc=>vc.addEventListener('click',()=>{
+    const img=vc.querySelector('img'); if(img) swapStage(img.src);
+  }));
+  // Style packs — clicar troca stage + active
+  document.querySelectorAll('#view .style').forEach(s=>s.addEventListener('click',()=>{
+    document.querySelectorAll('#view .style').forEach(x=>x.classList.remove('active'));
+    s.classList.add('active');
+    if(s.dataset.img) swapStage(s.dataset.img);
+  }));
+  // Tool cards / cam / frame — só toggle active (escopo no #view pra não acumular)
+  document.querySelectorAll('#view .tool-card').forEach(t=>t.addEventListener('click',()=>{document.querySelectorAll('#view .tool-card').forEach(x=>x.classList.remove('active'));t.classList.add('active')}));
+  document.querySelectorAll('#view .cam').forEach(c=>c.addEventListener('click',()=>{document.querySelectorAll('#view .cam').forEach(x=>x.classList.remove('active'));c.classList.add('active')}));
+  document.querySelectorAll('#view .frame').forEach(f=>f.addEventListener('click',()=>{document.querySelectorAll('#view .frame').forEach(x=>x.classList.remove('active'));f.classList.add('active')}));
+  // Cards interativos sem ação ainda — feedback "Em breve" via toast
+  document.querySelectorAll('#view .persona, #view .prod, #view .persona-train, #view .asset-card, #view .campaign, #view .format, #view .r3d-card, #view .r3d-preset, #view .quick-action').forEach(el=>{
+    el.style.cursor='pointer';
+    el.addEventListener('click',()=>showToast('Em breve · '+(el.querySelector('strong')?.textContent || el.textContent.trim().slice(0,32))));
+  });
+  // Active toggle pra .cat (filter visual)
+  document.querySelectorAll('#view .cat').forEach(c=>c.addEventListener('click',()=>{
+    document.querySelectorAll('#view .cat').forEach(x=>x.classList.remove('active'));
+    c.classList.add('active');
+  }));
+  // Before/after slider — desktop (mouse) + mobile (touch)
   const ba = document.querySelector('.before-after');
   if(ba){
     const after=ba.querySelector('.after'),div=ba.querySelector('.ba-divider'),handle=ba.querySelector('.ba-handle');
@@ -1209,6 +1298,11 @@ function setTab(key){
     ba.addEventListener('mousedown',e=>{drag=true;setX(e.clientX);e.preventDefault()});
     window.addEventListener('mousemove',e=>{if(drag)setX(e.clientX)});
     window.addEventListener('mouseup',()=>drag=false);
+    // Touch (mobile)
+    ba.addEventListener('touchstart',e=>{drag=true;if(e.touches[0])setX(e.touches[0].clientX)},{passive:true});
+    window.addEventListener('touchmove',e=>{if(drag&&e.touches[0])setX(e.touches[0].clientX)},{passive:true});
+    window.addEventListener('touchend',()=>drag=false);
+    window.addEventListener('touchcancel',()=>drag=false);
   }
   // All-tools filter+search
   const allSearch = $('allSearch');
@@ -1221,12 +1315,13 @@ function setTab(key){
 
   // Sync sidebar — only the exact tab key is active
   document.querySelectorAll('.sidebar .nav-item').forEach(n=>n.classList.toggle('active', n.dataset.tab===key));
-  // Edit panel tool selector
-  document.querySelectorAll('[data-tool]').forEach(t=>t.addEventListener('click',()=>{
+  // Edit panel tool selector (escopo no #view, atualiza span dedicado)
+  document.querySelectorAll('#view [data-tool]').forEach(t=>t.addEventListener('click',()=>{
     activeEditTool = t.dataset.tool;
-    document.querySelectorAll('[data-tool]').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('#view [data-tool]').forEach(x=>x.classList.remove('active'));
     t.classList.add('active');
-    const eyebrow=document.querySelector('.head .eyebrow span:last-child');if(eyebrow) eyebrow.textContent='AI Edit · '+activeEditTool;
+    const eyebrowText = $('editEyebrowText');
+    if(eyebrowText) eyebrowText.textContent = 'AI Edit · ' + activeEditTool;
   }));
   // Set stage backdrop blur
   const stageImg = $('stageImg');
@@ -1252,6 +1347,94 @@ function setTab(key){
       if(vid){ vid.style.opacity='0'; vid.pause(); }
     });
   });
+  // Audio Studio — track click sincroniza UI inteira + ícone play/pause + cursor waveform
+  const audioEl = $('suno-audio');
+  if(audioEl){
+    const playBtn = $('audioPlayBtn');
+    const playIcon = $('audioPlayIcon');
+    const cover = $('audioCover');
+    const titleEl = $('audioTitle');
+    const metaEl = $('audioMeta');
+    const cursor = $('audioCursor');
+    const waveform = $('audioWaveform');
+    const fmtTime = s => { s=Math.floor(s||0); return Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); };
+    const PLAY_PATH  = 'M8 5v14l11-7z';
+    const PAUSE_PATH = 'M6 5h4v14H6zM14 5h4v14h-4z';
+    const refreshIcon = () => {
+      const p = playIcon?.querySelector('path');
+      if(p) p.setAttribute('d', audioEl.paused ? PLAY_PATH : PAUSE_PATH);
+    };
+    audioEl.addEventListener('play', refreshIcon);
+    audioEl.addEventListener('pause', refreshIcon);
+    audioEl.addEventListener('ended', refreshIcon);
+    audioEl.addEventListener('timeupdate', () => {
+      if(cursor && audioEl.duration){
+        cursor.style.left = (audioEl.currentTime / audioEl.duration * 100) + '%';
+      }
+      if(metaEl){
+        const tracker = document.querySelector('#trackList .track.active');
+        const meta = tracker?.dataset.meta || '90 BPM · A minor';
+        const dur = tracker?.dataset.dur || '1:48';
+        metaEl.textContent = `${meta} · ${fmtTime(audioEl.currentTime)} / ${dur} · Suno v4`;
+      }
+    });
+    if(playBtn){
+      playBtn.addEventListener('click', () => {
+        audioEl.paused ? audioEl.play() : audioEl.pause();
+      });
+    }
+    // Click em waveform faz seek
+    if(waveform){
+      waveform.addEventListener('click', e => {
+        if(!audioEl.duration) return;
+        const r = waveform.getBoundingClientRect();
+        const pct = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
+        audioEl.currentTime = pct * audioEl.duration;
+      });
+    }
+    // Track click — atualiza UI completa
+    document.querySelectorAll('#trackList .track').forEach(tr => {
+      tr.addEventListener('click', () => {
+        document.querySelectorAll('#trackList .track').forEach(x => x.classList.remove('active'));
+        tr.classList.add('active');
+        if(tr.dataset.src) audioEl.src = tr.dataset.src;
+        if(cover && tr.dataset.cover) cover.src = tr.dataset.cover;
+        if(titleEl && tr.dataset.name) titleEl.textContent = `${tr.dataset.name} · ${tr.dataset.artist || 'Refine Suite'}`;
+        if(metaEl && tr.dataset.meta) metaEl.textContent = `${tr.dataset.meta} · 0:00 / ${tr.dataset.dur} · Suno v4`;
+        audioEl.play().catch(()=>{});
+      });
+    });
+    refreshIcon();
+  }
+  // Video Stage — play/pause toggle + timeline syncada
+  const videoEl = $('videoStageEl');
+  if(videoEl){
+    const playBtn = $('videoStagePlayBtn');
+    const playIcon = $('videoStagePlayIcon');
+    const progress = $('videoStageProgress');
+    const current = $('videoStageCurrent');
+    const dur = $('videoStageDur');
+    const fmt = s => { s = s||0; const m=Math.floor(s/60); const ss=(s%60).toFixed(2).padStart(5,'0'); return String(m).padStart(2,'0')+':'+ss; };
+    const PLAY  = 'M8 5v14l11-7z';
+    const PAUSE = 'M6 5h4v14H6zM14 5h4v14h-4z';
+    const refresh = () => {
+      const p = playIcon?.querySelector('path');
+      if(p) p.setAttribute('d', videoEl.paused ? PLAY : PAUSE);
+    };
+    videoEl.addEventListener('play', refresh);
+    videoEl.addEventListener('pause', refresh);
+    videoEl.addEventListener('loadedmetadata', () => { if(dur) dur.textContent = fmt(videoEl.duration); });
+    videoEl.addEventListener('timeupdate', () => {
+      if(progress && videoEl.duration) progress.style.width = (videoEl.currentTime / videoEl.duration * 100) + '%';
+      if(current) current.textContent = fmt(videoEl.currentTime);
+    });
+    if(playBtn){
+      playBtn.addEventListener('click', () => {
+        videoEl.paused ? videoEl.play() : videoEl.pause();
+      });
+    }
+    refresh();
+  }
   if(cfg.placeholder) typewriter(cfg.placeholder);
 }
 

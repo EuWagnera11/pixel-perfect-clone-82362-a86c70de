@@ -1000,21 +1000,21 @@ function viewAssets(){
   </div>
   <div class="assets-grid">
     ${[
-      ['asset-game1.jpg','Pergaminho rúnico','GAME · PROP'],
-      ['asset-game2.jpg','Asset mágico','GAME · MAGIC'],
-      ['asset-game3.jpg','Item de jogo','GAME · ITEM'],
-      ['asset-game4.png','Cofre encantado','GAME · CHEST'],
-      ['asset-game5.png','Cristal raro','GAME · GEM'],
-      ['asset-game6.png','Item lendário','GAME · LEGEND'],
-      ['asset-1.png','Galho ornamental','3D · NATURAL'],
-      ['asset-2.png','Elemento decorativo','3D · DECOR'],
-      ['asset-3.png','Card holográfico','MATERIAL'],
-      ['asset-4.png','Ícone luminoso','ICON']
+      ['asset-game1.jpg','Baú de tesouro','GAME · CHEST'],
+      ['asset-game2.jpg','Cristal ametista','GAME · GEM'],
+      ['asset-game3.jpg','Grimório rúnico','GAME · TOME'],
+      ['asset-game4.png','Espada lendária','GAME · WEAPON'],
+      ['asset-game5.png','Poção da vida','GAME · POTION'],
+      ['asset-game6.png','Tábua rúnica','GAME · RUNE'],
+      ['asset-1.png','Bússola steampunk','3D · STEAMPUNK'],
+      ['asset-2.png','Elmo do dragão','3D · ARMOR'],
+      ['asset-3.png','Baú celta','3D · CHEST'],
+      ['asset-4.png','Card holográfico','MATERIAL · HOLO']
     ].map(([s,n,t])=>`<div class="asset-card"><span class="type">${t}</span><img src="${IMG(s)}" alt="${n}" /><div class="info"><strong>${n}</strong><span>3658 × 2044 · 24bit</span></div></div>`).join('')}
   </div>
   <div class="sec-title">Inspirações da comunidade<span class="line"></span></div>
   <div class="assets-grid">
-    ${[['fantasy-2.png','Dragão fantasy','CHAR · 3D'],['fantasy-3.png','Cenário épico','SCENE'],['biblical-1.png','Cena cinematográfica','SCENE'],['biblical-2.png','Iluminação dramática','SCENE'],['art-4.jpg','Arte conceitual','CONCEPT']].map(([s,n,t])=>`<div class="asset-card"><span class="type">${t}</span><img src="${IMG(s)}" alt="${n}" /><div class="info"><strong>${n}</strong><span>1920 × 1080</span></div></div>`).join('')}
+    ${[['fantasy-2.png','Capitão pirata','FANTASY · CHAR'],['fantasy-3.png','Mago elemental','FANTASY · MAGIC'],['biblical-1.png','Visão divina','EPIC · SCENE'],['biblical-2.png','Santuário sagrado','EPIC · TEMPLE'],['art-4.jpg','Águia em voo','WILDLIFE · EAGLE']].map(([s,n,t])=>`<div class="asset-card"><span class="type">${t}</span><img src="${IMG(s)}" alt="${n}" /><div class="info"><strong>${n}</strong><span>1920 × 1080</span></div></div>`).join('')}
   </div>`;
 }
 

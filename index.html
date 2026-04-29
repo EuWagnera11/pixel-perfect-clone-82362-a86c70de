@@ -602,7 +602,55 @@ img{display:block;max-width:100%}
 <script>
 "use strict";
 const A="./refine-assets/";
-const IMG=n=>A+n;
+
+// ─── Pool de variações: cada categoria tem N imagens ───
+const POOLS = {
+  editorial:        {n:25, ext:'jpg'},
+  persona:          {n:25, ext:'jpg'},
+  'persona-tryptic':{n:5,  ext:'png'},
+  map:              {n:15, ext:'jpg'},
+  place:            {n:15, ext:'png'},
+  character:        {n:10, ext:'png'},
+  char3d:           {n:10, ext:'png'},
+  fantasy:          {n:10, ext:'png'},
+  wildlife:         {n:10, ext:'jpg'}
+};
+
+// Slots originais → pool category (slot fica visualmente igual, mas randomiza no load)
+const SLOT_POOL = {
+  // Sophia editorials (4:5)
+  'editorial-1.jpg':'editorial','editorial-2.jpg':'editorial','editorial-3.jpg':'editorial','editorial-4.jpg':'editorial',
+  // Sophia personas (4:5)
+  'persona-redhead.jpg':'persona','persona-f1.jpg':'persona','persona-f2.jpg':'persona','persona-f3.jpg':'persona','persona-f5.jpg':'persona','persona-m1.jpg':'persona','persona-m2.jpg':'persona',
+  // Persona tryptic
+  'persona-portrait.png':'persona-tryptic',
+  // Maps (NOT randomized - related quad: 1=source, 2=depth, 3=seg, 4=normal)
+  // Edit pair (NOT randomized - true before/after)
+  // Places
+  'place-1.png':'place','place-2.png':'place','place-3.png':'place','place-4.png':'place',
+  // Characters
+  'char-ironman.png':'character',
+  // 3D characters
+  'char3d-1.png':'char3d','char3d-2.jpg':'char3d','char3d-3.jpg':'char3d','char3d-4.png':'char3d','char3d-5.png':'char3d','char3d-6.png':'char3d',
+  // Fantasy
+  'fantasy-1.png':'fantasy','fantasy-2.png':'fantasy','fantasy-3.png':'fantasy',
+  // Wildlife (art slots)
+  'art-1.jpg':'wildlife','art-2.jpg':'wildlife','art-3.jpg':'wildlife','art-4.jpg':'wildlife','art-5.jpg':'wildlife'
+};
+
+// Cache: cada slot decide UMA vez por page load (evita flicker em re-render)
+const _imgCache = {};
+const IMG = n => {
+  if (n in _imgCache) return _imgCache[n];
+  const cat = SLOT_POOL[n];
+  if (cat && POOLS[cat]) {
+    const idx = String(Math.floor(Math.random()*POOLS[cat].n)+1).padStart(2,'0');
+    _imgCache[n] = `${A}${cat}-${idx}.${POOLS[cat].ext}`;
+  } else {
+    _imgCache[n] = A+n;
+  }
+  return _imgCache[n];
+};
 const ICO=d=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="${d}"/></svg>`;
 
 // ===================== SIDEBAR ITEMS =====================
@@ -727,32 +775,32 @@ function viewHome(){
         <p>Imagens publicitárias, mock-ups e cenas de produto com sua marca aplicada automaticamente. Lata, cosmético, eletrônico — tudo em qualidade editorial.</p>
       </div>
     </div>
-    <div class="hero-tile" data-tab="image">
+    <div class="hero-tile" data-tab="image" data-hover-video="${A}sophia-blink.mp4">
       <img src="${IMG('editorial-1.jpg')}" alt="Image" />
       <button class="open">${ICO("M5 12h14M13 5l7 7-7 7")}</button>
       <div class="body"><span class="tag">NANO BANANA PRO · 4K</span><h3>Image Studio</h3><p>Geração avançada com texto perfeito.</p></div>
     </div>
-    <div class="hero-tile" data-tab="video">
+    <div class="hero-tile" data-tab="video" data-hover-video="${A}video-hero.mp4">
       <img src="${IMG('place-1.png')}" alt="Video" />
       <button class="open">${ICO("M5 12h14M13 5l7 7-7 7")}</button>
       <div class="body"><span class="tag">KLING 3.0 · 4K</span><h3>Video Studio</h3><p>Vídeo cinema-grade em 4K.</p></div>
     </div>
-    <div class="hero-tile wide" data-tab="depth">
+    <div class="hero-tile wide" data-tab="depth" data-hover-video="${A}dragon-blink.mp4">
       <img src="${IMG('map-1.png')}" alt="Depth Map" />
       <button class="open">${ICO("M5 12h14M13 5l7 7-7 7")}</button>
       <div class="body"><span class="tag pink">BETA · CONTROLNET</span><h3>Depth Map Generator</h3><p>Mapas de profundidade e máscaras de segmentação pra ControlNet, IPAdapter e ComfyUI.</p></div>
     </div>
-    <div class="hero-tile" data-tab="r3d">
+    <div class="hero-tile" data-tab="r3d" data-hover-video="${A}pixar-wave.mp4">
       <img src="${IMG('char3d-1.png')}" alt="Realistic 3D" style="object-fit:contain;background:radial-gradient(60% 70% at 50% 60%,rgba(192,132,252,.18),#0a0612)" />
       <button class="open">${ICO("M5 12h14M13 5l7 7-7 7")}</button>
       <div class="body"><span class="tag" style="background:var(--purple);color:#0a0a0b;border-color:transparent">REALISTIC 3D</span><h3>Realistic 3D</h3><p>Personagens 3D realistas estilo Pixar.</p></div>
     </div>
-    <div class="hero-tile" data-tab="character">
+    <div class="hero-tile" data-tab="character" data-hover-video="${A}sci-fi-pose.mp4">
       <img src="${IMG('persona-portrait.png')}" alt="Character" />
       <button class="open">${ICO("M5 12h14M13 5l7 7-7 7")}</button>
       <div class="body"><span class="tag">PERSONA · TRAINER</span><h3>Character Studio</h3><p>Personas consistentes com 8 fotos.</p></div>
     </div>
-    <div class="hero-tile" data-tab="assets">
+    <div class="hero-tile" data-tab="assets" data-hover-video="${A}treasure-open.mp4">
       <img src="${IMG('asset-game1.jpg')}" alt="Assets Gen" />
       <button class="open">${ICO("M5 12h14M13 5l7 7-7 7")}</button>
       <div class="body"><span class="tag cyan">3D · PROPS</span><h3>Assets Gen</h3><p>Crie props, ícones e elementos 3D.</p></div>
@@ -812,7 +860,7 @@ function viewImage(){
 function viewVideo(){
   return `
   <div class="head"><div><div class="eyebrow"><span class="dot"></span>AI Video · Kling 3.0 Omni</div><h1>Cenas <em>em movimento</em></h1><p>Vídeos cinematográficos a partir de prompt ou imagem.</p></div><div class="head-actions"><button class="tool-btn">${ICO("M3 7h18")}Smart Shot</button><button class="tool-btn primary">${ICO("M21 15v4M7 10l5 5 5-5")}Exportar MP4</button></div></div>
-  <div class="video-stage"><img src="${IMG('place-1.png')}" alt="vídeo" /><div class="video-overlay"></div><div class="video-meta"><span class="chip">Kling 3.0 Omni</span><span class="chip">9:16 · 5s · 24fps</span><span class="chip">seed 47829</span></div><button class="video-play"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button><div class="timeline"><div class="tl-bar"><i></i></div><div class="tl-info"><span>00:01.84</span><span>00:05.00</span></div></div></div>
+  <div class="video-stage"><video autoplay muted loop playsinline poster="${IMG('place-1.png')}" style="width:100%;height:100%;object-fit:cover"><source src="${A}video-stage.mp4" type="video/mp4"></video><div class="video-overlay"></div><div class="video-meta"><span class="chip">Kling 3.0 Omni</span><span class="chip">9:16 · 5s · 24fps</span><span class="chip">seed 47829</span></div><button class="video-play"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button><div class="timeline"><div class="tl-bar"><i></i></div><div class="tl-info"><span>00:01.84</span><span>00:05.00</span></div></div></div>
   <div class="sec-title">Storyboard<span class="line"></span></div>
   <div class="storyboard">${['place-2.png','place-3.png','place-4.png','fantasy-1.png','fantasy-2.png','fantasy-3.png','art-1.jpg','bg-1.jpg'].map((s,i)=>`<div class="frame ${i===2?'active':''}"><img src="${IMG(s)}" alt="" /><span class="num">${(i+1).toString().padStart(2,'0')}</span></div>`).join('')}</div>
   <div class="sec-title">Movimento de câmera<span class="line"></span></div>
@@ -823,10 +871,11 @@ function viewAudio(){
   const bars=[];for(let i=0;i<80;i++){const h=20+Math.abs(Math.sin(i*.6))*70+Math.random()*15;const cls=i<30?'played':(i>50?'future':'');bars.push(`<div class="wf-bar ${cls}" style="height:${h}%;animation-delay:${i*40}ms"></div>`)}
   return `
   <div class="head"><div><div class="eyebrow"><span class="dot"></span>AI Audio · Suno Studio v4</div><h1>Trilhas <em>que emocionam</em></h1><p>Componha música, vozes e SFX originais.</p></div><div class="head-actions"><button class="tool-btn">${ICO("M9 18V5l12-2v13")}Letra</button><button class="tool-btn primary">${ICO("M21 15v4")}Exportar WAV</button></div></div>
-  <div class="audio-player"><div class="audio-cover"><img src="${IMG('art-2.jpg')}" alt="capa" /></div><div class="audio-info"><div class="label">Em reprodução</div><h2>Midnight Lo-Fi · Refine Suite</h2><div class="meta">90 BPM · A minor · 0:42 / 1:48 · Suno v4</div></div><div class="audio-controls"><button class="ctrl"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 20 9 12l10-8zM5 4h2v16H5z"/></svg></button><button class="ctrl play"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button><button class="ctrl"><svg viewBox="0 0 24 24" fill="currentColor"><path d="m5 4 10 8-10 8zM17 4h2v16h-2z"/></svg></button></div></div>
+  <audio id="suno-audio" preload="metadata" src="${A}midnight-lofi.mp3"></audio>
+  <div class="audio-player"><div class="audio-cover"><img src="${IMG('art-2.jpg')}" alt="capa" /></div><div class="audio-info"><div class="label">Em reprodução</div><h2>Midnight Lo-Fi · Refine Suite</h2><div class="meta">90 BPM · A minor · 0:42 / 1:48 · Suno v4</div></div><div class="audio-controls"><button class="ctrl"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 20 9 12l10-8zM5 4h2v16H5z"/></svg></button><button class="ctrl play" onclick="const a=document.getElementById('suno-audio');a.paused?a.play():a.pause();"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button><button class="ctrl"><svg viewBox="0 0 24 24" fill="currentColor"><path d="m5 4 10 8-10 8zM17 4h2v16h-2z"/></svg></button></div></div>
   <div class="waveform">${bars.join('')}<div class="wf-cursor"></div></div>
   <div class="sec-title">Suas trilhas<span class="line"></span></div>
-  <div class="tracks">${[['Midnight Lo-Fi','90 BPM · A min','1:48','art-2.jpg','active'],['Sunset Drive','105 BPM · D maj','2:14','art-1.jpg',''],['Neon Pulse','128 BPM · F min','3:22','art-3.jpg',''],['Soft Piano','72 BPM · C maj','1:36','art-4.jpg','']].map(([n,m,t,s,a])=>`<div class="track ${a}"><div class="track-cover"><img src="${IMG(s)}" alt="" /></div><div class="track-name"><strong>${n}</strong><span>${m}</span></div><div class="track-mini-wave">${Array.from({length:24},(_,i)=>`<i style="height:${20+Math.abs(Math.sin(i+s.length))*70}%"></i>`).join('')}</div><div class="track-time">${t}</div><button class="icon-btn" style="border:0;width:28px;height:28px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="1.4"/></svg></button></div>`).join('')}</div>`;
+  <div class="tracks">${[['Midnight Lo-Fi','90 BPM · A min','1:48','art-2.jpg','midnight-lofi.mp3','active'],['Sunset Drive','105 BPM · D maj','2:14','art-1.jpg','sunset-drive.mp3',''],['Neon Pulse','128 BPM · F min','3:22','art-3.jpg','neon-pulse.mp3',''],['Soft Piano','72 BPM · C maj','1:36','art-4.jpg','soft-piano.mp3','']].map(([n,m,t,s,mp3,a])=>`<div class="track ${a}" data-src="${A}${mp3}" onclick="const x=document.getElementById('suno-audio');x.src=this.dataset.src;x.play();"><div class="track-cover"><img src="${IMG(s)}" alt="" /></div><div class="track-name"><strong>${n}</strong><span>${m}</span></div><div class="track-mini-wave">${Array.from({length:24},(_,i)=>`<i style="height:${20+Math.abs(Math.sin(i+s.length))*70}%"></i>`).join('')}</div><div class="track-time">${t}</div><button class="icon-btn" style="border:0;width:28px;height:28px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="1.4"/></svg></button></div>`).join('')}</div>`;
 }
 
 function viewEdit(){
@@ -1185,6 +1234,24 @@ function setTab(key){
     const setBg=()=>document.querySelector('.stage-inner')?.style.setProperty('--stage-bg', `url("${stageImg.src}")`);
     if(stageImg.complete) setBg(); else stageImg.addEventListener('load',setBg,{once:true});
   }
+  // Hover-video nos hero-tiles (toca vídeo Kling no hover, volta ao img no leave)
+  document.querySelectorAll('.hero-tile[data-hover-video]').forEach(tile=>{
+    const src=tile.dataset.hoverVideo;
+    let vid=null;
+    tile.addEventListener('mouseenter',()=>{
+      if(!vid){
+        vid=document.createElement('video');
+        vid.src=src; vid.muted=true; vid.loop=true; vid.playsInline=true; vid.preload='metadata';
+        vid.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;transition:opacity .3s;opacity:0';
+        tile.insertBefore(vid, tile.querySelector('.open'));
+      }
+      vid.style.opacity='1';
+      vid.play().catch(()=>{});
+    });
+    tile.addEventListener('mouseleave',()=>{
+      if(vid){ vid.style.opacity='0'; vid.pause(); }
+    });
+  });
   if(cfg.placeholder) typewriter(cfg.placeholder);
 }
 

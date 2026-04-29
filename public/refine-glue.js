@@ -124,6 +124,40 @@
   }
 
   // ============== UI INTEGRATION ==============
+  // Carrega historico real do user e populá HISTORY array do mockup
+  async function loadHistory() {
+    try {
+      const list = await api("/generations?limit=30");
+      if (!Array.isArray(list)) return;
+      const items = list
+        .filter(g => g.status === "completed" && (g.image_urls || []).length > 0)
+        .map(g => ({
+          img: g.image_urls[0],
+          p: g.prompt || "(sem prompt)",
+          t: timeAgo(g.created_at),
+          pin: "",
+        }));
+      if (items.length && Array.isArray(window.HISTORY)) {
+        // Substitui os itens mockados pelos reais
+        window.HISTORY.length = 0;
+        items.forEach(it => window.HISTORY.push(it));
+        if (typeof window.renderHistory === "function") window.renderHistory();
+      }
+    } catch (e) {
+      console.warn("[refine] loadHistory falhou:", e);
+    }
+  }
+
+  function timeAgo(iso) {
+    if (!iso) return "agora";
+    const t = new Date(iso).getTime();
+    const sec = Math.floor((Date.now() - t) / 1000);
+    if (sec < 60) return "agora";
+    if (sec < 3600) return Math.floor(sec / 60) + "min";
+    if (sec < 86400) return Math.floor(sec / 3600) + "h";
+    return Math.floor(sec / 86400) + "d";
+  }
+
   async function refreshBilling() {
     try {
       const me = await api("/billing/me");
@@ -210,6 +244,18 @@
         stage.src = urls[0];
         const inner = document.querySelector(".stage-inner");
         if (inner) inner.style.setProperty("--stage-bg", `url("${urls[0]}")`);
+      }
+      // Adicionar a galeria/rail (HISTORY array do mockup)
+      if (urls[0] && Array.isArray(window.HISTORY)) {
+        window.HISTORY.unshift({
+          img: urls[0],
+          p: prompt,
+          t: "agora",
+          pin: "",
+        });
+        if (typeof window.renderHistory === "function") {
+          window.renderHistory();
+        }
       }
       showToast("Pronto · " + modelLabel);
       refreshBilling();
@@ -322,6 +368,7 @@
       await ensureAuth();
       console.log("[refine] auth OK, user:", currentSession.user.id);
       await refreshBilling();
+      await loadHistory();
 
       // Sobrescrever click do botao gerar — addEventListener com capture
       const btn = $("genBtn");

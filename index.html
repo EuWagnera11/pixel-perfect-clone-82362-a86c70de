@@ -920,10 +920,10 @@ function viewCharacter(){
 function viewProduct(){
   return `
   <div class="head"><div><div class="eyebrow"><span class="dot"></span>AI Product · Generation Suite</div><h1>Imagens <em>publicitárias</em></h1><p>Pack-shots editoriais, mock-ups e cenas de produto com sua marca aplicada automaticamente.</p></div><div class="head-actions"><button class="tool-btn">${ICO("M3 12 12 3l9 9")}Brand kit</button><button class="tool-btn primary">${ICO("M12 5v14M5 12h14")}Novo produto</button></div></div>
-  <div class="product-hero"><div class="img-side"><img src="${IMG('product-hero.jpg')}" alt="Hero produto" /></div><div class="info-side"><div class="label">EM DESTAQUE · REFINE STUDIO × CINEMATIC RUINS</div><h2>Crie produtos <em>icônicos</em></h2><p>Suba sua arte ou descreva. O motor adapta cores, tipografia e cenário pra entregar pack-shots prontos pro mercado em segundos.</p><div class="actions"><button class="tool-btn primary">${ICO("M12 5v14M5 12h14")}Criar produto</button><button class="tool-btn">${ICO("M3 3h7v7H3z")}Templates</button></div></div></div>
+  <div class="product-hero"><div class="img-side"><img src="${A}brand-tesla-hero.jpg" alt="Hero produto" /></div><div class="info-side"><div class="label">EM DESTAQUE · TESLA MODEL S × FUTURE SHOWROOM</div><h2>Crie produtos <em>icônicos</em></h2><p>Suba sua arte ou descreva. O motor adapta cores, tipografia e cenário pra entregar pack-shots prontos pro mercado em segundos.</p><div class="actions"><button class="tool-btn primary">${ICO("M12 5v14M5 12h14")}Criar produto</button><button class="tool-btn">${ICO("M3 3h7v7H3z")}Templates</button></div></div></div>
   <div class="sec-title">Pack-shots recentes<span class="line"></span></div>
   <div class="product-grid">
-    ${[['Bebida · Premium','cinematic ruins','product-hero.jpg'],['Cosmético · Sérum','editorial','product-2.png'],['Fragrância · Lux','marble','product-3.png'],['Acessório · Couro','dark wood','product-4.png'],['Eletrônico · Audio','studio','product-5.png'],['Tech · Smart','spotlight','product-1.png'],['Beauty · Glow','soft pastel','product-06.jpg'],['Food · Premium','editorial','product-08.png']].map(([n,t,s])=>`<div class="prod"><img src="${IMG(s)}" alt="${n}" /><div class="info"><strong>${n}</strong><span>${t}</span></div></div>`).join('')}
+    ${[['Coca-Cola · Lata','cinematic','brand-coca.jpg'],['Monster Energy','neon dark','brand-monster.jpg'],['iPhone 16 Pro Max','spotlight','brand-iphone.jpg'],['Nike Air Max','sports editorial','brand-nike.jpg'],['Chanel No.5','marble luxe','brand-chanel.jpg'],['Heineken','pub warm','brand-heineken.jpg'],['MAC Cosmetics','beauty gloss','brand-mac.jpg'],["Lay's Classic",'snack hero','brand-lays.jpg']].map(([n,t,s])=>`<div class="prod"><img src="${A}${s}" alt="${n}" /><div class="info"><strong>${n}</strong><span>${t}</span></div></div>`).join('')}
   </div>`;
 }
 
@@ -931,7 +931,7 @@ function viewR3D(){
   return `
   <div class="head"><div><div class="eyebrow" style="color:var(--purple)"><span class="dot" style="background:var(--purple);box-shadow:0 0 10px var(--purple)"></span>AI Realistic 3D · Pixar Engine</div><h1>Personagens <em>3D realistas</em></h1><p>Crie personagens, criaturas e props 3D com qualidade Pixar/Disney. Estilo cartoon realista, render volumétrico, fur e pele detalhados.</p></div><div class="head-actions"><button class="tool-btn">${ICO("M3 12 12 3l9 9")}Estilos</button><button class="tool-btn primary">${ICO("M12 5v14M5 12h14")}Novo personagem</button></div></div>
   <div class="r3d-hero">
-    <div class="img-side"><img src="${IMG('char3d-1.png')}" alt="Realistic 3D" /></div>
+    <div class="img-side"><img src="${A}r3d-hero.png" alt="Realistic 3D" /></div>
     <div class="info-side"><div class="label">EM DESTAQUE · POKÉMON 3D</div><h2>Crie criaturas <em>com vida</em></h2><p>Treinado em milhares de renders 3D photorealistas. Subsurface scattering, fur dinâmico, materiais PBR. Output direto pra Blender, Cinema 4D ou render final.</p><div class="actions"><button class="tool-btn primary">${ICO("M12 5v14M5 12h14")}Criar 3D</button><button class="tool-btn">${ICO("M3 3h7v7H3z")}Galeria</button></div></div>
   </div>
   <div class="sec-title">Presets de estilo<span class="line"></span></div>

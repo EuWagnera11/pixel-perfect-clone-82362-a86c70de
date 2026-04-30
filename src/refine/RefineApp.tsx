@@ -18,7 +18,16 @@ import type { AspectRatio } from "./lib/models";
 import { VIEWS, TAB_CONFIG as MOCKUP_TAB_CFG } from "./lib/mockup-views";
 
 export default function RefineApp() {
-  const { session, profile, loading: authLoading, refreshProfile } = useAuth();
+  const {
+    session,
+    profile,
+    loading: authLoading,
+    refreshProfile,
+    upgradeTo,
+    signInWithGoogle,
+    signOut,
+  } = useAuth();
+  const isAnonymous = (session?.user?.is_anonymous as boolean | undefined) ?? !session?.user?.email;
   const { history, refresh: refreshHistory, setHistory } = useGenerations();
   const { msg, show, showToast } = useToast();
 
@@ -162,6 +171,10 @@ export default function RefineApp() {
           onTabChange={setCurrentTab}
           profile={profile}
           email={session?.user?.email ?? null}
+          isAnonymous={isAnonymous}
+          onUpgrade={() => upgradeTo("starter_monthly")}
+          onSignInGoogle={signInWithGoogle}
+          onSignOut={signOut}
         />
 
         <section className="workspace">

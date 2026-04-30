@@ -40,5 +40,34 @@ export function useAuth() {
     } catch {}
   };
 
-  return { session, profile, loading, error, refreshProfile };
+  const upgradeTo = async (tier: string = "starter_monthly") => {
+    try {
+      const r = await api<{ url: string; session_id: string }>("/billing/checkout", {
+        method: "POST",
+        body: { tier },
+      });
+      if (r.url) window.location.href = r.url;
+    } catch (e: any) {
+      console.error("[refine] upgrade failed:", e);
+      alert("Erro: " + (e?.message || "checkout falhou"));
+    }
+  };
+
+  const signInWithGoogle = async () => {
+    try {
+      await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: { redirectTo: window.location.origin },
+      });
+    } catch (e: any) {
+      alert("Erro: " + (e?.message || "OAuth falhou"));
+    }
+  };
+
+  const signOut = async () => {
+    await supabase.auth.signOut();
+    window.location.reload();
+  };
+
+  return { session, profile, loading, error, refreshProfile, upgradeTo, signInWithGoogle, signOut };
 }

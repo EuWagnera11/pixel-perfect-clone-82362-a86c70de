@@ -101,30 +101,52 @@ export default function RefineApp() {
     }
     if (isGenerating) return;
     setIsGenerating(true);
+    const isVideo = currentTab === "video";
+    const mediaType: "image" | "video" = isVideo ? "video" : "image";
     try {
       const created = await createGeneration({
         prompt: prompt.trim(),
         aspect_ratio: ratio,
         resolution: "1k",
         num_variations: 1,
+        media_type: mediaType,
       });
       showToast(`Enfileirado · ${created.credits_used} cr · ${modelLabel}`);
-      const final = await pollGeneration(created.id);
+      const final = await pollGeneration(created.id, isVideo ? 300_000 : 120_000);
       if (final.status === "failed") {
         showToast("Falha: " + (final.error_message || "desconhecida").slice(0, 80));
         return;
       }
-      const url = final.image_urls?.[0];
+      const url = isVideo ? final.video_urls?.[0] : final.image_urls?.[0];
       if (url) {
-        // Atualiza stage atual no DOM (que é innerHTML)
         const el = viewRef.current;
         if (el) {
-          const stageImg = el.querySelector("#stageImg") as HTMLImageElement | null;
-          if (stageImg) stageImg.src = url;
-          (el.querySelector(".stage-inner") as HTMLElement | null)?.style.setProperty(
-            "--stage-bg",
-            `url("${url}")`
-          );
+          if (isVideo) {
+            // Stage do mockup é <img id=stageImg> — substitui por <video> on the fly
+            const stage = el.querySelector("#stageImg");
+            if (stage && stage.parentNode) {
+              const video = document.createElement("video");
+              video.id = "stageImg";
+              video.src = url;
+              video.controls = true;
+              video.autoplay = true;
+              video.loop = true;
+              video.muted = true;
+              video.playsInline = true;
+              video.style.width = "100%";
+              video.style.height = "100%";
+              video.style.objectFit = "cover";
+              stage.parentNode.replaceChild(video, stage);
+            }
+            (el.querySelector(".stage-inner") as HTMLElement | null)?.style.setProperty("--stage-bg", "");
+          } else {
+            const stageImg = el.querySelector("#stageImg") as HTMLImageElement | null;
+            if (stageImg) stageImg.src = url;
+            (el.querySelector(".stage-inner") as HTMLElement | null)?.style.setProperty(
+              "--stage-bg",
+              `url("${url}")`
+            );
+          }
         }
         setHistory((prev) => [{ ...final }, ...prev].slice(0, 30));
       }
@@ -136,7 +158,7 @@ export default function RefineApp() {
     } finally {
       setIsGenerating(false);
     }
-  }, [prompt, ratio, modelLabel, isGenerating, refreshProfile, setHistory, showToast]);
+  }, [prompt, ratio, modelLabel, currentTab, isGenerating, refreshProfile, setHistory, showToast]);
 
   const handleHistoryClick = ({ img, prompt: p }: { img: string; prompt: string }) => {
     const el = viewRef.current;

@@ -30,7 +30,8 @@ export type ToolInput = {
 
 /** Tabs que exigem upload de imagem (botão attach do Dock). */
 export function tabRequiresUpload(tab: string): boolean {
-  return ["upscale", "edit", "ecommerce", "product"].includes(tab);
+  // Video também exige porque todos motores Freepik são image-to-video.
+  return ["upscale", "edit", "ecommerce", "product", "video"].includes(tab);
 }
 
 /** Tabs onde prompt é opcional (ex.: upscale só com a imagem). */
@@ -84,6 +85,7 @@ export async function executeToolAction(input: ToolInput): Promise<ToolResult> {
 
   // ============ VIDEO ============
   if (tab === "video") {
+    if (!sourceUrl) throw new Error("Anexe uma imagem inicial pra animar (todos motores Freepik são image-to-video)");
     const engine = modelId || "kling-v3-std";
     // Hailuo aceita 6s; resto 5s. Default conservador 5s.
     const duration = engine.startsWith("hailuo") ? "6s" : "5s";
@@ -95,6 +97,7 @@ export async function executeToolAction(input: ToolInput): Promise<ToolResult> {
       media_type: "video",
       video_engine: engine,
       duration,
+      image_url: sourceUrl,
     });
     const final = await pollGeneration(created.id, 600_000);
     if (final.status === "failed") throw new Error(final.error_message || "Vídeo falhou");

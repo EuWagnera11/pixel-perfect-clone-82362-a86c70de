@@ -13,6 +13,12 @@ type DockProps = {
   onGenerate: () => void;
   costLabel?: string;
   placeholder?: string;
+  /** Disparado quando o usuário escolhe um arquivo no botão de anexo (+). */
+  onAttach?: (file: File) => void;
+  /** Marca o botão de anexo como ativo (já tem imagem). */
+  hasAttachment?: boolean;
+  /** Indica que a aba atual exige imagem — destaca o botão de anexo. */
+  attachmentRequired?: boolean;
 };
 
 const QUALITIES = ["1K", "2K", "4K"];
@@ -29,10 +35,14 @@ export function Dock({
   onGenerate,
   costLabel = "180 cr",
   placeholder = "Descreva o que você quer gerar…",
+  onAttach,
+  hasAttachment = false,
+  attachmentRequired = false,
 }: DockProps) {
   const [open, setOpen] = useState<"model" | "ratio" | "quality" | "variations" | "style" | null>(null);
   const [quality, setQuality] = useState("1K");
   const [variations, setVariations] = useState(1);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const refs = {
     model: useRef<HTMLButtonElement>(null),
@@ -67,8 +77,24 @@ export function Dock({
         <div className="dock-inner">
           <div className="dock-core">
             <div className="dock-row">
-              <button className="attach">
-                <Icon d="M12 5v14M5 12h14" />
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                style={{ display: "none" }}
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f && onAttach) onAttach(f);
+                  if (e.currentTarget) e.currentTarget.value = "";
+                }}
+              />
+              <button
+                className={"attach" + (hasAttachment ? " has-attachment" : "") + (attachmentRequired && !hasAttachment ? " required" : "")}
+                onClick={() => fileInputRef.current?.click()}
+                title={hasAttachment ? "Imagem anexada — clique para trocar" : attachmentRequired ? "Anexe uma imagem (obrigatório)" : "Anexar imagem"}
+                style={hasAttachment ? { background: "rgba(255,180,90,.18)", borderColor: "rgba(255,180,90,.5)" } : undefined}
+              >
+                <Icon d={hasAttachment ? "M5 12l5 5L20 7" : "M12 5v14M5 12h14"} />
               </button>
               <textarea
                 className="prompt-input"

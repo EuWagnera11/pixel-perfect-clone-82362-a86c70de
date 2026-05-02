@@ -42,20 +42,29 @@ export type GenerateInput = {
   resolution: "1k" | "2k" | "4k";
   num_variations: number;
   media_type?: "image" | "video";
+  model?: string;
+  video_engine?: string;
+  duration?: string;
+  image_url?: string;
 };
 
 export async function createGeneration(input: GenerateInput) {
+  const body: Record<string, unknown> = {
+    prompt: input.prompt,
+    media_type: input.media_type || "image",
+    aspect_ratio: input.aspect_ratio,
+    resolution: input.resolution,
+    num_variations: input.num_variations,
+    enhance_skin: false,
+    upscale: false,
+  };
+  if (input.model) body.model = input.model;
+  if (input.video_engine) body.video_engine = input.video_engine;
+  if (input.duration) body.duration = input.duration;
+  if (input.image_url) body.image_url = input.image_url;
   return await api<{ id: string; status: string; credits_used: number }>("/generations", {
     method: "POST",
-    body: {
-      prompt: input.prompt,
-      media_type: input.media_type || "image",
-      aspect_ratio: input.aspect_ratio,
-      resolution: input.resolution,
-      num_variations: input.num_variations,
-      enhance_skin: false,
-      upscale: false,
-    },
+    body,
   });
 }
 

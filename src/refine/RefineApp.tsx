@@ -6,7 +6,7 @@
  */
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useAuth } from "./hooks/useAuth";
-import { useGenerations, createGeneration, pollGeneration } from "./hooks/useGenerations";
+import { useGenerations } from "./hooks/useGenerations";
 import { useToast } from "./hooks/useToast";
 import { Sidebar } from "./components/Sidebar";
 import { Dock } from "./components/Dock";
@@ -14,6 +14,7 @@ import { Rail } from "./components/Rail";
 import { Toast } from "./components/Toast";
 import { TAB_CONFIG } from "./lib/nav";
 import type { AspectRatio } from "./lib/models";
+import { executeToolAction, tabRequiresUpload, tabPromptOptional, uploadFileForTool } from "./lib/tool-actions";
 // @ts-ignore — mockup-views.ts tem ts-nocheck (JS bruto)
 import { VIEWS, TAB_CONFIG as MOCKUP_TAB_CFG } from "./lib/mockup-views";
 
@@ -36,7 +37,11 @@ export default function RefineApp() {
   const [modelLabel, setModelLabel] = useState("Nano-Banana Pro");
   const [ratio, setRatio] = useState<AspectRatio>("16:9");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [sourceUrl, setSourceUrl] = useState<string | null>(null);
   const viewRef = useRef<HTMLDivElement>(null);
+
+  // Quando a aba muda, limpa upload anterior (cada ferramenta tem seu fluxo)
+  useEffect(() => { setSourceUrl(null); }, [currentTab]);
 
   const tabConfig = TAB_CONFIG[currentTab] || TAB_CONFIG.home;
   const noDock = (MOCKUP_TAB_CFG as any)[currentTab]?.noDock;
@@ -93,64 +98,104 @@ export default function RefineApp() {
     return () => el.removeEventListener("click", onClick);
   }, [currentTab]);
 
+  // ─── Renderiza resultado no stage (substitui o <img id=stageImg> conforme tipo) ───
+  const renderResultOnStage = useCallback((url: string, type: "image" | "video" | "audio") => {
+    const el = viewRef.current;
+    if (!el) return;
+    const stage = el.querySelector("#stageImg");
+    if (!stage || !stage.parentNode) return;
+
+    let newEl: HTMLElement;
+    if (type === "video") {
+      const v = document.createElement("video");
+      v.src = url;
+      v.controls = true;
+      v.autoplay = true;
+      v.loop = true;
+      v.muted = true;
+      v.playsInline = true;
+      v.style.cssText = "width:100%;height:100%;object-fit:cover";
+      newEl = v;
+    } else if (type === "audio") {
+      const wrap = document.createElement("div");
+      wrap.style.cssText = "display:flex;align-items:center;justify-content:center;width:100%;height:100%;padding:24px;";
+      const a = document.createElement("audio");
+      a.src = url;
+      a.controls = true;
+      a.autoplay = true;
+      a.style.cssText = "width:100%;max-width:600px";
+      wrap.appendChild(a);
+      newEl = wrap;
+    } else {
+      const img = document.createElement("img");
+      img.src = url;
+      img.alt = "";
+      img.style.cssText = "width:100%;height:100%;object-fit:cover";
+      newEl = img;
+    }
+    newEl.id = "stageImg";
+    stage.parentNode.replaceChild(newEl, stage);
+
+    const stageInner = el.querySelector(".stage-inner") as HTMLElement | null;
+    if (type === "image") {
+      stageInner?.style.setProperty("--stage-bg", `url("${url}")`);
+    } else {
+      stageInner?.style.setProperty("--stage-bg", "");
+    }
+  }, []);
+
+  // ─── Upload (botão attach do Dock) ───
+  const handleAttach = useCallback(async (file: File) => {
+    try {
+      showToast("Enviando imagem...");
+      const url = await uploadFileForTool(file);
+      setSourceUrl(url);
+      // Mostra a imagem no stage como preview
+      renderResultOnStage(url, "image");
+      showToast("Imagem anexada");
+    } catch (e: any) {
+      console.error("[refine] upload failed:", e);
+      showToast("Erro no upload: " + (e?.message || "falha"));
+    }
+  }, [showToast, renderResultOnStage]);
+
   // ─── Generate ───
   const handleGenerate = useCallback(async () => {
-    if (!prompt.trim()) {
+    if (isGenerating) return;
+    const trimmed = prompt.trim();
+    if (!trimmed && !tabPromptOptional(currentTab)) {
       showToast("Digite um prompt primeiro");
       return;
     }
-    if (isGenerating) return;
+    if (tabRequiresUpload(currentTab) && !sourceUrl) {
+      showToast("Anexe uma imagem primeiro (botão + no Dock)");
+      return;
+    }
     setIsGenerating(true);
-    const isVideo = currentTab === "video";
-    const mediaType: "image" | "video" = isVideo ? "video" : "image";
     try {
-      const created = await createGeneration({
-        prompt: prompt.trim(),
-        aspect_ratio: ratio,
-        resolution: "1k",
-        num_variations: 1,
-        media_type: mediaType,
+      const result = await executeToolAction({
+        tab: currentTab,
+        prompt: trimmed,
+        ratio,
+        sourceUrl,
       });
-      showToast(`Enfileirado · ${created.credits_used} cr · ${modelLabel}`);
-      const final = await pollGeneration(created.id, isVideo ? 300_000 : 120_000);
-      if (final.status === "failed") {
-        showToast("Falha: " + (final.error_message || "desconhecida").slice(0, 80));
-        return;
+      renderResultOnStage(result.url, result.type);
+
+      // Salva no history se for image/video (Galeria do user)
+      if (result.type === "image" || result.type === "video") {
+        setHistory((prev) => [{
+          id: `local-${Date.now()}`,
+          status: "completed" as const,
+          prompt: trimmed,
+          image_urls: result.type === "image" ? [result.url] : [],
+          video_urls: result.type === "video" ? [result.url] : [],
+          credits_used: result.creditsUsed ?? 0,
+          media_type: result.type,
+          created_at: new Date().toISOString(),
+        }, ...prev].slice(0, 30));
       }
-      const url = isVideo ? final.video_urls?.[0] : final.image_urls?.[0];
-      if (url) {
-        const el = viewRef.current;
-        if (el) {
-          if (isVideo) {
-            // Stage do mockup é <img id=stageImg> — substitui por <video> on the fly
-            const stage = el.querySelector("#stageImg");
-            if (stage && stage.parentNode) {
-              const video = document.createElement("video");
-              video.id = "stageImg";
-              video.src = url;
-              video.controls = true;
-              video.autoplay = true;
-              video.loop = true;
-              video.muted = true;
-              video.playsInline = true;
-              video.style.width = "100%";
-              video.style.height = "100%";
-              video.style.objectFit = "cover";
-              stage.parentNode.replaceChild(video, stage);
-            }
-            (el.querySelector(".stage-inner") as HTMLElement | null)?.style.setProperty("--stage-bg", "");
-          } else {
-            const stageImg = el.querySelector("#stageImg") as HTMLImageElement | null;
-            if (stageImg) stageImg.src = url;
-            (el.querySelector(".stage-inner") as HTMLElement | null)?.style.setProperty(
-              "--stage-bg",
-              `url("${url}")`
-            );
-          }
-        }
-        setHistory((prev) => [{ ...final }, ...prev].slice(0, 30));
-      }
-      showToast("Pronto · " + modelLabel);
+
+      showToast(`Pronto · ${result.creditsUsed ?? 0} cr · ${modelLabel}`);
       refreshProfile();
     } catch (e: any) {
       console.error("[refine] generate failed:", e);
@@ -158,7 +203,7 @@ export default function RefineApp() {
     } finally {
       setIsGenerating(false);
     }
-  }, [prompt, ratio, modelLabel, currentTab, isGenerating, refreshProfile, setHistory, showToast]);
+  }, [prompt, ratio, modelLabel, currentTab, sourceUrl, isGenerating, refreshProfile, setHistory, showToast, renderResultOnStage]);
 
   const handleHistoryClick = ({ img, prompt: p }: { img: string; prompt: string }) => {
     const el = viewRef.current;
@@ -214,6 +259,9 @@ export default function RefineApp() {
               isGenerating={isGenerating}
               onGenerate={handleGenerate}
               placeholder={tabConfig.placeholder}
+              onAttach={handleAttach}
+              hasAttachment={!!sourceUrl}
+              attachmentRequired={tabRequiresUpload(currentTab)}
             />
           )}
         </section>

@@ -64,8 +64,7 @@ export const VIDEO_MODELS: VideoModel[] = [
   { label: "Kling Pro 2.5 Turbo",  id: "kling-pro-2-5-turbo",  family: "kling", defaultDuration: "5s", costHint: "Rápido" },
   { label: "Kling Pro 2.1",        id: "kling-pro-2-1",        family: "kling", defaultDuration: "5s" },
   { label: "Kling 2.1 Standard",   id: "kling-std-2-1",        family: "kling", defaultDuration: "5s" },
-  // Veo (Google)
-  { label: "Veo 3.1 4K",           id: "veo-3-1-4k",           family: "veo", defaultDuration: "5s", resolution: "4K", costHint: "Premium" },
+  // Veo (Google) — 4K removido (não disponível pela Freepik atualmente)
   { label: "Veo 3.1 1080p",        id: "veo-3-1-1080p",        family: "veo", defaultDuration: "5s", resolution: "1080p", costHint: "Premium" },
   { label: "Veo 3.1 Fast 1080p",   id: "veo-3-1-fast-1080p",   family: "veo", defaultDuration: "5s", resolution: "1080p", costHint: "Rápido" },
   // Hailuo (MiniMax)
@@ -85,12 +84,10 @@ export const VIDEO_MODELS: VideoModel[] = [
   // Pixverse
   { label: "Pixverse v5 1080p",    id: "pixverse-v5-1080p",    family: "pixverse", defaultDuration: "5s", resolution: "1080p" },
   { label: "Pixverse v5 720p",     id: "pixverse-v5-720p",     family: "pixverse", defaultDuration: "5s" },
-  // LTX
-  { label: "LTX 2 Pro 4K",         id: "ltx-2-pro-4k",         family: "ltx", defaultDuration: "5s", resolution: "4K", costHint: "Premium" },
+  // LTX (4K removido — endpoint instável)
   { label: "LTX 2 Pro 1080p",      id: "ltx-2-pro-1080p",      family: "ltx", defaultDuration: "5s", resolution: "1080p" },
   { label: "LTX 2 Fast 1080p",     id: "ltx-2-fast-1080p",     family: "ltx", defaultDuration: "5s", resolution: "1080p", costHint: "Rápido" },
-  // Wan
-  { label: "Wan 2.7",              id: "wan-2-7",              family: "wan", defaultDuration: "5s" },
+  // Wan (2.7 removido — endpoint não existe na Freepik atualmente)
   { label: "Wan 2.6 1080p",        id: "wan-2-6-1080p",        family: "wan", defaultDuration: "5s", resolution: "1080p" },
   { label: "Wan 2.6 720p",         id: "wan-2-6-720p",         family: "wan", defaultDuration: "5s" },
   // Omnihuman

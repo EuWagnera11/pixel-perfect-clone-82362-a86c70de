@@ -13,7 +13,12 @@ import { Dock } from "./components/Dock";
 import { Rail } from "./components/Rail";
 import { Toast } from "./components/Toast";
 import { TAB_CONFIG } from "./lib/nav";
-import type { AspectRatio } from "./lib/models";
+import {
+  type AspectRatio,
+  MODEL_LABEL_TO_ID,
+  MODEL_ID_TO_LABEL,
+  DEFAULT_MODEL_BY_TAB,
+} from "./lib/models";
 import { executeToolAction, tabRequiresUpload, tabPromptOptional, uploadFileForTool } from "./lib/tool-actions";
 // @ts-ignore — mockup-views.ts tem ts-nocheck (JS bruto)
 import { VIEWS, TAB_CONFIG as MOCKUP_TAB_CFG } from "./lib/mockup-views";
@@ -57,15 +62,21 @@ export default function RefineApp() {
     `;
   })();
 
-  // Atualizar modelo/ratio quando aba mudar (espelha TAB_CONFIG)
+  // Atualizar modelo/ratio quando aba mudar (default da aba do nosso catálogo)
   useEffect(() => {
-    const cfg = (MOCKUP_TAB_CFG as any)[currentTab];
-    if (cfg) {
-      if (cfg.model && cfg.model !== "—" && cfg.model !== "Refine Suite") setModelLabel(cfg.model);
-      // ratio só atualiza se for valido
-      const validRatios = ["1:1", "9:16", "16:9", "4:3", "3:4", "21:9"];
-      if (cfg.ratio && validRatios.includes(cfg.ratio)) setRatio(cfg.ratio as AspectRatio);
+    // Modelo: default por aba (image: nano-banana-pro, video: kling-v3-std, etc)
+    const defaultId = DEFAULT_MODEL_BY_TAB[currentTab];
+    if (defaultId) {
+      setModelLabel(MODEL_ID_TO_LABEL[defaultId] || defaultId);
+    } else {
+      // Fallback pro mockup config legacy
+      const cfg = (MOCKUP_TAB_CFG as any)[currentTab];
+      if (cfg?.model && cfg.model !== "—" && cfg.model !== "Refine Suite") setModelLabel(cfg.model);
     }
+    // Ratio: usa do mockup config
+    const cfg = (MOCKUP_TAB_CFG as any)[currentTab];
+    const validRatios = ["1:1", "9:16", "16:9", "4:3", "3:4", "21:9"];
+    if (cfg?.ratio && validRatios.includes(cfg.ratio)) setRatio(cfg.ratio as AspectRatio);
   }, [currentTab]);
 
   // Click delegation dentro do view container — captura [data-tab] pra navegar
@@ -173,11 +184,14 @@ export default function RefineApp() {
     }
     setIsGenerating(true);
     try {
+      // Converte label visível -> id do backend. Se não bater, manda undefined (action usa default da aba).
+      const modelId = MODEL_LABEL_TO_ID[modelLabel] || null;
       const result = await executeToolAction({
         tab: currentTab,
         prompt: trimmed,
         ratio,
         sourceUrl,
+        modelId,
       });
       renderResultOnStage(result.url, result.type);
 
@@ -262,6 +276,7 @@ export default function RefineApp() {
               onAttach={handleAttach}
               hasAttachment={!!sourceUrl}
               attachmentRequired={tabRequiresUpload(currentTab)}
+              currentTab={currentTab}
             />
           )}
         </section>

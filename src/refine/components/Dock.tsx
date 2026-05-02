@@ -1,6 +1,15 @@
 import { useState, useRef, useEffect } from "react";
 import { Icon } from "./Icon";
-import { MODEL_LABEL_TO_ID, ASPECT_RATIOS, type AspectRatio } from "../lib/models";
+import {
+  MODEL_LABEL_TO_ID,
+  ASPECT_RATIOS,
+  type AspectRatio,
+  modelListForTab,
+  IMAGE_MODELS,
+  VIDEO_MODELS,
+  type ImageModel,
+  type VideoModel,
+} from "../lib/models";
 
 type DockProps = {
   prompt: string;
@@ -19,6 +28,8 @@ type DockProps = {
   hasAttachment?: boolean;
   /** Indica que a aba atual exige imagem — destaca o botão de anexo. */
   attachmentRequired?: boolean;
+  /** Aba atual da Sidebar — usado pra filtrar lista de motores no popover. */
+  currentTab?: string;
 };
 
 const QUALITIES = ["1K", "2K", "4K"];
@@ -38,6 +49,7 @@ export function Dock({
   onAttach,
   hasAttachment = false,
   attachmentRequired = false,
+  currentTab = "image",
 }: DockProps) {
   const [open, setOpen] = useState<"model" | "ratio" | "quality" | "variations" | "style" | null>(null);
   const [quality, setQuality] = useState("1K");
@@ -179,22 +191,72 @@ export function Dock({
       </div>
 
       {/* Popovers */}
-      {open === "model" && refs.model.current && (
-        <Popover anchor={refs.model.current}>
-          {Object.keys(MODEL_LABEL_TO_ID).map((label) => (
-            <PopItem
-              key={label}
-              active={label === modelLabel}
-              onClick={() => {
-                onModelChange(label);
-                setOpen(null);
-              }}
-            >
-              {label}
-            </PopItem>
-          ))}
-        </Popover>
-      )}
+      {open === "model" && refs.model.current && (() => {
+        const list = modelListForTab(currentTab);
+        if (list.type === "audio") {
+          return (
+            <Popover anchor={refs.model.current}>
+              <PopItem onClick={() => setOpen(null)}>(Áudio: voz fixa por enquanto)</PopItem>
+            </Popover>
+          );
+        }
+        if (list.type === "none") {
+          return (
+            <Popover anchor={refs.model.current}>
+              <PopItem onClick={() => setOpen(null)}>(Esta aba não usa motor de geração)</PopItem>
+            </Popover>
+          );
+        }
+        // Agrupa por family pra dar visual hierárquico
+        const grouped: Record<string, (ImageModel | VideoModel)[]> = {};
+        for (const m of list.models) {
+          const fam = (m as any).family;
+          (grouped[fam] ||= []).push(m);
+        }
+        const familyLabels: Record<string, string> = {
+          "nano-banana": "Nano Banana", "imagen": "Google Imagen", "flux": "Flux (Black Forest)",
+          "seedream": "Seedream (ByteDance)", "mystic": "Mystic", "hyperflux": "Hyperflux",
+          "runway": "Runway", "z-image": "Z-Image",
+          "kling": "Kling", "veo": "Veo (Google)", "hailuo": "Hailuo (MiniMax)",
+          "seedance": "Seedance", "pixverse": "Pixverse", "ltx": "LTX",
+          "wan": "Wan", "omnihuman": "Omnihuman",
+        };
+        return (
+          <Popover anchor={refs.model.current}>
+            <div style={{ minWidth: 280 }}>
+              {Object.entries(grouped).map(([fam, models]) => (
+                <div key={fam} style={{ marginBottom: 6 }}>
+                  <div style={{
+                    fontSize: 10, textTransform: "uppercase", letterSpacing: 1,
+                    color: "rgba(255,255,255,.45)", padding: "8px 10px 4px",
+                  }}>{familyLabels[fam] || fam}</div>
+                  {models.map((m) => (
+                    <PopItem
+                      key={m.id}
+                      active={m.label === modelLabel}
+                      onClick={() => { onModelChange(m.label); setOpen(null); }}
+                    >
+                      <span>{m.label}</span>
+                      {m.costHint && (
+                        <span style={{
+                          marginLeft: 8, fontSize: 10, padding: "2px 6px", borderRadius: 8,
+                          background: m.costHint === "Premium" ? "rgba(255,180,90,.18)" : "rgba(120,200,160,.18)",
+                          color: m.costHint === "Premium" ? "#ffb45a" : "#7cd0a0",
+                        }}>{m.costHint}</span>
+                      )}
+                      {(m as VideoModel).resolution && (
+                        <span style={{ marginLeft: 6, fontSize: 10, color: "rgba(255,255,255,.4)" }}>
+                          {(m as VideoModel).resolution}
+                        </span>
+                      )}
+                    </PopItem>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </Popover>
+        );
+      })()}
       {open === "ratio" && refs.ratio.current && (
         <Popover anchor={refs.ratio.current}>
           {ASPECT_RATIOS.map((r) => (

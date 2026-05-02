@@ -24,6 +24,8 @@ export type ToolInput = {
   prompt: string;
   ratio: string;
   sourceUrl?: string | null;
+  /** Motor escolhido pelo usuário (id do backend). Se omitido, usa default da aba. */
+  modelId?: string | null;
 };
 
 /** Tabs que exigem upload de imagem (botão attach do Dock). */
@@ -78,18 +80,21 @@ function extractUrl(data: any): string | null {
 }
 
 export async function executeToolAction(input: ToolInput): Promise<ToolResult> {
-  const { tab, prompt, ratio, sourceUrl } = input;
+  const { tab, prompt, ratio, sourceUrl, modelId } = input;
 
   // ============ VIDEO ============
   if (tab === "video") {
+    const engine = modelId || "kling-v3-std";
+    // Hailuo aceita 6s; resto 5s. Default conservador 5s.
+    const duration = engine.startsWith("hailuo") ? "6s" : "5s";
     const created = await createGeneration({
       prompt,
       aspect_ratio: ratio,
       resolution: "1k",
       num_variations: 1,
       media_type: "video",
-      video_engine: "kling-v3-std",
-      duration: "5s",
+      video_engine: engine,
+      duration,
     });
     const final = await pollGeneration(created.id, 600_000);
     if (final.status === "failed") throw new Error(final.error_message || "Vídeo falhou");
@@ -187,7 +192,7 @@ export async function executeToolAction(input: ToolInput): Promise<ToolResult> {
   // ============ DEFAULT: IMAGE ============
   // image, cinema, character, marketing, assets, r3d, depth, e qualquer outra
   if (!prompt.trim()) throw new Error("Digite um prompt primeiro");
-  const model = IMAGE_MODEL[tab] ?? "nano-banana-pro";
+  const model = modelId || IMAGE_MODEL[tab] || "nano-banana-pro";
   const created = await createGeneration({
     prompt,
     aspect_ratio: ratio,

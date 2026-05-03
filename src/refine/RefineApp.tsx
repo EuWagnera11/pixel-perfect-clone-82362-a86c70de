@@ -293,36 +293,81 @@ function Workspace() {
         />
 
         <section className="workspace">
-          <div className={"canvas" + (noDock ? " no-dock" : "")}>
-            <div ref={viewRef} dangerouslySetInnerHTML={{ __html: viewHtml }} />
-          </div>
-          {!noDock && (
-            <Dock
-              prompt={prompt}
-              onPromptChange={setPrompt}
-              modelLabel={modelLabel}
-              onModelChange={setModelLabel}
-              ratio={ratio}
-              onRatioChange={setRatio}
-              isGenerating={false}
-              onGenerate={handleGenerate}
-              placeholder={tabConfig.placeholder}
-              onAttach={handleAttach}
-              hasAttachment={!!sourceUrl}
-              attachmentRequired={tabRequiresUpload(currentTab)}
-              currentTab={currentTab}
-              activeJobsCount={activeJobsCount}
-              quality={quality}
-              onQualityChange={setQuality}
-              variations={variations}
-              onVariationsChange={setVariations}
-              stylePack={stylePack}
-              onStylePackChange={setStylePack}
+          {currentTab === "image" ? (
+            <ImageWorkspace
+              history={history}
+              onUploadRef={async (file) => {
+                try {
+                  showToast("Enviando imagem…");
+                  const url = await uploadFile(file);
+                  showToast("Referência adicionada");
+                  return url;
+                } catch (e: any) {
+                  showToast("Erro upload: " + (e?.message || "falha"));
+                  return null;
+                }
+              }}
+              showToast={showToast}
+              refreshHistory={async () => {
+                const { data } = await supabase.auth.getUser();
+                if (data.user) {
+                  const { data: rows } = await supabase
+                    .from("generations").select("*")
+                    .eq("user_id", data.user.id)
+                    .order("created_at", { ascending: false }).limit(60);
+                  if (rows) setHistory(rows.filter((g: any) =>
+                    g.status === "completed" && (g.image_urls?.length || g.video_urls?.length)
+                  ) as any);
+                }
+              }}
+              onDeleteGeneration={async (id) => {
+                const { error } = await supabase.from("generations").delete().eq("id", id);
+                if (error) { showToast("Erro: " + error.message); return; }
+                setHistory((p) => p.filter((g) => g.id !== id));
+                showToast("Excluído");
+              }}
+              onToggleFavorite={async (id, value) => {
+                const cur = history.find((g) => g.id === id) as any;
+                const md = { ...(cur?.metadata || {}), favorite: value };
+                const { error } = await supabase.from("generations").update({ metadata: md }).eq("id", id);
+                if (error) { showToast("Erro: " + error.message); return; }
+                setHistory((p) => p.map((g: any) => g.id === id ? { ...g, metadata: md } : g));
+              }}
             />
+          ) : (
+            <>
+              <div className={"canvas" + (noDock ? " no-dock" : "")}>
+                <div ref={viewRef} dangerouslySetInnerHTML={{ __html: viewHtml }} />
+              </div>
+              {!noDock && (
+                <Dock
+                  prompt={prompt}
+                  onPromptChange={setPrompt}
+                  modelLabel={modelLabel}
+                  onModelChange={setModelLabel}
+                  ratio={ratio}
+                  onRatioChange={setRatio}
+                  isGenerating={false}
+                  onGenerate={handleGenerate}
+                  placeholder={tabConfig.placeholder}
+                  onAttach={handleAttach}
+                  hasAttachment={!!sourceUrl}
+                  attachmentRequired={tabRequiresUpload(currentTab)}
+                  currentTab={currentTab}
+                  activeJobsCount={activeJobsCount}
+                  quality={quality}
+                  onQualityChange={setQuality}
+                  variations={variations}
+                  onVariationsChange={setVariations}
+                  stylePack={stylePack}
+                  onStylePackChange={setStylePack}
+                />
+              )}
+            </>
           )}
         </section>
 
-        {!noRail && (
+        {!noRail && currentTab !== "image" && (
           <Rail generations={history} onItemClick={handleHistoryClick} />
         )}
       </div>

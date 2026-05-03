@@ -162,24 +162,24 @@ export function ImageWorkspace({
     <div className="img-ws">
       {/* ===== LEFT CONTROLS ===== */}
       <aside className="img-ws-controls">
-        <div className="img-ws-sidebar-head">
-          <span className="img-ws-kicker">
-            <span className="img-ws-kicker-dot" /> Image studio
+        <div className="img-ws-brand">
+          <span className="img-ws-brand-mark">
+            <Icon d="m12 3 2.4 6.6L21 12l-6.6 2.4L12 21l-2.4-6.6L3 12l6.6-2.4z" strokeWidth={2} />
           </span>
+          <span className="img-ws-brand-name">Image Studio</span>
+        </div>
+        <div className="img-ws-sidebar-head">
           <h1>Criar imagens</h1>
-          <p>Prompt, referências e múltiplas saídas em um fluxo limpo para escolher a melhor opção.</p>
+          <p>Prompt, referências e saídas</p>
         </div>
 
         {/* MODELO */}
         <div className="img-ws-panel img-ws-panel--tight">
           <div className="img-ws-panel-head">
             <div className="img-ws-panel-title">
-              <span className="img-ws-panel-icon">
-                <Icon d="M4 7h16M4 12h16M4 17h10" />
-              </span>
+              <span className="img-ws-dot-orange" />
               Modelo
             </div>
-            <span>{IMAGE_MODELS.length} disponíveis</span>
           </div>
           <select
             className="img-ws-select"
@@ -197,16 +197,10 @@ export function ImageWorkspace({
         {/* REFERÊNCIAS */}
         <div className="img-ws-panel">
           <div className="img-ws-panel-head">
-            <div className="img-ws-panel-title">
-              <span className="img-ws-panel-icon">
-                <Icon d="M4 4h16v12H4z M4 16l4-4 4 4 4-4 4 4" />
-              </span>
-              Referências
-            </div>
-            <span>{refs.length}/8</span>
+            <div className="img-ws-panel-title">Referências</div>
+            <span>{refs.length} / 8</span>
           </div>
           <div className="img-ws-section">
-            <div className="img-ws-helper">Imagens para manter estilo, composição ou assunto.</div>
             <div className="img-ws-refs">
               {refs.map((url, i) => (
                 <div key={i} className="img-ws-ref">
@@ -250,18 +244,12 @@ export function ImageWorkspace({
         </div>
 
         {/* PROMPT */}
-        <div className="img-ws-panel">
+        <div className="img-ws-panel img-ws-panel--prompt">
           <div className="img-ws-panel-head">
-            <div className="img-ws-panel-title">
-              <span className="img-ws-panel-icon">
-                <Icon d="M4 6h16M4 12h16M4 18h10" />
-              </span>
-              Prompt
-            </div>
-            <span className="kbd-inline">⌘ + ↵</span>
+            <div className="img-ws-panel-title">Prompt</div>
+            <span className="kbd-inline">⌘↵</span>
           </div>
           <div className="img-ws-section">
-            <div className="img-ws-helper">Enquadramento, luz, estilo e detalhes.</div>
             <textarea
               className="img-ws-textarea"
               placeholder="Ex: retrato editorial de uma mulher ruiva com luz quente lateral, fundo desfocado…"
@@ -270,17 +258,16 @@ export function ImageWorkspace({
               onKeyDown={(e) => {
                 if ((e.metaKey || e.ctrlKey) && e.key === "Enter") { e.preventDefault(); handleGenerate(); }
               }}
-              rows={5}
+              rows={4}
             />
-            <div className="img-ws-helper" style={{ marginTop: 4 }}>Estilo</div>
             <div className="img-ws-style-row">
-              {STYLE_PRESETS.map((s) => (
+              {STYLE_PRESETS.filter(s => s.id !== "none").map((s) => (
                 <button
                   key={s.id}
                   className={"img-ws-chip" + (s.id === stylePreset ? " active" : "")}
-                  onClick={() => setStylePreset(s.id)}
+                  onClick={() => setStylePreset(s.id === stylePreset ? "none" : s.id)}
                 >
-                  {s.label}
+                  + {s.label}
                 </button>
               ))}
             </div>
@@ -290,13 +277,7 @@ export function ImageWorkspace({
         {/* SAÍDA */}
         <div className="img-ws-panel">
           <div className="img-ws-panel-head">
-            <div className="img-ws-panel-title">
-              <span className="img-ws-panel-icon">
-                <Icon d="M4 4h7v7H4z M13 4h7v7h-7z M4 13h7v7H4z M13 13h7v7h-7z" />
-              </span>
-              Saída
-            </div>
-            <span>{variations} {variations > 1 ? "imagens" : "imagem"} · {ratio} · {quality}</span>
+            <div className="img-ws-panel-title">Saída</div>
           </div>
           <div className="img-ws-stats">
             <label className="img-ws-stat">

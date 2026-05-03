@@ -377,25 +377,29 @@ export function ImageWorkspace({
             </div>
           )}
 
-          {filteredHistory.map((g) => (
-            <article key={g.id} className="img-ws-row">
+          {groupedHistory.map((grp) => {
+            const head = grp.gens[0];
+            const tiles: { url: string; gen: Generation }[] = [];
+            grp.gens.forEach((g) => (g.image_urls || []).forEach((url) => tiles.push({ url, gen: g })));
+            return (
+            <article key={head.id} className="img-ws-row">
               <div className="img-ws-row-prompt">
                 <div className="img-ws-row-copy">
-                  <span className="img-ws-prompt-text" title={g.prompt}>{g.prompt || "(sem prompt)"}</span>
+                  <span className="img-ws-prompt-text" title={head.prompt}>{head.prompt || "(sem prompt)"}</span>
                   <span className="img-ws-row-meta">
-                    <span className="tag">{(g as any).aspect_ratio || "16:9"}</span>
-                    <span className="tag">{MODEL_ID_TO_LABEL[g.model || ""] || g.model || "—"}</span>
-                    <span className="ago">{timeAgo(g.created_at)}</span>
+                    <span className="tag">{(head as any).aspect_ratio || "16:9"}</span>
+                    <span className="tag">{MODEL_ID_TO_LABEL[head.model || ""] || head.model || "—"}</span>
+                    <span className="ago">{timeAgo(head.created_at)}</span>
                   </span>
                 </div>
-                <span className="img-ws-row-count">{(g.image_urls || []).length} {(g.image_urls || []).length > 1 ? "imgs" : "img"}</span>
+                <span className="img-ws-row-count">{tiles.length} {tiles.length > 1 ? "imgs" : "img"}</span>
               </div>
           <div className="img-ws-row-grid">
-                {(g.image_urls || []).map((url, i) => (
+                {tiles.map(({ url, gen: g }, i) => (
                   <button
-                    key={i}
+                    key={g.id + ":" + i}
                     className="img-ws-tile"
-                    onClick={() => openLightbox(g, i)}
+                    onClick={() => openLightbox({ ...g, image_urls: tiles.map((t) => t.url) } as Generation, i)}
                   >
                     <img src={url} alt={g.prompt || ""} loading="lazy" />
                     <div className="img-ws-tile-overlay" onClick={(e) => e.stopPropagation()}>
@@ -445,7 +449,8 @@ export function ImageWorkspace({
                 ))}
               </div>
             </article>
-          ))}
+            );
+          })}
         </div>
       </section>
 

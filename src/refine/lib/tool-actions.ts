@@ -211,21 +211,18 @@ export async function executeToolAction(input: ToolInput): Promise<ToolResult> {
   return { url, type: "image", creditsUsed: created.credits_used };
 }
 
-/** Upload de arquivo via signed URL → retorna URL pública. */
-export async function uploadFileForTool(file: File, bucket = "generation-refs"): Promise<string> {
-  const signed = await api<{ upload_url: string; path: string; bucket: string }>("/uploads/signed-url", {
+/** Upload de arquivo direto pra VPS — retorna URL pública sem token.
+ *
+ * Backend salva em /code/uploads/<user_id>/<uuid>.<ext> e expõe via
+ * /static/uploads/.... URL é pública (sem auth) — Kling/Veo/etc conseguem
+ * baixar diretamente, diferente de signed URLs Supabase que retornam 403/timeout.
+ */
+export async function uploadFileForTool(file: File): Promise<string> {
+  const fd = new FormData();
+  fd.append("file", file);
+  const r = await api<{ url: string; path: string; size: number }>("/uploads/file", {
     method: "POST",
-    body: { bucket, filename: file.name, content_type: file.type || "application/octet-stream" },
+    body: fd,
   });
-  const put = await fetch(signed.upload_url, {
-    method: "PUT",
-    headers: { "Content-Type": file.type || "application/octet-stream" },
-    body: file,
-  });
-  if (!put.ok) throw new Error(`Upload PUT falhou: ${put.status}`);
-  const dl = await api<{ url: string }>(
-    `/uploads/signed-download?bucket=${encodeURIComponent(signed.bucket)}&path=${encodeURIComponent(signed.path)}&ttl=86400`,
-    { method: "POST" }
-  );
-  return dl.url;
+  return r.url;
 }

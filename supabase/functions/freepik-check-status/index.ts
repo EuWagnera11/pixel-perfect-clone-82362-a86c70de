@@ -45,10 +45,25 @@ Deno.serve(async (req) => {
     logCtx: { userId: auth.userId, generationId, endpointKey: `${path}/:id` },
   });
 
+  const detailMessage = typeof fp.body?.message === "string"
+    ? fp.body.message
+    : typeof fp.body?.detail?.message === "string"
+    ? fp.body.detail.message
+    : "";
+
+  if (fp.status === 404 && /task not found/i.test(detailMessage)) {
+    return json({
+      ...gen,
+      status: "processing",
+      polling_retryable: true,
+      polling_message: "Generation task is not visible yet. Retry polling shortly.",
+    });
+  }
+
   if (fp.status >= 400) {
     await auth.admin.from("generations").update({
       status: "failed",
-      error_message: `Freepik status ${fp.status}`,
+      error_message: `Freepik status ${fp.status}: ${detailMessage || "Unknown error"}`,
     }).eq("id", generationId);
     return json({ error: "Freepik status error", detail: fp.body }, 502);
   }

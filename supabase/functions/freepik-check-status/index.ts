@@ -29,8 +29,12 @@ Deno.serve(async (req) => {
   if (error) return json({ error: "DB error", detail: error.message }, 500);
   if (!gen) return json({ error: "Not found" }, 404);
 
+  const retryableFailure = gen.status === "failed"
+    && typeof gen.error_message === "string"
+    && (/task not found/i.test(gen.error_message) || /freepik status 404/i.test(gen.error_message));
+
   // Already settled — return as is
-  if (gen.status === "completed" || gen.status === "failed") {
+  if (gen.status === "completed" || (gen.status === "failed" && !retryableFailure)) {
     return json(gen);
   }
 
@@ -52,9 +56,17 @@ Deno.serve(async (req) => {
     : "";
 
   if (fp.status === 404 && /task not found/i.test(detailMessage)) {
+    if (gen.status === "failed") {
+      await auth.admin.from("generations").update({
+        status: "processing",
+        error_message: null,
+      }).eq("id", generationId);
+    }
+
     return json({
       ...gen,
       status: "processing",
+      error_message: null,
       polling_retryable: true,
       polling_message: "Generation task is not visible yet. Retry polling shortly.",
     });

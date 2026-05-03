@@ -94,6 +94,11 @@ export function ImageWorkspace({
     [history]
   );
 
+  const totalImages = useMemo(
+    () => imageHistory.reduce((acc, g) => acc + (g.image_urls?.length || 0), 0),
+    [imageHistory]
+  );
+
   // ===== lightbox helpers =====
   const openLightbox = useCallback((g: Generation, urlIdx = 0) => {
     const items = (g.image_urls || []).map((url) => ({
@@ -122,126 +127,162 @@ export function ImageWorkspace({
     <div className="img-ws">
       {/* ===== LEFT CONTROLS ===== */}
       <aside className="img-ws-controls">
-        <div className="img-ws-section">
-          <div className="img-ws-label">Modelo</div>
-          <select
-            className="img-ws-select"
-            value={modelLabel}
-            onChange={(e) => setModelLabel(e.target.value)}
-          >
-            {IMAGE_MODELS.map((m) => (
-              <option key={m.id} value={m.label}>
-                {m.label}{m.costHint ? ` · ${m.costHint}` : ""}
-              </option>
-            ))}
-          </select>
+        <div className="img-ws-sidebar-head">
+          <span className="img-ws-kicker">Image studio</span>
+          <h1>Criar imagens</h1>
+          <p>Prompt, referências e múltiplas saídas organizadas em um fluxo mais limpo para escolher a melhor opção.</p>
         </div>
 
-        <div className="img-ws-section">
-          <div className="img-ws-label">
-            Referências <span style={{ opacity: 0.5 }}>{refs.length}/8</span>
+        <div className="img-ws-panel img-ws-panel--tight">
+          <div className="img-ws-panel-head">
+            <div>Modelo</div>
+            <span>{IMAGE_MODELS.length} disponíveis</span>
           </div>
-          <div className="img-ws-refs">
-            {refs.map((url, i) => (
-              <div key={i} className="img-ws-ref">
-                <img src={url} alt="ref" />
-                <button onClick={() => setRefs((p) => p.filter((_, j) => j !== i))} aria-label="Remover">
-                  <Icon d="M6 6l12 12M6 18L18 6" />
+          <div className="img-ws-section">
+            <select
+              className="img-ws-select"
+              value={modelLabel}
+              onChange={(e) => setModelLabel(e.target.value)}
+            >
+              {IMAGE_MODELS.map((m) => (
+                <option key={m.id} value={m.label}>
+                  {m.label}{m.costHint ? ` · ${m.costHint}` : ""}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        <div className="img-ws-panel">
+          <div className="img-ws-panel-head">
+            <div>Referências</div>
+            <span>{refs.length}/8</span>
+          </div>
+          <div className="img-ws-section">
+            <div className="img-ws-label">Use imagens para manter estilo, composição ou assunto</div>
+            <div className="img-ws-refs">
+              {refs.map((url, i) => (
+                <div key={i} className="img-ws-ref">
+                  <img src={url} alt="ref" />
+                  <button onClick={() => setRefs((p) => p.filter((_, j) => j !== i))} aria-label="Remover">
+                    <Icon d="M6 6l12 12M6 18L18 6" />
+                  </button>
+                </div>
+              ))}
+              {refs.length < 8 && (
+                <button
+                  className="img-ws-ref-add"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading}
+                  aria-label="Adicionar referência"
+                >
+                  <Icon d="M12 5v14M5 12h14" />
                 </button>
-              </div>
-            ))}
-            {refs.length < 8 && (
-              <button
-                className="img-ws-ref-add"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={uploading}
-                aria-label="Adicionar referência"
-              >
-                <Icon d="M12 5v14M5 12h14" />
-              </button>
-            )}
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              hidden
-              onChange={(e) => {
-                const f = e.target.files?.[0];
-                if (f) handleAttach(f);
-                if (e.currentTarget) e.currentTarget.value = "";
+              )}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                hidden
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) handleAttach(f);
+                  if (e.currentTarget) e.currentTarget.value = "";
+                }}
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="img-ws-panel">
+          <div className="img-ws-panel-head">
+            <div>Prompt</div>
+            <span>Ctrl/⌘ + Enter para gerar</span>
+          </div>
+          <div className="img-ws-section">
+            <div className="img-ws-label">Descreva enquadramento, luz, estilo e detalhes</div>
+            <textarea
+              className="img-ws-textarea"
+              placeholder="Descreva sua imagem — Ex: um retrato editorial de uma mulher ruiva com luz quente…"
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              onKeyDown={(e) => {
+                if ((e.metaKey || e.ctrlKey) && e.key === "Enter") { e.preventDefault(); handleGenerate(); }
               }}
+              rows={6}
             />
           </div>
         </div>
 
-        <div className="img-ws-section">
-          <div className="img-ws-label">Prompt</div>
-          <textarea
-            className="img-ws-textarea"
-            placeholder="Descreva sua imagem — Ex: um retrato editorial de uma mulher ruiva com luz quente…"
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-            onKeyDown={(e) => {
-              if ((e.metaKey || e.ctrlKey) && e.key === "Enter") { e.preventDefault(); handleGenerate(); }
-            }}
-            rows={6}
-          />
-        </div>
+        <div className="img-ws-panel">
+          <div className="img-ws-panel-head">
+            <div>Saída</div>
+            <span>{variations} {variations > 1 ? "imagens" : "imagem"}</span>
+          </div>
+          <div className="img-ws-grid2">
+            <div className="img-ws-section">
+              <div className="img-ws-label">Variações</div>
+              <div className="img-ws-pillrow">
+                {VARIATIONS.map((n) => (
+                  <button
+                    key={n}
+                    className={"img-ws-pill" + (n === variations ? " active" : "")}
+                    onClick={() => setVariations(n)}
+                  >{n}</button>
+                ))}
+              </div>
+            </div>
+            <div className="img-ws-section">
+              <div className="img-ws-label">Aspecto</div>
+              <div className="img-ws-pillrow">
+                {ASPECT_RATIOS.map((r) => (
+                  <button
+                    key={r}
+                    className={"img-ws-pill" + (r === ratio ? " active" : "")}
+                    onClick={() => setRatio(r)}
+                  >{r}</button>
+                ))}
+              </div>
+            </div>
+          </div>
 
-        <div className="img-ws-grid2">
           <div className="img-ws-section">
-            <div className="img-ws-label">Variações</div>
+            <div className="img-ws-label">Qualidade</div>
             <div className="img-ws-pillrow">
-              {VARIATIONS.map((n) => (
+              {QUALITIES.map((q) => (
                 <button
-                  key={n}
-                  className={"img-ws-pill" + (n === variations ? " active" : "")}
-                  onClick={() => setVariations(n)}
-                >{n}</button>
+                  key={q}
+                  className={"img-ws-pill" + (q === quality ? " active" : "")}
+                  onClick={() => setQuality(q)}
+                >{q}</button>
               ))}
             </div>
           </div>
-          <div className="img-ws-section">
-            <div className="img-ws-label">Aspecto</div>
-            <div className="img-ws-pillrow">
-              {ASPECT_RATIOS.map((r) => (
-                <button
-                  key={r}
-                  className={"img-ws-pill" + (r === ratio ? " active" : "")}
-                  onClick={() => setRatio(r)}
-                >{r}</button>
-              ))}
-            </div>
-          </div>
         </div>
 
-        <div className="img-ws-section">
-          <div className="img-ws-label">Qualidade</div>
-          <div className="img-ws-pillrow">
-            {QUALITIES.map((q) => (
-              <button
-                key={q}
-                className={"img-ws-pill" + (q === quality ? " active" : "")}
-                onClick={() => setQuality(q)}
-              >{q}</button>
-            ))}
-          </div>
-        </div>
-
-        <button className="img-ws-generate" onClick={handleGenerate}>
+        <div className="img-ws-generate-wrap">
+          <button className="img-ws-generate" onClick={handleGenerate}>
           <Icon d="m12 3 2.4 6.6L21 12l-6.6 2.4L12 21l-2.4-6.6L3 12l6.6-2.4z" strokeWidth={2} />
           Gerar {variations > 1 ? `${variations} imagens` : "imagem"}
-          <span className="kbd">⌘↵</span>
-        </button>
+            <span className="kbd">⌘↵</span>
+          </button>
+        </div>
       </aside>
 
       {/* ===== RIGHT GALLERY ===== */}
       <section className="img-ws-gallery">
         <header className="img-ws-gallery-head">
-          <h2>Suas criações</h2>
-          <button className="img-ws-refresh" onClick={refreshHistory} title="Recarregar">
-            <Icon d="M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5M21 12a9 9 0 0 1-15 6.7L3 16M3 21v-5h5" />
-          </button>
+          <div className="img-ws-gallery-title">
+            <h2>Suas criações</h2>
+            <p>{totalImages} imagens em {imageHistory.length} gerações</p>
+          </div>
+          <div className="img-ws-gallery-actions">
+            <span className="img-ws-live-pill">Ao vivo</span>
+            <button className="img-ws-refresh" onClick={refreshHistory} title="Recarregar">
+              <Icon d="M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5M21 12a9 9 0 0 1-15 6.7L3 16M3 21v-5h5" />
+              <span>Atualizar</span>
+            </button>
+          </div>
         </header>
 
         <div className="img-ws-feed">
@@ -267,12 +308,15 @@ export function ImageWorkspace({
           {imageHistory.map((g) => (
             <article key={g.id} className="img-ws-row">
               <div className="img-ws-row-prompt">
-                <span className="img-ws-prompt-text" title={g.prompt}>{g.prompt || "(sem prompt)"}</span>
-                <span className="img-ws-row-meta">
-                  <span className="tag">{(g as any).aspect_ratio || "16:9"}</span>
-                  <span className="tag">{MODEL_ID_TO_LABEL[g.model || ""] || g.model || "—"}</span>
-                  <span className="ago">{timeAgo(g.created_at)}</span>
-                </span>
+                <div className="img-ws-row-copy">
+                  <span className="img-ws-prompt-text" title={g.prompt}>{g.prompt || "(sem prompt)"}</span>
+                  <span className="img-ws-row-meta">
+                    <span className="tag">{(g as any).aspect_ratio || "16:9"}</span>
+                    <span className="tag">{MODEL_ID_TO_LABEL[g.model || ""] || g.model || "—"}</span>
+                    <span className="ago">{timeAgo(g.created_at)}</span>
+                  </span>
+                </div>
+                <span className="img-ws-row-count">{(g.image_urls || []).length} {(g.image_urls || []).length > 1 ? "imgs" : "img"}</span>
               </div>
           <div className="img-ws-row-grid">
                 {(g.image_urls || []).map((url, i) => (
@@ -467,6 +511,7 @@ function Lightbox(p: LightboxProps) {
   const item = p.items[p.index];
   if (!item) return null;
   const meta = item.meta || {};
+  const sizeLabel = meta.width && meta.height ? `${meta.width}×${meta.height}` : meta.size || "—";
 
   const download = async (format: "png" | "jpg" = "png") => {
     try {
@@ -506,87 +551,91 @@ function Lightbox(p: LightboxProps) {
       </div>
 
       <aside className="img-lightbox-side" onClick={(e) => e.stopPropagation()}>
-        <div className="ils-section">
-          <div className="ils-label">Prompt</div>
+        <div className="ils-card ils-card--hero">
+          <div className="ils-card-top">
+            <div className="ils-label">Preview</div>
+            <span className="ils-position">{p.index + 1} / {p.items.length}</span>
+          </div>
           <p className="ils-prompt">{item.prompt || "(sem prompt)"}</p>
           <button className="ils-link" onClick={() => p.onCopyPrompt(item.prompt)}>
             <Icon d="M8 4h10v14M4 8h10v12H4z" /> Copiar prompt
           </button>
         </div>
 
-        <div className="ils-section">
+        <div className="ils-card">
           <div className="ils-label">Informações</div>
           <div className="ils-info-row"><span>Modelo</span><b>{MODEL_ID_TO_LABEL[meta.model] || meta.model || "—"}</b></div>
           <div className="ils-info-row"><span>Aspecto</span><b>{meta.ratio || "—"}</b></div>
           <div className="ils-info-row"><span>Qualidade</span><b>{meta.quality || "—"}</b></div>
-          <div className="ils-info-row"><span>Posição</span><b>{p.index + 1} / {p.items.length}</b></div>
+          <div className="ils-info-row"><span>Tamanho</span><b>{sizeLabel}</b></div>
+          {meta.seed && <div className="ils-info-row"><span>Seed</span><b>{meta.seed}</b></div>}
         </div>
 
-        <div className="ils-section">
-          <div className="ils-label">Download</div>
-          <div className="ils-actions">
+        <div className="ils-card">
+          <div className="ils-label">Exportar</div>
+          <div className="ils-actions ils-actions--2">
             <button className="ils-btn primary" onClick={() => download("png")}>
-              <Icon d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14" /> PNG
+              <Icon d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14" /> <span>PNG</span>
             </button>
             <button className="ils-btn" onClick={() => download("jpg")}>
-              <Icon d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14" /> JPG
+              <Icon d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14" /> <span>JPG</span>
             </button>
           </div>
         </div>
 
-        <div className="ils-section">
+        <div className="ils-card">
           <div className="ils-label">Reutilizar</div>
-          <div className="ils-actions">
+          <div className="ils-actions ils-actions--2">
             <button className="ils-btn" onClick={() => p.onUseAsRef(item.url)}>
-              <Icon d="M5 12h14M12 5l7 7-7 7" /> Reference
+              <Icon d="M5 12h14M12 5l7 7-7 7" /> <span>Referência</span>
             </button>
             <button className="ils-btn" onClick={() => p.onUseAsStyle(item.url)}>
-              <Icon d="M3 12h18M3 6h18M3 18h12" /> Style
+              <Icon d="M3 12h18M3 6h18M3 18h12" /> <span>Estilo</span>
             </button>
             <button className="ils-btn" onClick={() => p.onCopyPrompt(item.prompt)}>
-              <Icon d="M8 4h10v14M4 8h10v12H4z" /> Prompt
+              <Icon d="M8 4h10v14M4 8h10v12H4z" /> <span>Prompt</span>
             </button>
             <button className="ils-btn" onClick={() => p.onToggleFavorite(item)}>
               <Icon d="M12 2 14 9h7l-6 4 2 7-7-4-7 4 2-7-6-4h7z" />
-              {item.isFav ? "Unfav" : "Favorite"}
+              <span>{item.isFav ? "Desfavoritar" : "Favoritar"}</span>
             </button>
           </div>
         </div>
 
-        <div className="ils-section">
+        <div className="ils-card">
           <div className="ils-label">Gerar a partir desta</div>
-          <div className="ils-actions">
+          <div className="ils-actions ils-actions--3">
             <button className="ils-btn" onClick={() => p.onRegenerate(item)}>
-              <Icon d="M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5" /> Recreate
+              <Icon d="M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5" /> <span>Recriar</span>
             </button>
-            <button className="ils-btn" onClick={() => p.onVariations(item)}>
-              <Icon d="M4 4h7v7H4z M13 4h7v7h-7z M4 13h7v7H4z M13 13h7v7h-7z" /> Variations
+            <button className="ils-btn primary" onClick={() => p.onVariations(item)}>
+              <Icon d="M4 4h7v7H4z M13 4h7v7h-7z M4 13h7v7H4z M13 13h7v7h-7z" /> <span>Variações</span>
             </button>
             <button className="ils-btn" onClick={() => p.onChangeCamera(item)}>
-              <Icon d="M3 7h4l2-3h6l2 3h4v12H3z M12 17a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" /> Camera
+              <Icon d="M3 7h4l2-3h6l2 3h4v12H3z M12 17a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" /> <span>Câmera</span>
             </button>
             <button className="ils-btn" onClick={() => p.onSendToEdit(item.url)}>
-              <Icon d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4z" /> Edit
+              <Icon d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4z" /> <span>Editar</span>
             </button>
             <button className="ils-btn" onClick={() => p.onSendToUpscale(item.url)}>
-              <Icon d="M3 16V8a2 2 0 0 1 2-2h14M21 8v8a2 2 0 0 1-2 2H5" /> Upscale
+              <Icon d="M3 16V8a2 2 0 0 1 2-2h14M21 8v8a2 2 0 0 1-2 2H5" /> <span>Upscale</span>
             </button>
             <button className="ils-btn" onClick={() => p.onSendToSkinEnhancer(item.url)}>
-              <Icon d="M12 2a7 7 0 0 1 7 7c0 5-7 13-7 13S5 14 5 9a7 7 0 0 1 7-7z" /> Skin
+              <Icon d="M12 2a7 7 0 0 1 7 7c0 5-7 13-7 13S5 14 5 9a7 7 0 0 1 7-7z" /> <span>Pele</span>
             </button>
             <button className="ils-btn" onClick={() => p.onSendTo3D(item.url)}>
-              <Icon d="M12 2 3 7v10l9 5 9-5V7z M12 12 3 7M12 12l9-5M12 12v10" /> 3D model
+              <Icon d="M12 2 3 7v10l9 5 9-5V7z M12 12 3 7M12 12l9-5M12 12v10" /> <span>Modelo 3D</span>
             </button>
             <button className="ils-btn" onClick={() => p.onSendTo3DScene(item.url)}>
-              <Icon d="M3 21V8l9-5 9 5v13M9 21V12h6v9" /> 3D scene
+              <Icon d="M3 21V8l9-5 9 5v13M9 21V12h6v9" /> <span>Cena 3D</span>
             </button>
             <button className="ils-btn" onClick={() => p.onSendToVideo(item.url)}>
-              <Icon d="M4 6h12v12H4z M16 9l5-3v12l-5-3" /> Video
+              <Icon d="M4 6h12v12H4z M16 9l5-3v12l-5-3" /> <span>Vídeo</span>
             </button>
           </div>
         </div>
 
-        <div className="ils-section">
+        <div className="ils-card ils-card--danger">
           <button className="ils-btn danger" onClick={() => p.onDelete(item)} style={{ width: "100%", justifyContent: "center" }}>
             <Icon d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14" /> Excluir geração
           </button>

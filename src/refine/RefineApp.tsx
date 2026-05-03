@@ -227,17 +227,20 @@ function Workspace() {
       showToast("Anexe uma imagem primeiro"); return;
     }
     const modelId = MODEL_LABEL_TO_ID[modelLabel] || null;
-    const result = await enqueue({
-      tab: currentTab, prompt: trimmed, aspect: ratio,
-      sourceUrl, model: modelId, thumb: sourceUrl || undefined,
-      quality, numVariations: variations, stylePack,
-    });
-    if (!result.ok) {
-      showToast("Erro: " + (result.error || "falha"));
-      return;
-    }
-    showToast(`Geração iniciada (${variations}× ${quality}) — você pode mandar outra`);
-    setPrompt(""); // libera o form pra próxima
+    // Dispara N jobs separados (cada variação = 1 imagem independente)
+    const n = Math.max(1, variations);
+    const promises = Array.from({ length: n }).map(() =>
+      enqueue({
+        tab: currentTab, prompt: trimmed, aspect: ratio,
+        sourceUrl, model: modelId, thumb: sourceUrl || undefined,
+        quality, numVariations: 1, stylePack,
+      })
+    );
+    const results = await Promise.all(promises);
+    const fail = results.find((r) => !r.ok);
+    if (fail) { showToast("Erro: " + (fail.error || "falha")); return; }
+    showToast(n > 1 ? `${n} gerações iniciadas em paralelo` : "Geração iniciada");
+    setPrompt("");
   }, [prompt, ratio, modelLabel, currentTab, sourceUrl, enqueue, showToast, quality, variations, stylePack]);
 
   // Quando um job completa, mostra no stage + adiciona ao history + toast

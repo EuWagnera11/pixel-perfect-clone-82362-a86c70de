@@ -31,6 +31,22 @@ type Props = {
 const QUALITIES = ["1K", "2K", "4K"] as const;
 const VARIATIONS = [1, 2, 3, 4, 6, 8] as const;
 
+const STYLE_PRESETS: { id: string; label: string; suffix: string }[] = [
+  { id: "none", label: "Nenhum", suffix: "" },
+  { id: "cinematic", label: "Cinematic", suffix: ", cinematic still, anamorphic, dramatic lighting, depth of field" },
+  { id: "editorial", label: "Editorial", suffix: ", editorial photography, magazine cover, soft natural light, fashion" },
+  { id: "product", label: "Product", suffix: ", product photography, studio lighting, clean background, high detail" },
+  { id: "anime", label: "Anime", suffix: ", anime illustration, cel shading, vibrant colors, detailed line art" },
+  { id: "3d", label: "3D Render", suffix: ", 3D render, octane, ray tracing, cinematic lighting, 8k" },
+];
+
+const PROMPT_EXAMPLES = [
+  "Retrato editorial de uma mulher ruiva, luz quente lateral, fundo desfocado",
+  "Café de Tóquio à noite, neon, chuva, reflexos, estilo cinematográfico",
+  "Tênis flutuando em fundo gradiente, foto de produto minimalista",
+  "Paisagem alpina ao amanhecer, neblina, luz dourada, ultra detalhada",
+];
+
 export function ImageWorkspace({
   history, onUploadRef, showToast, refreshHistory,
   onDeleteGeneration, onToggleFavorite,
@@ -45,6 +61,9 @@ export function ImageWorkspace({
   const [variations, setVariations] = useState<number>(4);
   const [refs, setRefs] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [stylePreset, setStylePreset] = useState<string>("none");
+  const [filterModel, setFilterModel] = useState<string>("all");
+  const [filterFav, setFilterFav] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [lightbox, setLightbox] = useState<{
@@ -56,11 +75,13 @@ export function ImageWorkspace({
   const handleGenerate = useCallback(async () => {
     if (!prompt.trim()) { showToast("Digite um prompt"); return; }
     const modelId = MODEL_LABEL_TO_ID[modelLabel] || "nano-banana-pro";
+    const preset = STYLE_PRESETS.find((s) => s.id === stylePreset);
+    const finalPrompt = (prompt.trim() + (preset?.suffix || "")).trim();
     const n = Math.max(1, variations);
     const promises = Array.from({ length: n }).map(() =>
       enqueue({
         tab: "image",
-        prompt: prompt.trim(),
+        prompt: finalPrompt,
         aspect: ratio,
         sourceUrl: refs[0] || null,
         model: modelId,
@@ -73,7 +94,7 @@ export function ImageWorkspace({
     const fail = results.find((r) => !r.ok);
     if (fail) showToast("Erro: " + (fail.error || "falha"));
     else showToast(n > 1 ? `${n} gerações em paralelo` : "Geração iniciada");
-  }, [prompt, modelLabel, ratio, quality, variations, refs, enqueue, showToast]);
+  }, [prompt, modelLabel, ratio, quality, variations, refs, enqueue, showToast, stylePreset]);
 
   const handleAttach = useCallback(async (file: File) => {
     if (refs.length >= 8) { showToast("Máximo 8 referências"); return; }
@@ -94,9 +115,23 @@ export function ImageWorkspace({
     [history]
   );
 
+  const usedModels = useMemo(() => {
+    const ids = new Set<string>();
+    imageHistory.forEach((g) => g.model && ids.add(g.model));
+    return Array.from(ids);
+  }, [imageHistory]);
+
+  const filteredHistory = useMemo(() => {
+    return imageHistory.filter((g) => {
+      if (filterModel !== "all" && g.model !== filterModel) return false;
+      if (filterFav && !(g as any).metadata?.favorite) return false;
+      return true;
+    });
+  }, [imageHistory, filterModel, filterFav]);
+
   const totalImages = useMemo(
-    () => imageHistory.reduce((acc, g) => acc + (g.image_urls?.length || 0), 0),
-    [imageHistory]
+    () => filteredHistory.reduce((acc, g) => acc + (g.image_urls?.length || 0), 0),
+    [filteredHistory]
   );
 
   // ===== lightbox helpers =====
@@ -128,38 +163,50 @@ export function ImageWorkspace({
       {/* ===== LEFT CONTROLS ===== */}
       <aside className="img-ws-controls">
         <div className="img-ws-sidebar-head">
-          <span className="img-ws-kicker">Image studio</span>
+          <span className="img-ws-kicker">
+            <span className="img-ws-kicker-dot" /> Image studio
+          </span>
           <h1>Criar imagens</h1>
-          <p>Prompt, referências e múltiplas saídas organizadas em um fluxo mais limpo para escolher a melhor opção.</p>
+          <p>Prompt, referências e múltiplas saídas em um fluxo limpo para escolher a melhor opção.</p>
         </div>
 
+        {/* MODELO */}
         <div className="img-ws-panel img-ws-panel--tight">
           <div className="img-ws-panel-head">
-            <div>Modelo</div>
+            <div className="img-ws-panel-title">
+              <span className="img-ws-panel-icon">
+                <Icon d="M4 7h16M4 12h16M4 17h10" />
+              </span>
+              Modelo
+            </div>
             <span>{IMAGE_MODELS.length} disponíveis</span>
           </div>
-          <div className="img-ws-section">
-            <select
-              className="img-ws-select"
-              value={modelLabel}
-              onChange={(e) => setModelLabel(e.target.value)}
-            >
-              {IMAGE_MODELS.map((m) => (
-                <option key={m.id} value={m.label}>
-                  {m.label}{m.costHint ? ` · ${m.costHint}` : ""}
-                </option>
-              ))}
-            </select>
-          </div>
+          <select
+            className="img-ws-select"
+            value={modelLabel}
+            onChange={(e) => setModelLabel(e.target.value)}
+          >
+            {IMAGE_MODELS.map((m) => (
+              <option key={m.id} value={m.label}>
+                {m.label}{m.costHint ? ` · ${m.costHint}` : ""}
+              </option>
+            ))}
+          </select>
         </div>
 
+        {/* REFERÊNCIAS */}
         <div className="img-ws-panel">
           <div className="img-ws-panel-head">
-            <div>Referências</div>
+            <div className="img-ws-panel-title">
+              <span className="img-ws-panel-icon">
+                <Icon d="M4 4h16v12H4z M4 16l4-4 4 4 4-4 4 4" />
+              </span>
+              Referências
+            </div>
             <span>{refs.length}/8</span>
           </div>
           <div className="img-ws-section">
-            <div className="img-ws-label">Use imagens para manter estilo, composição ou assunto</div>
+            <div className="img-ws-helper">Imagens para manter estilo, composição ou assunto.</div>
             <div className="img-ws-refs">
               {refs.map((url, i) => (
                 <div key={i} className="img-ws-ref">
@@ -169,16 +216,24 @@ export function ImageWorkspace({
                   </button>
                 </div>
               ))}
-              {refs.length < 8 && (
+              {Array.from({ length: Math.max(0, 4 - refs.length) }).slice(0, refs.length === 0 ? 4 : 4 - refs.length).map((_, i) => (
                 <button
-                  className="img-ws-ref-add"
+                  key={`slot-${i}`}
+                  className={"img-ws-ref-slot" + (i === 0 && refs.length < 8 ? " primary" : "")}
                   onClick={() => fileInputRef.current?.click()}
-                  disabled={uploading}
+                  disabled={uploading || refs.length >= 8}
                   aria-label="Adicionar referência"
                 >
-                  <Icon d="M12 5v14M5 12h14" />
+                  {i === 0 ? (
+                    <>
+                      <Icon d="M4 4h16v12H4z M4 16l4-4 4 4 4-4 4 4 M14 8a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z" />
+                      <span>{uploading ? "Enviando…" : "Adicionar"}</span>
+                    </>
+                  ) : (
+                    <Icon d="M12 5v14M5 12h14" />
+                  )}
                 </button>
-              )}
+              ))}
               <input
                 ref={fileInputRef}
                 type="file"
@@ -194,30 +249,54 @@ export function ImageWorkspace({
           </div>
         </div>
 
+        {/* PROMPT */}
         <div className="img-ws-panel">
           <div className="img-ws-panel-head">
-            <div>Prompt</div>
-            <span>Ctrl/⌘ + Enter para gerar</span>
+            <div className="img-ws-panel-title">
+              <span className="img-ws-panel-icon">
+                <Icon d="M4 6h16M4 12h16M4 18h10" />
+              </span>
+              Prompt
+            </div>
+            <span className="kbd-inline">⌘ + ↵</span>
           </div>
           <div className="img-ws-section">
-            <div className="img-ws-label">Descreva enquadramento, luz, estilo e detalhes</div>
+            <div className="img-ws-helper">Enquadramento, luz, estilo e detalhes.</div>
             <textarea
               className="img-ws-textarea"
-              placeholder="Descreva sua imagem — Ex: um retrato editorial de uma mulher ruiva com luz quente…"
+              placeholder="Ex: retrato editorial de uma mulher ruiva com luz quente lateral, fundo desfocado…"
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               onKeyDown={(e) => {
                 if ((e.metaKey || e.ctrlKey) && e.key === "Enter") { e.preventDefault(); handleGenerate(); }
               }}
-              rows={6}
+              rows={5}
             />
+            <div className="img-ws-helper" style={{ marginTop: 4 }}>Estilo</div>
+            <div className="img-ws-style-row">
+              {STYLE_PRESETS.map((s) => (
+                <button
+                  key={s.id}
+                  className={"img-ws-chip" + (s.id === stylePreset ? " active" : "")}
+                  onClick={() => setStylePreset(s.id)}
+                >
+                  {s.label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
+        {/* SAÍDA */}
         <div className="img-ws-panel">
           <div className="img-ws-panel-head">
-            <div>Saída</div>
-            <span>{variations} {variations > 1 ? "imagens" : "imagem"}</span>
+            <div className="img-ws-panel-title">
+              <span className="img-ws-panel-icon">
+                <Icon d="M4 4h7v7H4z M13 4h7v7h-7z M4 13h7v7H4z M13 13h7v7h-7z" />
+              </span>
+              Saída
+            </div>
+            <span>{variations} {variations > 1 ? "imagens" : "imagem"} · {ratio} · {quality}</span>
           </div>
           <div className="img-ws-grid2">
             <div className="img-ws-section">
@@ -262,8 +341,8 @@ export function ImageWorkspace({
 
         <div className="img-ws-generate-wrap">
           <button className="img-ws-generate" onClick={handleGenerate}>
-          <Icon d="m12 3 2.4 6.6L21 12l-6.6 2.4L12 21l-2.4-6.6L3 12l6.6-2.4z" strokeWidth={2} />
-          Gerar {variations > 1 ? `${variations} imagens` : "imagem"}
+            <Icon d="m12 3 2.4 6.6L21 12l-6.6 2.4L12 21l-2.4-6.6L3 12l6.6-2.4z" strokeWidth={2} />
+            <span className="img-ws-generate-label">Gerar {variations > 1 ? `${variations} imagens` : "imagem"}</span>
             <span className="kbd">⌘↵</span>
           </button>
         </div>
@@ -274,13 +353,31 @@ export function ImageWorkspace({
         <header className="img-ws-gallery-head">
           <div className="img-ws-gallery-title">
             <h2>Suas criações</h2>
-            <p>{totalImages} imagens em {imageHistory.length} gerações</p>
+            <p>{totalImages} imagens em {filteredHistory.length} gerações{filteredHistory.length !== imageHistory.length ? ` · de ${imageHistory.length}` : ""}</p>
           </div>
           <div className="img-ws-gallery-actions">
-            <span className="img-ws-live-pill">Ao vivo</span>
+            <select
+              className="img-ws-filter"
+              value={filterModel}
+              onChange={(e) => setFilterModel(e.target.value)}
+              title="Filtrar por modelo"
+            >
+              <option value="all">Todos modelos</option>
+              {usedModels.map((m) => (
+                <option key={m} value={m}>{MODEL_ID_TO_LABEL[m] || m}</option>
+              ))}
+            </select>
+            <button
+              className={"img-ws-filter-btn" + (filterFav ? " active" : "")}
+              onClick={() => setFilterFav((v) => !v)}
+              title="Apenas favoritos"
+            >
+              <Icon d="M12 2 14 9h7l-6 4 2 7-7-4-7 4 2-7-6-4h7z" />
+              <span>Favoritos</span>
+            </button>
+            <span className="img-ws-live-pill"><span className="img-ws-live-dot" /> Ao vivo</span>
             <button className="img-ws-refresh" onClick={refreshHistory} title="Recarregar">
               <Icon d="M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5M21 12a9 9 0 0 1-15 6.7L3 16M3 21v-5h5" />
-              <span>Atualizar</span>
             </button>
           </div>
         </header>
@@ -289,7 +386,15 @@ export function ImageWorkspace({
           {/* jobs em andamento */}
           {activeImageJobs.length > 0 && (
             <div className="img-ws-row pending">
-              <div className="img-ws-row-prompt">⏳ Gerando…</div>
+              <div className="img-ws-row-prompt">
+                <div className="img-ws-row-copy">
+                  <span className="img-ws-prompt-text">Gerando agora…</span>
+                  <span className="img-ws-row-meta">
+                    <span className="tag">{activeImageJobs.length} em paralelo</span>
+                    <span className="ago">~30s</span>
+                  </span>
+                </div>
+              </div>
               <div className="img-ws-row-grid">
                 {activeImageJobs.map((j) => (
                   <PendingTile key={j.id} job={j} ratio={ratio} />
@@ -300,12 +405,28 @@ export function ImageWorkspace({
 
           {imageHistory.length === 0 && activeImageJobs.length === 0 && (
             <div className="img-ws-empty">
+              <div className="img-ws-empty-glow" />
               <Icon d="M4 4h16v16H4z M4 16l4-4 4 4 4-4 4 4" strokeWidth={1.4} />
-              <p>Nada por aqui ainda. Crie sua primeira imagem.</p>
+              <h3>Comece pela inspiração</h3>
+              <p>Toque em um exemplo para preencher o prompt — ou escreva o seu.</p>
+              <div className="img-ws-examples">
+                {PROMPT_EXAMPLES.map((ex) => (
+                  <button key={ex} className="img-ws-example" onClick={() => setPrompt(ex)}>
+                    <Icon d="m12 3 2.4 6.6L21 12l-6.6 2.4L12 21l-2.4-6.6L3 12l6.6-2.4z" />
+                    <span>{ex}</span>
+                  </button>
+                ))}
+              </div>
             </div>
           )}
 
-          {imageHistory.map((g) => (
+          {filteredHistory.length === 0 && imageHistory.length > 0 && (
+            <div className="img-ws-empty">
+              <p>Nenhuma imagem com esse filtro.</p>
+            </div>
+          )}
+
+          {filteredHistory.map((g) => (
             <article key={g.id} className="img-ws-row">
               <div className="img-ws-row-prompt">
                 <div className="img-ws-row-copy">

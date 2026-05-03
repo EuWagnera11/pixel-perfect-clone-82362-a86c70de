@@ -30,6 +30,8 @@ type DockProps = {
   attachmentRequired?: boolean;
   /** Aba atual da Sidebar — usado pra filtrar lista de motores no popover. */
   currentTab?: string;
+  /** Número de jobs em background — só visual no botão Gerar. */
+  activeJobsCount?: number;
 };
 
 const QUALITIES = ["1K", "2K", "4K"];
@@ -50,6 +52,7 @@ export function Dock({
   hasAttachment = false,
   attachmentRequired = false,
   currentTab = "image",
+  activeJobsCount = 0,
 }: DockProps) {
   const [open, setOpen] = useState<"model" | "ratio" | "quality" | "variations" | "style" | null>(null);
   const [quality, setQuality] = useState("1K");
@@ -122,7 +125,9 @@ export function Dock({
                 disabled={isGenerating}
               >
                 <Icon d="m12 3 2.4 6.6L21 12l-6.6 2.4L12 21l-2.4-6.6L3 12l6.6-2.4z" strokeWidth={2} />
-                <span className="gen-label">{isGenerating ? "Gerando…" : "Gerar"}</span>
+                <span className="gen-label">
+                  {isGenerating ? "Gerando…" : activeJobsCount > 0 ? `Gerar (+${activeJobsCount} rodando)` : "Gerar"}
+                </span>
                 <span className="cost">{costLabel}</span>
               </button>
             </div>

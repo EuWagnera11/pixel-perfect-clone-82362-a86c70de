@@ -5,7 +5,7 @@ import type { Generation } from "../hooks/useGenerations";
 
 type RailProps = {
   generations: Generation[];
-  onItemClick: (item: { img: string; prompt: string }) => void;
+  onItemClick: (item: { img: string; prompt: string; kind?: "image" | "video" }) => void;
 };
 
 type Tab = "history" | "community" | "saved";

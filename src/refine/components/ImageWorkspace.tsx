@@ -17,7 +17,7 @@ import {
   MODEL_ID_TO_LABEL,
   type AspectRatio,
 } from "../lib/models";
-import { supabase } from "@/integrations/supabase/client";
+
 
 type Props = {
   history: Generation[];

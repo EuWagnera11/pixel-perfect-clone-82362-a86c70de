@@ -61,6 +61,9 @@ function Workspace() {
   const [modelLabel, setModelLabel] = useState("Nano-Banana Pro");
   const [ratio, setRatio] = useState<AspectRatio>("16:9");
   const [sourceUrl, setSourceUrl] = useState<string | null>(null);
+  const [quality, setQuality] = useState("1K");
+  const [variations, setVariations] = useState(1);
+  const [stylePack, setStylePack] = useState<string | null>(null);
   const viewRef = useRef<HTMLDivElement>(null);
 
   // Trocar de aba limpa upload (cada ferramenta tem seu fluxo independente)
@@ -89,7 +92,7 @@ function Workspace() {
     if (cfg?.ratio && validRatios.includes(cfg.ratio)) setRatio(cfg.ratio as AspectRatio);
   }, [currentTab]);
 
-  // Click delegation dentro do view (data-tab → navega; data-img → troca preview)
+  // Click delegation dentro do view
   useEffect(() => {
     const el = viewRef.current;
     if (!el) return;
@@ -100,6 +103,52 @@ function Workspace() {
         e.stopPropagation();
         const k = tabBtn.dataset.tab;
         if (k) navigate(`/${k}`);
+        return;
+      }
+      const actionBtn = target.closest("[data-action]") as HTMLElement | null;
+      if (actionBtn) {
+        const action = actionBtn.dataset.action;
+        const stageImg = el.querySelector("#stageImg") as HTMLImageElement | null;
+        if (action === "toggle-filters") {
+          const bar = el.querySelector("#imgFiltersBar") as HTMLElement | null;
+          if (bar) bar.style.display = bar.style.display === "none" ? "flex" : "none";
+        } else if (action === "export-image" && stageImg) {
+          const a = document.createElement("a");
+          a.href = stageImg.src; a.download = `refine-${Date.now()}.png`;
+          a.target = "_blank"; document.body.appendChild(a); a.click(); a.remove();
+          showToast("Baixando imagem…");
+        } else if (action === "copy-image" && stageImg) {
+          navigator.clipboard?.writeText(stageImg.src);
+          showToast("URL copiada");
+        } else if (action === "open-fullscreen" && stageImg) {
+          window.open(stageImg.src, "_blank");
+        }
+        return;
+      }
+      const filterBtn = target.closest("[data-filter]") as HTMLElement | null;
+      if (filterBtn) {
+        const f = filterBtn.dataset.filter || "original";
+        const stageImg = el.querySelector("#stageImg") as HTMLImageElement | null;
+        if (stageImg) {
+          const map: Record<string, string> = {
+            original: "none",
+            "b&p": "grayscale(1)",
+            "sépia": "sepia(.85)",
+            vintage: "sepia(.4) contrast(1.1) saturate(.85)",
+            vivid: "saturate(1.6) contrast(1.1)",
+            cool: "hue-rotate(-15deg) saturate(1.1)",
+            warm: "hue-rotate(15deg) saturate(1.1)",
+            noir: "grayscale(1) contrast(1.3)",
+          };
+          stageImg.style.filter = map[f] || "none";
+        }
+        return;
+      }
+      const packBtn = target.closest("[data-style-pack]") as HTMLElement | null;
+      if (packBtn) {
+        const name = packBtn.dataset.stylePack!;
+        setStylePack((cur) => (cur === name ? null : name));
+        showToast(`Style pack: ${name}`);
         return;
       }
       const imgBtn = target.closest("[data-img]") as HTMLElement | null;
@@ -115,7 +164,15 @@ function Workspace() {
     };
     el.addEventListener("click", onClick);
     return () => el.removeEventListener("click", onClick);
-  }, [currentTab, navigate]);
+  }, [currentTab, navigate, showToast]);
+
+  // Sync stage meta com modelo/qualidade/ratio na aba image
+  useEffect(() => {
+    const el = viewRef.current; if (!el) return;
+    const m = el.querySelector("#imgMetaModel"); if (m) m.textContent = modelLabel;
+    const q = el.querySelector("#imgMetaQuality"); if (q) q.textContent = quality;
+    const r = el.querySelector("#imgMetaRatio"); if (r) r.textContent = ratio;
+  }, [modelLabel, quality, ratio, currentTab]);
 
   const renderResultOnStage = useCallback((url: string, type: "image" | "video" | "audio") => {
     const el = viewRef.current;
@@ -173,14 +230,15 @@ function Workspace() {
     const result = await enqueue({
       tab: currentTab, prompt: trimmed, aspect: ratio,
       sourceUrl, model: modelId, thumb: sourceUrl || undefined,
+      quality, numVariations: variations, stylePack,
     });
     if (!result.ok) {
       showToast("Erro: " + (result.error || "falha"));
       return;
     }
-    showToast("Geração iniciada — você pode mandar outra");
+    showToast(`Geração iniciada (${variations}× ${quality}) — você pode mandar outra`);
     setPrompt(""); // libera o form pra próxima
-  }, [prompt, ratio, modelLabel, currentTab, sourceUrl, enqueue, showToast]);
+  }, [prompt, ratio, modelLabel, currentTab, sourceUrl, enqueue, showToast, quality, variations, stylePack]);
 
   // Quando um job completa, mostra no stage + adiciona ao history + toast
   const handleJobOpen = useCallback((job: Job) => {
@@ -250,6 +308,12 @@ function Workspace() {
               attachmentRequired={tabRequiresUpload(currentTab)}
               currentTab={currentTab}
               activeJobsCount={activeJobsCount}
+              quality={quality}
+              onQualityChange={setQuality}
+              variations={variations}
+              onVariationsChange={setVariations}
+              stylePack={stylePack}
+              onStylePackChange={setStylePack}
             />
           )}
         </section>

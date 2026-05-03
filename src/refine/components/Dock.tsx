@@ -32,10 +32,25 @@ type DockProps = {
   currentTab?: string;
   /** Número de jobs em background — só visual no botão Gerar. */
   activeJobsCount?: number;
+  quality?: string;
+  onQualityChange?: (q: string) => void;
+  variations?: number;
+  onVariationsChange?: (n: number) => void;
+  stylePack?: string | null;
+  onStylePackChange?: (s: string | null) => void;
 };
 
 const QUALITIES = ["1K", "2K", "4K"];
 const VARIATIONS = [1, 2, 4];
+const STYLE_PACKS = [
+  { name: "Nenhum", suffix: "" },
+  { name: "Editorial", suffix: "editorial fashion photography, magazine cover, dramatic lighting" },
+  { name: "Cyberpunk", suffix: "cyberpunk neon city, blade runner aesthetic, rain, holograms" },
+  { name: "Fantasy", suffix: "epic fantasy art, painterly, magical lighting, cinematic" },
+  { name: "Cinematic", suffix: "cinematic film still, anamorphic lens, color graded, depth of field" },
+  { name: "Portrait", suffix: "studio portrait, soft key light, 85mm, shallow depth of field" },
+  { name: "Surreal", suffix: "surrealist scene, dreamlike, impossible geometry, vivid colors" },
+];
 
 export function Dock({
   prompt,
@@ -53,10 +68,20 @@ export function Dock({
   attachmentRequired = false,
   currentTab = "image",
   activeJobsCount = 0,
+  quality: qualityProp,
+  onQualityChange,
+  variations: variationsProp,
+  onVariationsChange,
+  stylePack = null,
+  onStylePackChange,
 }: DockProps) {
   const [open, setOpen] = useState<"model" | "ratio" | "quality" | "variations" | "style" | null>(null);
-  const [quality, setQuality] = useState("1K");
-  const [variations, setVariations] = useState(1);
+  const [qualityState, setQualityState] = useState("1K");
+  const [variationsState, setVariationsState] = useState(1);
+  const quality = qualityProp ?? qualityState;
+  const variations = variationsProp ?? variationsState;
+  const setQuality = (q: string) => { onQualityChange ? onQualityChange(q) : setQualityState(q); };
+  const setVariations = (n: number) => { onVariationsChange ? onVariationsChange(n) : setVariationsState(n); };
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const refs = {
@@ -186,7 +211,7 @@ export function Dock({
                 }}
               >
                 <Icon d="M3 12h18" />
-                <span>Estilo</span>
+                <span>{stylePack && stylePack !== "Nenhum" ? `Estilo · ${stylePack}` : "Estilo"}</span>
               </button>
               <span style={{ flex: 1 }}></span>
               <span className="dock-chip kbd">Ctrl + Enter</span>
@@ -298,12 +323,24 @@ export function Dock({
       )}
       {open === "style" && refs.style.current && (
         <Popover anchor={refs.style.current}>
-          <PopItem onClick={() => setOpen(null)}>(em breve)</PopItem>
+          {STYLE_PACKS.map((s) => (
+            <PopItem
+              key={s.name}
+              active={(stylePack || "Nenhum") === s.name}
+              onClick={() => { onStylePackChange?.(s.name === "Nenhum" ? null : s.name); setOpen(null); }}
+            >
+              {s.name}
+            </PopItem>
+          ))}
         </Popover>
       )}
     </>
   );
 }
+
+export const STYLE_PACK_SUFFIX: Record<string, string> = Object.fromEntries(
+  STYLE_PACKS.map((s) => [s.name, s.suffix])
+);
 
 function Popover({ anchor, children }: { anchor: HTMLElement; children: React.ReactNode }) {
   const rect = anchor.getBoundingClientRect();

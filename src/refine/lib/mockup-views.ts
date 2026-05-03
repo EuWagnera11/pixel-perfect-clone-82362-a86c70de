@@ -143,32 +143,35 @@ function viewHome(){
 function viewImage(){
   return `
   <div class="head">
-    <div><div class="eyebrow"><span class="dot"></span>AI Image · Nano-Banana Pro</div><h1>Crie imagens <em>cinematográficas</em></h1><p>Descreva a cena. O Refine devolve 4 variações em segundos.</p></div>
+    <div><div class="eyebrow"><span class="dot"></span>AI Image · Nano-Banana Pro</div><h1>Crie imagens <em>cinematográficas</em></h1><p>Descreva a cena. O Refine devolve as variações em segundos.</p></div>
     <div class="head-actions">
-      <button class="tool-btn">${ICO("M3 7h18M6 12h12")}Filtros</button>
-      <button class="tool-btn primary">${ICO("M21 15v4M7 10l5 5 5-5")}Exportar</button>
+      <button class="tool-btn" data-action="toggle-filters">${ICO("M3 7h18M6 12h12")}<span id="imgFiltersLabel">Filtros</span></button>
+      <button class="tool-btn primary" data-action="export-image">${ICO("M21 15v4M7 10l5 5 5-5")}Exportar</button>
     </div>
   </div>
-  <div class="stage"><div class="stage-inner">
+  <div class="stage" id="imgStageWrap"><div class="stage-inner">
     <img id="stageImg" src="${IMG('persona-portrait.png')}" alt="Geração atual" />
-    <div class="stage-meta"><span>Nano-Banana Pro</span><span class="seed">·</span><span class="seed">seed 38271</span><span class="seed">·</span><span class="seed">3:4</span></div>
+    <div class="stage-meta"><span id="imgMetaModel">Nano-Banana Pro</span><span class="seed">·</span><span class="seed" id="imgMetaQuality">2K</span><span class="seed">·</span><span class="seed" id="imgMetaRatio">3:4</span></div>
     <div class="stage-overlay">
-      <button class="icon-btn">${ICO("M18 5v6 M6 12v9 M18 19v3 M8.6 13.5 15.4 18M15.4 6 8.6 10.5")}</button>
-      <button class="icon-btn">${ICO("M21 15v4M7 10l5 5 5-5M12 15V3")}</button>
-      <button class="icon-btn">${ICO("M5 12h.01M12 12h.01M19 12h.01")}</button>
+      <button class="icon-btn" data-action="copy-image" title="Copiar imagem">${ICO("M9 9h10v10H9z M5 5h10v10H5z")}</button>
+      <button class="icon-btn" data-action="export-image" title="Baixar">${ICO("M21 15v4M7 10l5 5 5-5M12 15V3")}</button>
+      <button class="icon-btn" data-action="open-fullscreen" title="Tela cheia">${ICO("M5 5h6V3H3v8h2zM19 5v6h2V3h-8v2zM5 19v-6H3v8h8v-2zM19 19h-6v2h8v-8h-2z")}</button>
     </div>
     <div class="stage-controls">
       ${[['editorial-2.jpg','1'],['editorial-3.jpg','2'],['editorial-4.jpg','3'],['persona-f2.jpg','4']].map((p,i)=>`<button class="var-pill ${i===0?'active':''}" data-img="${IMG(p[0])}">${p[1]}</button>`).join('')}
     </div>
     <div class="stage-watermark">REFINE <span class="lime-tag">AI</span></div>
   </div></div>
+  <div id="imgFiltersBar" style="display:none;gap:8px;flex-wrap:wrap;margin:12px 0 4px">
+    ${['Original','B&P','Sépia','Vintage','Vivid','Cool','Warm','Noir'].map(f=>`<button class="tool-btn" data-filter="${f.toLowerCase()}">${f}</button>`).join('')}
+  </div>
   <div class="sec-title">Variações<span class="line"></span></div>
   <div class="variations">
-    ${[['editorial-2.jpg','v01'],['editorial-3.jpg','v02'],['editorial-4.jpg','v03'],['persona-f2.jpg','v04']].map((p,i)=>`<article class="variation" style="animation-delay:${i*70}ms"><img src="${IMG(p[0])}" alt="${p[1]}" /><span class="index">${p[1]}</span></article>`).join('')}
+    ${[['editorial-2.jpg','v01'],['editorial-3.jpg','v02'],['editorial-4.jpg','v03'],['persona-f2.jpg','v04']].map((p,i)=>`<article class="variation" style="animation-delay:${i*70}ms" data-img="${IMG(p[0])}"><img src="${IMG(p[0])}" alt="${p[1]}" /><span class="index">${p[1]}</span></article>`).join('')}
   </div>
   <div class="sec-title">Style packs<span class="line"></span></div>
   <div class="styles">
-    ${[['Editorial','editorial-1.jpg'],['Cyberpunk','bg-1.jpg'],['Fantasy','fantasy-2.png'],['Cinematic','place-2.png'],['Portrait','persona-f3.jpg'],['Surreal','fantasy-3.png']].map(([n,s])=>`<div class="style" data-img="${IMG(s)}"><img src="${IMG(s)}" alt="${n}" /><span class="name">${n}</span></div>`).join('')}
+    ${[['Editorial','editorial-1.jpg'],['Cyberpunk','bg-1.jpg'],['Fantasy','fantasy-2.png'],['Cinematic','place-2.png'],['Portrait','persona-f3.jpg'],['Surreal','fantasy-3.png']].map(([n,s])=>`<div class="style" data-style-pack="${n}" title="Aplicar pack ${n}"><img src="${IMG(s)}" alt="${n}" /><span class="name">${n}</span></div>`).join('')}
   </div>`;
 }
 

@@ -62,11 +62,11 @@ export const FREEPIK_EDITORS: FreepikModel[] = [
 // ───────── Geradores puros (sem referência) ─────────
 export const FREEPIK_GENERATORS: FreepikModel[] = [
   { id: "mystic", label: "Mystic", endpoint: "/v1/ai/mystic", kind: "generator", verified: true, description: "Até 4K, ultra-realista." },
-  { id: "imagen4-ultra", label: "Imagen 4 Ultra", endpoint: "/v1/ai/imagen4-ultra", kind: "generator", verified: true, description: "Google, premium." },
-  { id: "imagen4-fast", label: "Imagen 4 Fast", endpoint: "/v1/ai/imagen4-fast", kind: "generator", verified: true, description: "Imagen 4 versão rápida." },
-  { id: "flux-pro-1-1", label: "Flux Pro 1.1", endpoint: "/v1/ai/flux-pro-v1-1", kind: "generator", verified: true },
-  { id: "flux-2-klein", label: "Flux 2 Klein", endpoint: "/v1/ai/flux-2-klein", kind: "generator", verified: true, description: "Tempo real." },
-  { id: "seedream-v4", label: "Seedream V4", endpoint: "/v1/ai/seedream-v4", kind: "generator", verified: true },
+  { id: "imagen4-ultra", label: "Imagen 4 Ultra", endpoint: "/v1/ai/text-to-image/imagen4-ultra", kind: "generator", verified: true, description: "Google, premium." },
+  { id: "imagen4-fast", label: "Imagen 4 Fast", endpoint: "/v1/ai/text-to-image/imagen4-fast", kind: "generator", verified: true, description: "Imagen 4 versão rápida." },
+  { id: "flux-pro-1-1", label: "Flux Pro 1.1", endpoint: "/v1/ai/text-to-image/flux-pro-v1-1", kind: "generator", verified: true },
+  { id: "flux-2-klein", label: "Flux 2 Klein", endpoint: "/v1/ai/text-to-image/flux-2-klein", kind: "generator", verified: true, description: "Tempo real." },
+  { id: "seedream-v4", label: "Seedream V4", endpoint: "/v1/ai/text-to-image/seedream-v4", kind: "generator", verified: true },
 ];
 
 // ───────── Endpoints dedicados (não substituem editores) ─────────

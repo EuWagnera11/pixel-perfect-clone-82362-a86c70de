@@ -72,16 +72,22 @@ export default function Generate() {
   }, [generation?.id, generation?.status]);
 
   const handleGenerate = async () => {
+    if (!prompt.trim()) {
+      toast({ title: "Prompt obrigatório", description: "Descreva o que você quer gerar.", variant: "destructive" });
+      return;
+    }
     setSubmitting(true);
     setGeneration(null);
     try {
       const g = await api.generations.create({
         persona_id: personaId,
         template_id: templateId,
+        prompt: prompt.trim(),
         num_variations: numVars,
         resolution: model.resolution as "1k" | "2k" | "4k",
         aspect_ratio: ratio,
         model: model.model,
+        refs: refUrl ? [{ url: refUrl }] : undefined,
       } as any);
       setGeneration(g as Generation);
       toast({ title: "Geração iniciada", description: "Aguarde alguns segundos..." });

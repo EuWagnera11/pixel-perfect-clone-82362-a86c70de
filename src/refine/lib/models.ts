@@ -8,7 +8,7 @@
 export type ImageModel = {
   label: string;
   id: string;
-  family: "nano-banana" | "imagen" | "flux" | "seedream" | "mystic" | "hyperflux";
+  family: "nano-banana" | "imagen" | "flux" | "seedream" | "mystic" | "hyperflux" | "z-image" | "runway";
   costHint?: "Premium" | "Rápido" | "Padrão";
 };
 
@@ -34,12 +34,21 @@ export const IMAGE_MODELS: ImageModel[] = [
   { label: "Flux Pro 1.1",          id: "flux-pro-1-1",          family: "flux" },
   { label: "Flux Kontext Pro",      id: "flux-kontext-pro",      family: "flux" },
   { label: "Flux 2 Klein",          id: "flux-2-klein",          family: "flux" },
+  { label: "Flux 2 Pro",            id: "flux-2-pro",            family: "flux", costHint: "Premium" },
+  { label: "Flux 2 Turbo",          id: "flux-2-turbo",          family: "flux", costHint: "Rápido" },
+  { label: "Flux Dev",              id: "flux-dev",              family: "flux" },
   // Seedream (ByteDance)
   { label: "Seedream v4",           id: "seedream-v4",           family: "seedream" },
   { label: "Seedream v4 Edit",      id: "seedream-v4-edit",      family: "seedream" },
+  { label: "Seedream v4.5",         id: "seedream-v4-5",         family: "seedream" },
+  { label: "Seedream v4.5 Edit",    id: "seedream-v4-5-edit",    family: "seedream" },
+  { label: "Seedream v5 Lite",      id: "seedream-v5-lite",      family: "seedream", costHint: "Rápido" },
+  { label: "Seedream v5 Lite Edit", id: "seedream-v5-lite-edit", family: "seedream", costHint: "Rápido" },
   // Outros
   { label: "Mystic",                id: "mystic",                family: "mystic", costHint: "Premium" },
   { label: "Hyperflux",             id: "hyperflux",             family: "hyperflux", costHint: "Premium" },
+  { label: "Z-Image Turbo",         id: "z-image",               family: "z-image", costHint: "Rápido" },
+  { label: "RunWay T2I",            id: "runway-t2i",            family: "runway" },
 ];
 
 export const VIDEO_MODELS: VideoModel[] = [

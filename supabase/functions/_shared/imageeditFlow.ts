@@ -16,9 +16,17 @@ import { toMagnificAspect } from "./engines.ts";
 // Mapeamos endpoint -> engine id para resolver o whitelist por motor.
 const MAGNIFIC_ASPECT_ENDPOINT_TO_ENGINE: Record<string, string> = {
   "/v1/ai/text-to-image/flux-kontext-pro": "flux-kontext-pro",
+  "/v1/ai/text-to-image/flux-2-klein": "flux-2-klein",
+  "/v1/ai/text-to-image/flux-dev": "flux-dev",
+  "/v1/ai/text-to-image/hyperflux": "hyperflux",
   "/v1/ai/text-to-image/nano-banana-pro": "nano-banana-pro",
   "/v1/ai/text-to-image/nano-banana-pro-flash": "nano-banana-pro-flash",
   "/v1/ai/text-to-image/seedream-v4": "seedream-v4",
+  "/v1/ai/text-to-image/seedream-v4-edit": "seedream-v4-edit",
+  "/v1/ai/text-to-image/seedream-v4-5": "seedream-v4-5",
+  "/v1/ai/text-to-image/seedream-v4-5-edit": "seedream-v4-5-edit",
+  "/v1/ai/text-to-image/seedream-v5-lite": "seedream-v5-lite",
+  "/v1/ai/text-to-image/seedream-v5-lite-edit": "seedream-v5-lite-edit",
   "/v1/ai/mystic": "mystic",
   "/v1/ai/text-to-image/imagen4-ultra": "imagen4-ultra",
   "/v1/ai/text-to-image/imagen4-fast": "imagen4-fast",

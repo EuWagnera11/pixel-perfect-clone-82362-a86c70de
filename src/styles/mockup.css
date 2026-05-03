@@ -531,22 +531,28 @@ img{display:block;max-width:100%}
 }
 .img-ws-controls{
   border-right:1px solid rgba(255,255,255,.06);
-  padding:clamp(8px,1.4vh,16px) 12px;
-  overflow:hidden;display:flex;flex-direction:column;
-  gap:clamp(6px,1vh,12px);
+  padding:clamp(6px,1vh,14px) 12px;
+  overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column;
+  gap:clamp(5px,.8vh,10px);
   scrollbar-width:none;height:100%;min-height:0;
 }
 .img-ws-controls::-webkit-scrollbar{display:none}
 .img-ws-controls{
   background:#0c0c0c;position:relative;
 }
-/* Painéis comprimem em telas baixas mas sem mudar o layout */
-.img-ws-controls .img-ws-panel{padding:clamp(8px,1.2vh,14px);gap:clamp(6px,1vh,10px)}
-.img-ws-controls .img-ws-textarea{min-height:clamp(48px,8vh,84px)}
-.img-ws-controls .img-ws-sidebar-head{padding:0 4px clamp(2px,.4vh,6px)}
-.img-ws-controls .img-ws-sidebar-head h1{font-size:clamp(13px,1.6vh,15px)}
-.img-ws-controls .img-ws-generate{padding:clamp(9px,1.3vh,12px) 14px}
-.img-ws-controls .img-ws-generate-wrap{padding:clamp(6px,.8vh,10px) 0 0;margin-top:auto}
+/* Compressão agressiva para caber tudo sem rolar */
+.img-ws-controls .img-ws-panel{padding:clamp(7px,1vh,14px);gap:clamp(5px,.8vh,10px)}
+.img-ws-controls .img-ws-textarea{min-height:clamp(40px,6vh,72px);font-size:12.5px}
+.img-ws-controls .img-ws-sidebar-head{padding:0 4px clamp(0px,.2vh,4px);gap:2px}
+.img-ws-controls .img-ws-sidebar-head h1{font-size:clamp(13px,1.5vh,15px)}
+.img-ws-controls .img-ws-sidebar-head p{font-size:clamp(10px,1.1vh,11px)}
+.img-ws-controls .img-ws-generate{padding:clamp(8px,1.1vh,12px) 14px}
+.img-ws-controls .img-ws-generate-wrap{padding:clamp(4px,.6vh,10px) 0 0;margin-top:auto}
+.img-ws-controls .oc{gap:clamp(6px,1vh,14px)}
+.img-ws-controls .oc-section{gap:clamp(4px,.6vh,8px)}
+.img-ws-controls .oc-aspects{gap:4px}
+.img-ws-controls .oc-aspect{padding:clamp(4px,.6vh,7px) 4px}
+.img-ws-controls .oc-summary{font-size:10.5px;padding-top:clamp(2px,.4vh,6px)}
 .img-ws-brand{display:flex;align-items:center;gap:10px;padding:4px 4px 6px}
 .img-ws-brand-mark{
   width:26px;height:26px;border-radius:7px;background:#f97316;

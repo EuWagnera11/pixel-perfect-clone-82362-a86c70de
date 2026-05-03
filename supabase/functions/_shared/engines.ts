@@ -50,7 +50,8 @@ export type BuildInput = {
 };
 
 // ---- aspect ratio helpers ----
-const FP_TO_MAGNIFIC: Record<string, string> = {
+// Master map of every Magnific aspect token we know about.
+const FP_TO_MAGNIFIC_ALL: Record<string, string> = {
   "1:1": "square_1_1",
   "4:3": "classic_4_3",
   "3:4": "traditional_3_4",
@@ -65,8 +66,48 @@ const FP_TO_MAGNIFIC: Record<string, string> = {
   "4:5": "social_post_4_5",
 };
 
-export function toMagnificAspect(fp: string): string {
-  return FP_TO_MAGNIFIC[fp] ?? "square_1_1";
+// Per-engine allowed aspect_ratio whitelist (Magnific tokens).
+// If the requested aspect is not allowed for that engine, we snap to the
+// closest supported one (by numeric ratio) to keep generation working.
+const ENGINE_ALLOWED_ASPECT: Record<string, string[]> = {
+  // Flux Pro 1.1 / Imagen4 / Seedream V4 / Mystic / Nano Banana Pro family
+  // all support the same compact set:
+  "flux-pro-1-1":          ["square_1_1", "social_story_9_16", "widescreen_16_9", "traditional_3_4", "classic_4_3"],
+  "imagen4-ultra":         ["square_1_1", "social_story_9_16", "widescreen_16_9", "traditional_3_4", "classic_4_3"],
+  "imagen4-fast":          ["square_1_1", "social_story_9_16", "widescreen_16_9", "traditional_3_4", "classic_4_3"],
+  "seedream-v4":           ["square_1_1", "social_story_9_16", "widescreen_16_9", "traditional_3_4", "classic_4_3"],
+  "mystic":                ["square_1_1", "social_story_9_16", "widescreen_16_9", "traditional_3_4", "classic_4_3"],
+  "nano-banana-pro":       ["square_1_1", "social_story_9_16", "widescreen_16_9", "traditional_3_4", "classic_4_3"],
+  "nano-banana-pro-flash": ["square_1_1", "social_story_9_16", "widescreen_16_9", "traditional_3_4", "classic_4_3"],
+  "nano-banana-2":         ["square_1_1", "social_story_9_16", "widescreen_16_9", "traditional_3_4", "classic_4_3"],
+};
+
+function aspectToNumber(token: string): number {
+  // "widescreen_16_9" -> 16/9
+  const m = token.match(/_(\d+)_(\d+)$/);
+  if (!m) return 1;
+  return Number(m[1]) / Number(m[2]);
+}
+
+function snapToAllowed(target: string, allowed: string[]): string {
+  if (allowed.includes(target)) return target;
+  const t = aspectToNumber(target);
+  let best = allowed[0];
+  let bestDiff = Infinity;
+  for (const a of allowed) {
+    const d = Math.abs(aspectToNumber(a) - t);
+    if (d < bestDiff) { bestDiff = d; best = a; }
+  }
+  return best;
+}
+
+/** Convert a freepik-style aspect ("16:9") to a Magnific token, scoped by engine. */
+export function toMagnificAspect(fp: string, engineId?: string): string {
+  const token = FP_TO_MAGNIFIC_ALL[fp] ?? "square_1_1";
+  if (!engineId) return token;
+  const allowed = ENGINE_ALLOWED_ASPECT[engineId];
+  if (!allowed) return token;
+  return snapToAllowed(token, allowed);
 }
 
 // =========== IMAGE engines ===========
@@ -76,7 +117,7 @@ const IMAGE: Record<string, EngineEntry> = {
     id: "mystic", kind: "image", path: "/v1/ai/mystic", aspectStyle: "magnific",
     build: (i) => ({
       prompt: i.prompt,
-      aspect_ratio: toMagnificAspect(i.aspect),
+      aspect_ratio: toMagnificAspect(i.aspect, "mystic"),
       resolution: i.resolution || "2k",
       ...(i.refs[0] ? { style_reference: i.refs[0] } : {}),
     }),
@@ -87,7 +128,7 @@ const IMAGE: Record<string, EngineEntry> = {
     path: "/v1/ai/gemini-2-5-flash-image-preview", aspectStyle: "magnific",
     build: (i) => ({
       prompt: i.prompt,
-      aspect_ratio: toMagnificAspect(i.aspect),
+      aspect_ratio: toMagnificAspect(i.aspect, "nano-banana-2"),
       num_images: i.num,
       ...(i.refs.length ? { reference_images: (i.refsB64 ?? []).slice(0, 4) } : {}),
     }),
@@ -97,7 +138,7 @@ const IMAGE: Record<string, EngineEntry> = {
     path: "/v1/ai/text-to-image/nano-banana-pro", aspectStyle: "magnific",
     build: (i) => ({
       prompt: i.prompt,
-      aspect_ratio: toMagnificAspect(i.aspect),
+      aspect_ratio: toMagnificAspect(i.aspect, "nano-banana-pro"),
       num_images: i.num,
       ...(i.refs.length ? { reference_images: (i.refsB64 ?? []).slice(0, 4) } : {}),
     }),
@@ -107,7 +148,7 @@ const IMAGE: Record<string, EngineEntry> = {
     path: "/v1/ai/text-to-image/nano-banana-pro-flash", aspectStyle: "magnific",
     build: (i) => ({
       prompt: i.prompt,
-      aspect_ratio: toMagnificAspect(i.aspect),
+      aspect_ratio: toMagnificAspect(i.aspect, "nano-banana-pro-flash"),
       num_images: i.num,
       ...(i.refs.length ? { reference_images: (i.refsB64 ?? []).slice(0, 4) } : {}),
     }),
@@ -116,18 +157,18 @@ const IMAGE: Record<string, EngineEntry> = {
   "imagen4-ultra": {
     id: "imagen4-ultra", kind: "image",
     path: "/v1/ai/text-to-image/imagen4-ultra", aspectStyle: "magnific",
-    build: (i) => ({ prompt: i.prompt, aspect_ratio: toMagnificAspect(i.aspect), num_images: i.num }),
+    build: (i) => ({ prompt: i.prompt, aspect_ratio: toMagnificAspect(i.aspect, "imagen4-ultra"), num_images: i.num }),
   },
   "imagen4-fast": {
     id: "imagen4-fast", kind: "image",
     path: "/v1/ai/text-to-image/imagen4-fast", aspectStyle: "magnific",
-    build: (i) => ({ prompt: i.prompt, aspect_ratio: toMagnificAspect(i.aspect), num_images: i.num }),
+    build: (i) => ({ prompt: i.prompt, aspect_ratio: toMagnificAspect(i.aspect, "imagen4-fast"), num_images: i.num }),
   },
   // Flux
   "flux-pro-1-1": {
     id: "flux-pro-1-1", kind: "image",
     path: "/v1/ai/text-to-image/flux-pro-v1-1", aspectStyle: "magnific",
-    build: (i) => ({ prompt: i.prompt, aspect_ratio: toMagnificAspect(i.aspect) }),
+    build: (i) => ({ prompt: i.prompt, aspect_ratio: toMagnificAspect(i.aspect, "flux-pro-1-1") }),
   },
   "flux-kontext-pro": {
     id: "flux-kontext-pro", kind: "image",
@@ -149,7 +190,7 @@ const IMAGE: Record<string, EngineEntry> = {
   "seedream-v4": {
     id: "seedream-v4", kind: "image",
     path: "/v1/ai/text-to-image/seedream-v4", aspectStyle: "magnific",
-    build: (i) => ({ prompt: i.prompt, aspect_ratio: toMagnificAspect(i.aspect), num_images: i.num }),
+    build: (i) => ({ prompt: i.prompt, aspect_ratio: toMagnificAspect(i.aspect, "seedream-v4"), num_images: i.num }),
   },
   "seedream-v4-edit": {
     id: "seedream-v4-edit", kind: "image",

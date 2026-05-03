@@ -532,6 +532,10 @@ img{display:block;max-width:100%}
 .img-ws-controls{
   border-right:1px solid rgba(255,255,255,.06);
   padding:16px 14px;overflow-y:auto;display:flex;flex-direction:column;gap:12px;
+  scrollbar-width:none;
+}
+.img-ws-controls::-webkit-scrollbar{display:none}
+.img-ws-controls{
   background:#0c0c0c;position:relative;
 }
 .img-ws-brand{display:flex;align-items:center;gap:10px;padding:4px 4px 6px}

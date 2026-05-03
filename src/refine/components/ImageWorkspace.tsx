@@ -182,12 +182,6 @@ export function ImageWorkspace({
     <div className="img-ws">
       {/* ===== LEFT CONTROLS ===== */}
       <aside className="img-ws-controls">
-        <div className="img-ws-brand">
-          <span className="img-ws-brand-mark">
-            <Icon d="m12 3 2.4 6.6L21 12l-6.6 2.4L12 21l-2.4-6.6L3 12l6.6-2.4z" strokeWidth={2} />
-          </span>
-          <span className="img-ws-brand-name">Image Studio</span>
-        </div>
         <div className="img-ws-sidebar-head">
           <h1>Criar imagens</h1>
           <p>Prompt, referências e saídas</p>

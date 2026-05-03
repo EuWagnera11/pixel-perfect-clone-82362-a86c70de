@@ -6,6 +6,20 @@
 
 export type MediaKind = "image" | "video" | "audio";
 
+/** Fetch a URL and return { image: base64, mime_type } for Freepik refs. */
+export async function urlToRefObject(url: string): Promise<{ image: string; mime_type: string }> {
+  const r = await fetch(url);
+  if (!r.ok) throw new Error(`ref fetch failed ${r.status}`);
+  const mime = r.headers.get("content-type")?.split(";")[0] || "image/jpeg";
+  const buf = new Uint8Array(await r.arrayBuffer());
+  let bin = "";
+  const chunk = 0x8000;
+  for (let i = 0; i < buf.length; i += chunk) {
+    bin += String.fromCharCode.apply(null, buf.subarray(i, i + chunk) as unknown as number[]);
+  }
+  return { image: btoa(bin), mime_type: mime };
+}
+
 export type EngineEntry = {
   id: string;
   kind: MediaKind;

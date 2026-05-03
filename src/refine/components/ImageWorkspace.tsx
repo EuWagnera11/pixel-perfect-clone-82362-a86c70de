@@ -75,11 +75,13 @@ export function ImageWorkspace({
   const handleGenerate = useCallback(async () => {
     if (!prompt.trim()) { showToast("Digite um prompt"); return; }
     const modelId = MODEL_LABEL_TO_ID[modelLabel] || "nano-banana-pro";
+    const preset = STYLE_PRESETS.find((s) => s.id === stylePreset);
+    const finalPrompt = (prompt.trim() + (preset?.suffix || "")).trim();
     const n = Math.max(1, variations);
     const promises = Array.from({ length: n }).map(() =>
       enqueue({
         tab: "image",
-        prompt: prompt.trim(),
+        prompt: finalPrompt,
         aspect: ratio,
         sourceUrl: refs[0] || null,
         model: modelId,
@@ -92,7 +94,7 @@ export function ImageWorkspace({
     const fail = results.find((r) => !r.ok);
     if (fail) showToast("Erro: " + (fail.error || "falha"));
     else showToast(n > 1 ? `${n} gerações em paralelo` : "Geração iniciada");
-  }, [prompt, modelLabel, ratio, quality, variations, refs, enqueue, showToast]);
+  }, [prompt, modelLabel, ratio, quality, variations, refs, enqueue, showToast, stylePreset]);
 
   const handleAttach = useCallback(async (file: File) => {
     if (refs.length >= 8) { showToast("Máximo 8 referências"); return; }

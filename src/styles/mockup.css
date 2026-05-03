@@ -904,7 +904,7 @@ img{display:block;max-width:100%}
   width:360px !important;padding:0 !important;
   background:#141414 !important;border:1px solid rgba(255,255,255,.08) !important;
   border-radius:12px !important;box-shadow:0 16px 40px rgba(0,0,0,.6) !important;
-  color:#fff;
+  color:#fff;z-index:10000 !important;
 }
 .mp-search{
   display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.06);

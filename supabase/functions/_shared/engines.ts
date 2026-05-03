@@ -6,6 +6,20 @@
 
 export type MediaKind = "image" | "video" | "audio";
 
+/** Fetch a URL and return { image: base64, mime_type } for Freepik refs. */
+export async function urlToRefObject(url: string): Promise<{ image: string; mime_type: string }> {
+  const r = await fetch(url);
+  if (!r.ok) throw new Error(`ref fetch failed ${r.status}`);
+  const mime = r.headers.get("content-type")?.split(";")[0] || "image/jpeg";
+  const buf = new Uint8Array(await r.arrayBuffer());
+  let bin = "";
+  const chunk = 0x8000;
+  for (let i = 0; i < buf.length; i += chunk) {
+    bin += String.fromCharCode.apply(null, buf.subarray(i, i + chunk) as unknown as number[]);
+  }
+  return { image: btoa(bin), mime_type: mime };
+}
+
 export type EngineEntry = {
   id: string;
   kind: MediaKind;
@@ -28,6 +42,7 @@ export type BuildInput = {
   prompt: string;
   aspect: string; // freepik-style "1:1"
   refs: string[]; // URLs
+  refsB64?: Array<{ image: string; mime_type: string }>;
   num: number;
   duration?: string; // "5" | "6" | "10"
   resolution?: string; // "1k" | "2k" | "4k"
@@ -74,7 +89,7 @@ const IMAGE: Record<string, EngineEntry> = {
       prompt: i.prompt,
       aspect_ratio: i.aspect,
       num_images: i.num,
-      ...(i.refs.length ? { reference_images: i.refs.slice(0, 4).map((url) => ({ image_url: url })) } : {}),
+      ...(i.refs.length ? { reference_images: (i.refsB64 ?? []).slice(0, 4) } : {}),
     }),
   },
   "nano-banana-pro": {
@@ -84,7 +99,7 @@ const IMAGE: Record<string, EngineEntry> = {
       prompt: i.prompt,
       aspect_ratio: i.aspect,
       num_images: i.num,
-      ...(i.refs.length ? { reference_images: i.refs.slice(0, 4).map((url) => ({ image_url: url })) } : {}),
+      ...(i.refs.length ? { reference_images: (i.refsB64 ?? []).slice(0, 4) } : {}),
     }),
   },
   "nano-banana-pro-flash": {
@@ -94,7 +109,7 @@ const IMAGE: Record<string, EngineEntry> = {
       prompt: i.prompt,
       aspect_ratio: i.aspect,
       num_images: i.num,
-      ...(i.refs.length ? { reference_images: i.refs.slice(0, 4).map((url) => ({ image_url: url })) } : {}),
+      ...(i.refs.length ? { reference_images: (i.refsB64 ?? []).slice(0, 4) } : {}),
     }),
   },
   // Imagen
@@ -127,7 +142,7 @@ const IMAGE: Record<string, EngineEntry> = {
     path: "/v1/ai/text-to-image/flux-2-klein", aspectStyle: "freepik",
     build: (i) => ({
       prompt: i.prompt, aspect_ratio: i.aspect,
-      ...(i.refs.length ? { reference_images: i.refs.slice(0, 4).map((url) => ({ image_url: url })) } : {}),
+      ...(i.refs.length ? { reference_images: (i.refsB64 ?? []).slice(0, 4) } : {}),
     }),
   },
   // Seedream

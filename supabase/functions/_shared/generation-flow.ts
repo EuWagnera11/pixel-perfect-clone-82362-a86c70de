@@ -2,7 +2,7 @@
 // Polling lives in `task-status` function.
 import { magnificFetch, extractTaskId } from "./magnific.ts";
 import { json } from "./cors.ts";
-import { buildBody, getEngine, type BuildInput, type MediaKind } from "./engines.ts";
+import { buildBody, getEngine, urlToRefObject, type BuildInput, type MediaKind } from "./engines.ts";
 
 export type StartArgs = {
   auth: any;
@@ -39,6 +39,18 @@ export async function startGeneration(args: StartArgs): Promise<Response> {
     .select()
     .single();
   if (insErr) return json({ error: "DB insert failed", detail: insErr.message }, 500);
+
+  // Pre-fetch reference images as base64 (Freepik requires {image, mime_type} objects)
+  if (args.input.refs?.length && !args.input.refsB64) {
+    try {
+      args.input.refsB64 = await Promise.all(args.input.refs.slice(0, 4).map(urlToRefObject));
+    } catch (e) {
+      await args.auth.admin.from("generations").update({
+        status: "failed", error_message: `Ref fetch failed: ${(e as Error).message}`,
+      }).eq("id", gen.id);
+      return json({ error: "Ref fetch failed", detail: (e as Error).message, generation_id: gen.id }, 502);
+    }
+  }
 
   const body = buildBody(engine, args.input);
 

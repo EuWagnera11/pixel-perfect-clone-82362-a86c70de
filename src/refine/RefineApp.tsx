@@ -13,6 +13,7 @@ import { Dock } from "./components/Dock";
 import { Rail } from "./components/Rail";
 import { Toast } from "./components/Toast";
 import { JobsPanel } from "./components/JobsPanel";
+import { ImageWorkspace } from "./components/ImageWorkspace";
 import { JobsProvider, useJobs, type Job } from "./lib/jobs";
 import { TAB_CONFIG } from "./lib/nav";
 import {

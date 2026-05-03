@@ -523,7 +523,7 @@ function Lightbox(p: LightboxProps) {
         </div>
 
         <div className="ils-section">
-          <div className="ils-label">Ações</div>
+          <div className="ils-label">Download</div>
           <div className="ils-actions">
             <button className="ils-btn primary" onClick={() => download("png")}>
               <Icon d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14" /> PNG
@@ -531,19 +531,31 @@ function Lightbox(p: LightboxProps) {
             <button className="ils-btn" onClick={() => download("jpg")}>
               <Icon d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14" /> JPG
             </button>
-            <button className="ils-btn" onClick={() => p.onToggleFavorite(item)}>
-              <Icon d="M12 2 14 9h7l-6 4 2 7-7-4-7 4 2-7-6-4h7z" />
-              {item.isFav ? "Desfavoritar" : "Favoritar"}
-            </button>
-            <button className="ils-btn" onClick={() => p.onRegenerate(item)}>
-              <Icon d="M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5" /> Regenerar
-            </button>
+          </div>
+        </div>
+
+        <div className="ils-section">
+          <div className="ils-label">Reutilizar</div>
+          <div className="ils-actions">
             <button className="ils-btn" onClick={() => p.onUseAsRef(item.url)}>
-              <Icon d="M5 12h14M12 5l7 7-7 7" /> Use as reference
+              <Icon d="M5 12h14M12 5l7 7-7 7" /> Reference
             </button>
             <button className="ils-btn" onClick={() => p.onUseAsStyle(item.url)}>
-              <Icon d="M3 12h18M3 6h18M3 18h12" /> Use as style
+              <Icon d="M3 12h18M3 6h18M3 18h12" /> Style
             </button>
+            <button className="ils-btn" onClick={() => p.onCopyPrompt(item.prompt)}>
+              <Icon d="M8 4h10v14M4 8h10v12H4z" /> Prompt
+            </button>
+            <button className="ils-btn" onClick={() => p.onToggleFavorite(item)}>
+              <Icon d="M12 2 14 9h7l-6 4 2 7-7-4-7 4 2-7-6-4h7z" />
+              {item.isFav ? "Unfav" : "Favorite"}
+            </button>
+          </div>
+        </div>
+
+        <div className="ils-section">
+          <div className="ils-label">Gerar a partir desta</div>
+          <div className="ils-actions">
             <button className="ils-btn" onClick={() => p.onRegenerate(item)}>
               <Icon d="M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5" /> Recreate
             </button>
@@ -551,30 +563,33 @@ function Lightbox(p: LightboxProps) {
               <Icon d="M4 4h7v7H4z M13 4h7v7h-7z M4 13h7v7H4z M13 13h7v7h-7z" /> Variations
             </button>
             <button className="ils-btn" onClick={() => p.onChangeCamera(item)}>
-              <Icon d="M3 7h4l2-3h6l2 3h4v12H3z M12 17a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" /> Change camera
+              <Icon d="M3 7h4l2-3h6l2 3h4v12H3z M12 17a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" /> Camera
+            </button>
+            <button className="ils-btn" onClick={() => p.onSendToEdit(item.url)}>
+              <Icon d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4z" /> Edit
             </button>
             <button className="ils-btn" onClick={() => p.onSendToUpscale(item.url)}>
               <Icon d="M3 16V8a2 2 0 0 1 2-2h14M21 8v8a2 2 0 0 1-2 2H5" /> Upscale
             </button>
             <button className="ils-btn" onClick={() => p.onSendToSkinEnhancer(item.url)}>
-              <Icon d="M12 2a7 7 0 0 1 7 7c0 5-7 13-7 13S5 14 5 9a7 7 0 0 1 7-7z M12 11a2 2 0 1 0 0-4 2 2 0 0 0 0 4z" /> Skin enhancer
+              <Icon d="M12 2a7 7 0 0 1 7 7c0 5-7 13-7 13S5 14 5 9a7 7 0 0 1 7-7z" /> Skin
             </button>
             <button className="ils-btn" onClick={() => p.onSendTo3D(item.url)}>
               <Icon d="M12 2 3 7v10l9 5 9-5V7z M12 12 3 7M12 12l9-5M12 12v10" /> 3D model
             </button>
             <button className="ils-btn" onClick={() => p.onSendTo3DScene(item.url)}>
-              <Icon d="M3 21V8l9-5 9 5v13M9 21V12h6v9" /> Create 3D scene
-            </button>
-            <button className="ils-btn" onClick={() => p.onSendToEdit(item.url)}>
-              <Icon d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4z" /> Edit
+              <Icon d="M3 21V8l9-5 9 5v13M9 21V12h6v9" /> 3D scene
             </button>
             <button className="ils-btn" onClick={() => p.onSendToVideo(item.url)}>
-              <Icon d="M4 6h12v12H4z M16 9l5-3v12l-5-3" /> Generate video
-            </button>
-            <button className="ils-btn danger" onClick={() => p.onDelete(item)}>
-              <Icon d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14" /> Excluir
+              <Icon d="M4 6h12v12H4z M16 9l5-3v12l-5-3" /> Video
             </button>
           </div>
+        </div>
+
+        <div className="ils-section">
+          <button className="ils-btn danger" onClick={() => p.onDelete(item)} style={{ width: "100%", justifyContent: "center" }}>
+            <Icon d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14" /> Excluir geração
+          </button>
         </div>
       </aside>
     </div>

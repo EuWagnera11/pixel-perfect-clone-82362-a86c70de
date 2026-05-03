@@ -115,9 +115,23 @@ export function ImageWorkspace({
     [history]
   );
 
+  const usedModels = useMemo(() => {
+    const ids = new Set<string>();
+    imageHistory.forEach((g) => g.model && ids.add(g.model));
+    return Array.from(ids);
+  }, [imageHistory]);
+
+  const filteredHistory = useMemo(() => {
+    return imageHistory.filter((g) => {
+      if (filterModel !== "all" && g.model !== filterModel) return false;
+      if (filterFav && !(g as any).metadata?.favorite) return false;
+      return true;
+    });
+  }, [imageHistory, filterModel, filterFav]);
+
   const totalImages = useMemo(
-    () => imageHistory.reduce((acc, g) => acc + (g.image_urls?.length || 0), 0),
-    [imageHistory]
+    () => filteredHistory.reduce((acc, g) => acc + (g.image_urls?.length || 0), 0),
+    [filteredHistory]
   );
 
   // ===== lightbox helpers =====

@@ -9,7 +9,7 @@ export type Generation = {
   video_urls?: string[];
   error_message?: string | null;
   credits_used: number;
-  media_type?: "image" | "video";
+  media_type?: "image" | "video" | "audio";
   created_at: string;
   completed_at?: string | null;
 };

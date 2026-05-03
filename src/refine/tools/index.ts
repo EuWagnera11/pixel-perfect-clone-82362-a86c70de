@@ -8,13 +8,20 @@
 import {
   startImage, startVideo, startEdit, startUpscale, startAudio,
 } from "../hooks/useGenerations";
+import {
+  startRemoveBg, startColorize, startRealistic3D, startFaceSwap, startClothSwap,
+  startDepthMap, startProductGen, startAssetsGen, startStyleTransfer, startReplaceBg,
+  startExpand,
+} from "../lib/imageedit";
 
 export type ToolMediaKind = "image" | "video" | "audio";
+export type JobFlow = "legacy" | "imageedit";
 
 export type EnqueueResult = {
   generationId: string;
   mediaType: ToolMediaKind;
   taskId?: string;
+  flow?: JobFlow; // default "legacy"
 };
 
 // ───────── IMAGE ─────────

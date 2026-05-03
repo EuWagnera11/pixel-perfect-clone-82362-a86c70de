@@ -259,7 +259,7 @@ export const api = {
     get: async (id: string) => {
       // Trigger Freepik polling (no-op if already settled), then return latest row.
       const { data, error } = await supabase.functions.invoke<Generation>(
-        "freepik-check-status",
+        "task-status",
         { body: { generation_id: id } }
       );
       if (error) throw new ApiError(500, error, error.message);

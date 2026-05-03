@@ -531,28 +531,33 @@ img{display:block;max-width:100%}
 }
 .img-ws-controls{
   border-right:1px solid rgba(255,255,255,.06);
-  padding:clamp(6px,1vh,14px) 12px;
-  overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column;
-  gap:clamp(5px,.8vh,10px);
+  padding:clamp(4px,.7vh,10px) 10px;
+  overflow:hidden;display:flex;flex-direction:column;
+  gap:clamp(4px,.55vh,8px);
   scrollbar-width:none;height:100%;min-height:0;
 }
 .img-ws-controls::-webkit-scrollbar{display:none}
 .img-ws-controls{
   background:#0c0c0c;position:relative;
 }
-/* Compressão agressiva para caber tudo sem rolar */
-.img-ws-controls .img-ws-panel{padding:clamp(7px,1vh,14px);gap:clamp(5px,.8vh,10px)}
-.img-ws-controls .img-ws-textarea{min-height:clamp(40px,6vh,72px);font-size:12.5px}
-.img-ws-controls .img-ws-sidebar-head{padding:0 4px clamp(0px,.2vh,4px);gap:2px}
-.img-ws-controls .img-ws-sidebar-head h1{font-size:clamp(13px,1.5vh,15px)}
-.img-ws-controls .img-ws-sidebar-head p{font-size:clamp(10px,1.1vh,11px)}
-.img-ws-controls .img-ws-generate{padding:clamp(8px,1.1vh,12px) 14px}
-.img-ws-controls .img-ws-generate-wrap{padding:clamp(4px,.6vh,10px) 0 0;margin-top:auto}
-.img-ws-controls .oc{gap:clamp(6px,1vh,14px)}
-.img-ws-controls .oc-section{gap:clamp(4px,.6vh,8px)}
-.img-ws-controls .oc-aspects{gap:4px}
-.img-ws-controls .oc-aspect{padding:clamp(4px,.6vh,7px) 4px}
-.img-ws-controls .oc-summary{font-size:10.5px;padding-top:clamp(2px,.4vh,6px)}
+.img-ws-controls .img-ws-panel{padding:clamp(6px,.75vh,10px);gap:clamp(4px,.55vh,7px);flex:0 0 auto}
+.img-ws-controls .img-ws-panel-head{gap:8px}
+.img-ws-controls .img-ws-panel-title{font-size:11.5px}
+.img-ws-controls .img-ws-panel-head span{font-size:10px}
+.img-ws-controls .img-ws-section{gap:6px}
+.img-ws-controls .img-ws-textarea{min-height:clamp(28px,4.2vh,52px);max-height:clamp(28px,4.2vh,52px);font-size:12px;line-height:1.35}
+.img-ws-controls .img-ws-style-row{gap:4px}
+.img-ws-controls .img-ws-chip{padding:4px 8px;font-size:10px}
+.img-ws-controls .img-ws-sidebar-head{padding:0 2px 2px;gap:1px}
+.img-ws-controls .img-ws-sidebar-head h1{font-size:clamp(12px,1.3vh,14px)}
+.img-ws-controls .img-ws-sidebar-head p{font-size:clamp(9px,1vh,10px)}
+.img-ws-controls .img-ws-generate{padding:9px 12px}
+.img-ws-controls .img-ws-generate-wrap{padding:4px 0 0;margin-top:auto}
+.img-ws-controls .oc{gap:6px}
+.img-ws-controls .oc-section{gap:4px}
+.img-ws-controls .oc-aspects{gap:3px}
+.img-ws-controls .oc-aspect{padding:4px 2px}
+.img-ws-controls .oc-summary{font-size:9.5px;padding-top:1px}
 .img-ws-brand{display:flex;align-items:center;gap:10px;padding:4px 4px 6px}
 .img-ws-brand-mark{
   width:26px;height:26px;border-radius:7px;background:#f97316;
@@ -619,18 +624,18 @@ img{display:block;max-width:100%}
 
 .img-ws-refs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
 .img-ws-ref{
-  position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;
+  position:relative;aspect-ratio:1;border-radius:6px;overflow:hidden;
   background:#0a0a0a;border:1px solid rgba(255,255,255,.06);
 }
 .img-ws-ref img{width:100%;height:100%;object-fit:cover}
 .img-ws-ref button{
-  position:absolute;top:4px;right:4px;width:18px;height:18px;border-radius:999px;
+  position:absolute;top:3px;right:3px;width:16px;height:16px;border-radius:999px;
   background:rgba(0,0,0,.7);border:1px solid rgba(255,255,255,.12);color:#fff;cursor:pointer;
   display:grid;place-items:center;padding:0;
 }
 .img-ws-ref button svg{width:9px;height:9px;stroke-width:2}
 .img-ws-ref-slot{
-  position:relative;aspect-ratio:1;border-radius:8px;cursor:pointer;font:inherit;
+  position:relative;aspect-ratio:1;border-radius:6px;cursor:pointer;font:inherit;
   background:transparent;border:1px dashed rgba(255,255,255,.12);
   display:grid;place-items:center;
   color:rgba(255,255,255,.4);transition:all .14s ease;
@@ -645,12 +650,12 @@ img{display:block;max-width:100%}
 .img-ws-ref-slot:disabled{opacity:.4;cursor:not-allowed}
 
 .img-ws-generate-wrap{
-  position:sticky;bottom:0;padding:10px 0 2px;margin-top:auto;
-  background:linear-gradient(180deg,transparent 0%,#0c0c0c 30%);
+  position:relative;bottom:auto;padding:4px 0 0;margin-top:auto;
+  background:none;
   z-index:3;
 }
 .img-ws-generate{
-  width:100%;padding:12px 14px;border-radius:10px;border:0;cursor:pointer;font:inherit;
+  width:100%;padding:10px 12px;border-radius:10px;border:0;cursor:pointer;font:inherit;
   background:#f97316;color:#fff;font-weight:500;font-size:13px;letter-spacing:-.005em;
   display:flex;align-items:center;justify-content:center;gap:8px;
   transition:background .14s ease;

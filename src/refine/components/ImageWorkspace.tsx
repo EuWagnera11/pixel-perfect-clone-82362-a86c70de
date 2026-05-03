@@ -139,18 +139,18 @@ export function ImageWorkspace({
             <span>{IMAGE_MODELS.length} disponíveis</span>
           </div>
           <div className="img-ws-section">
-          <select
-            className="img-ws-select"
-            value={modelLabel}
-            onChange={(e) => setModelLabel(e.target.value)}
-          >
-            {IMAGE_MODELS.map((m) => (
-              <option key={m.id} value={m.label}>
-                {m.label}{m.costHint ? ` · ${m.costHint}` : ""}
-              </option>
-            ))}
-          </select>
-        </div>
+            <select
+              className="img-ws-select"
+              value={modelLabel}
+              onChange={(e) => setModelLabel(e.target.value)}
+            >
+              {IMAGE_MODELS.map((m) => (
+                <option key={m.id} value={m.label}>
+                  {m.label}{m.costHint ? ` · ${m.costHint}` : ""}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
         <div className="img-ws-panel">
@@ -160,36 +160,37 @@ export function ImageWorkspace({
           </div>
           <div className="img-ws-section">
             <div className="img-ws-label">Use imagens para manter estilo, composição ou assunto</div>
-          <div className="img-ws-refs">
-            {refs.map((url, i) => (
-              <div key={i} className="img-ws-ref">
-                <img src={url} alt="ref" />
-                <button onClick={() => setRefs((p) => p.filter((_, j) => j !== i))} aria-label="Remover">
-                  <Icon d="M6 6l12 12M6 18L18 6" />
+            <div className="img-ws-refs">
+              {refs.map((url, i) => (
+                <div key={i} className="img-ws-ref">
+                  <img src={url} alt="ref" />
+                  <button onClick={() => setRefs((p) => p.filter((_, j) => j !== i))} aria-label="Remover">
+                    <Icon d="M6 6l12 12M6 18L18 6" />
+                  </button>
+                </div>
+              ))}
+              {refs.length < 8 && (
+                <button
+                  className="img-ws-ref-add"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading}
+                  aria-label="Adicionar referência"
+                >
+                  <Icon d="M12 5v14M5 12h14" />
                 </button>
-              </div>
-            ))}
-            {refs.length < 8 && (
-              <button
-                className="img-ws-ref-add"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={uploading}
-                aria-label="Adicionar referência"
-              >
-                <Icon d="M12 5v14M5 12h14" />
-              </button>
-            )}
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              hidden
-              onChange={(e) => {
-                const f = e.target.files?.[0];
-                if (f) handleAttach(f);
-                if (e.currentTarget) e.currentTarget.value = "";
-              }}
-            />
+              )}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                hidden
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) handleAttach(f);
+                  if (e.currentTarget) e.currentTarget.value = "";
+                }}
+              />
+            </div>
           </div>
         </div>
 
@@ -200,17 +201,17 @@ export function ImageWorkspace({
           </div>
           <div className="img-ws-section">
             <div className="img-ws-label">Descreva enquadramento, luz, estilo e detalhes</div>
-          <textarea
-            className="img-ws-textarea"
-            placeholder="Descreva sua imagem — Ex: um retrato editorial de uma mulher ruiva com luz quente…"
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-            onKeyDown={(e) => {
-              if ((e.metaKey || e.ctrlKey) && e.key === "Enter") { e.preventDefault(); handleGenerate(); }
-            }}
-            rows={6}
-          />
-        </div>
+            <textarea
+              className="img-ws-textarea"
+              placeholder="Descreva sua imagem — Ex: um retrato editorial de uma mulher ruiva com luz quente…"
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              onKeyDown={(e) => {
+                if ((e.metaKey || e.ctrlKey) && e.key === "Enter") { e.preventDefault(); handleGenerate(); }
+              }}
+              rows={6}
+            />
+          </div>
         </div>
 
         <div className="img-ws-panel">
@@ -219,44 +220,44 @@ export function ImageWorkspace({
             <span>{variations} {variations > 1 ? "imagens" : "imagem"}</span>
           </div>
           <div className="img-ws-grid2">
-          <div className="img-ws-section">
-            <div className="img-ws-label">Variações</div>
-            <div className="img-ws-pillrow">
-              {VARIATIONS.map((n) => (
-                <button
-                  key={n}
-                  className={"img-ws-pill" + (n === variations ? " active" : "")}
-                  onClick={() => setVariations(n)}
-                >{n}</button>
-              ))}
+            <div className="img-ws-section">
+              <div className="img-ws-label">Variações</div>
+              <div className="img-ws-pillrow">
+                {VARIATIONS.map((n) => (
+                  <button
+                    key={n}
+                    className={"img-ws-pill" + (n === variations ? " active" : "")}
+                    onClick={() => setVariations(n)}
+                  >{n}</button>
+                ))}
+              </div>
+            </div>
+            <div className="img-ws-section">
+              <div className="img-ws-label">Aspecto</div>
+              <div className="img-ws-pillrow">
+                {ASPECT_RATIOS.map((r) => (
+                  <button
+                    key={r}
+                    className={"img-ws-pill" + (r === ratio ? " active" : "")}
+                    onClick={() => setRatio(r)}
+                  >{r}</button>
+                ))}
+              </div>
             </div>
           </div>
-          <div className="img-ws-section">
-            <div className="img-ws-label">Aspecto</div>
-            <div className="img-ws-pillrow">
-              {ASPECT_RATIOS.map((r) => (
-                <button
-                  key={r}
-                  className={"img-ws-pill" + (r === ratio ? " active" : "")}
-                  onClick={() => setRatio(r)}
-                >{r}</button>
-              ))}
-            </div>
-          </div>
-        </div>
 
-        <div className="img-ws-section">
-          <div className="img-ws-label">Qualidade</div>
-          <div className="img-ws-pillrow">
-            {QUALITIES.map((q) => (
-              <button
-                key={q}
-                className={"img-ws-pill" + (q === quality ? " active" : "")}
-                onClick={() => setQuality(q)}
-              >{q}</button>
-            ))}
+          <div className="img-ws-section">
+            <div className="img-ws-label">Qualidade</div>
+            <div className="img-ws-pillrow">
+              {QUALITIES.map((q) => (
+                <button
+                  key={q}
+                  className={"img-ws-pill" + (q === quality ? " active" : "")}
+                  onClick={() => setQuality(q)}
+                >{q}</button>
+              ))}
+            </div>
           </div>
-        </div>
         </div>
 
         <div className="img-ws-generate-wrap">

@@ -176,14 +176,15 @@ function Workspace() {
     const result = await enqueue({
       tab: currentTab, prompt: trimmed, aspect: ratio,
       sourceUrl, model: modelId, thumb: sourceUrl || undefined,
+      quality, numVariations: variations, stylePack,
     });
     if (!result.ok) {
       showToast("Erro: " + (result.error || "falha"));
       return;
     }
-    showToast("Geração iniciada — você pode mandar outra");
+    showToast(`Geração iniciada (${variations}× ${quality}) — você pode mandar outra`);
     setPrompt(""); // libera o form pra próxima
-  }, [prompt, ratio, modelLabel, currentTab, sourceUrl, enqueue, showToast]);
+  }, [prompt, ratio, modelLabel, currentTab, sourceUrl, enqueue, showToast, quality, variations, stylePack]);
 
   // Quando um job completa, mostra no stage + adiciona ao history + toast
   const handleJobOpen = useCallback((job: Job) => {

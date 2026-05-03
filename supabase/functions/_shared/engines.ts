@@ -57,7 +57,8 @@ const FP_TO_MAGNIFIC_ALL: Record<string, string> = {
   "3:4": "traditional_3_4",
   "16:9": "widescreen_16_9",
   "9:16": "social_story_9_16",
-  "21:9": "smartphone_horizontal_20_9",
+  "21:9": "cinematic_21_9",
+  "20:9": "smartphone_horizontal_20_9",
   "3:2": "standard_3_2",
   "2:3": "portrait_2_3",
   "2:1": "horizontal_2_1",
@@ -65,6 +66,33 @@ const FP_TO_MAGNIFIC_ALL: Record<string, string> = {
   "5:4": "social_5_4",
   "4:5": "social_post_4_5",
 };
+
+// Runway uses explicit pixel ratios.
+const FP_TO_RUNWAY: Record<string, string> = {
+  "1:1": "1024:1024",
+  "16:9": "1920:1080",
+  "9:16": "1080:1920",
+  "4:3": "1440:1080",
+  "3:4": "1080:1440",
+  "21:9": "2112:912",
+};
+
+// Z-Image uses its own image_size enum.
+const FP_TO_ZIMAGE: Record<string, string> = {
+  "1:1": "square_hd",
+  "16:9": "landscape_16_9",
+  "9:16": "portrait_9_16",
+  "4:3": "landscape_4_3",
+  "3:4": "portrait_3_4",
+};
+
+// freepik-style ("16:9") -> { width, height } for engines that take dimensions.
+function fpToWH(fp: string, base = 1024): { width: number; height: number } {
+  const [w, h] = (fp || "1:1").split(":").map(Number);
+  if (!w || !h) return { width: base, height: base };
+  if (w >= h) return { width: base, height: Math.round((base * h) / w / 16) * 16 };
+  return { width: Math.round((base * w) / h / 16) * 16, height: base };
+}
 
 // Per-engine allowed aspect_ratio whitelist (Magnific tokens).
 // If the requested aspect is not allowed for that engine, we snap to the

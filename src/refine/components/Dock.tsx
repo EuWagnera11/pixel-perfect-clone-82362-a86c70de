@@ -68,10 +68,20 @@ export function Dock({
   attachmentRequired = false,
   currentTab = "image",
   activeJobsCount = 0,
+  quality: qualityProp,
+  onQualityChange,
+  variations: variationsProp,
+  onVariationsChange,
+  stylePack = null,
+  onStylePackChange,
 }: DockProps) {
   const [open, setOpen] = useState<"model" | "ratio" | "quality" | "variations" | "style" | null>(null);
-  const [quality, setQuality] = useState("1K");
-  const [variations, setVariations] = useState(1);
+  const [qualityState, setQualityState] = useState("1K");
+  const [variationsState, setVariationsState] = useState(1);
+  const quality = qualityProp ?? qualityState;
+  const variations = variationsProp ?? variationsState;
+  const setQuality = (q: string) => { onQualityChange ? onQualityChange(q) : setQualityState(q); };
+  const setVariations = (n: number) => { onVariationsChange ? onVariationsChange(n) : setVariationsState(n); };
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const refs = {

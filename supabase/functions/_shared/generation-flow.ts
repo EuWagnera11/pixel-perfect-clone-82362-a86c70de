@@ -2,7 +2,7 @@
 // Polling lives in `task-status` function.
 import { magnificFetch, extractTaskId } from "./magnific.ts";
 import { json } from "./cors.ts";
-import { buildBody, getEngine, type BuildInput, type MediaKind } from "./engines.ts";
+import { buildBody, getEngine, urlToRefObject, type BuildInput, type MediaKind } from "./engines.ts";
 
 export type StartArgs = {
   auth: any;

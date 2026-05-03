@@ -8,6 +8,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Icon } from "./Icon";
+import { ModelPicker } from "./ModelPicker";
+import { OutputControls } from "./OutputControls";
 import { useJobs, type Job } from "../lib/jobs";
 import { type Generation } from "../hooks/useGenerations";
 import {

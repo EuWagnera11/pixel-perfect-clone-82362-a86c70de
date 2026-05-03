@@ -74,9 +74,12 @@ const ENGINE_ALLOWED_ASPECT: Record<string, string[]> = {
   // all support the same compact set:
   "flux-pro-1-1":          ["square_1_1", "social_story_9_16", "widescreen_16_9", "traditional_3_4", "classic_4_3"],
   "flux-kontext-pro":      ["square_1_1", "classic_4_3", "traditional_3_4", "widescreen_16_9", "social_story_9_16", "standard_3_2", "portrait_2_3", "horizontal_2_1", "vertical_1_2", "social_post_4_5"],
+  "flux-2-klein":          ["square_1_1", "classic_4_3", "traditional_3_4", "widescreen_16_9", "social_story_9_16", "standard_3_2", "portrait_2_3", "horizontal_2_1", "vertical_1_2", "social_post_4_5"],
+  "hyperflux":             ["square_1_1", "classic_4_3", "traditional_3_4", "widescreen_16_9", "social_story_9_16", "standard_3_2", "portrait_2_3", "horizontal_2_1", "vertical_1_2", "social_post_4_5"],
   "imagen4-ultra":         ["square_1_1", "social_story_9_16", "widescreen_16_9", "traditional_3_4", "classic_4_3"],
   "imagen4-fast":          ["square_1_1", "social_story_9_16", "widescreen_16_9", "traditional_3_4", "classic_4_3"],
   "seedream-v4":           ["square_1_1", "social_story_9_16", "widescreen_16_9", "traditional_3_4", "classic_4_3"],
+  "seedream-v4-edit":      ["square_1_1", "widescreen_16_9", "social_story_9_16", "portrait_2_3", "traditional_3_4", "standard_3_2", "classic_4_3"],
   "mystic":                ["square_1_1", "social_story_9_16", "widescreen_16_9", "traditional_3_4", "classic_4_3"],
   "nano-banana-pro":       ["square_1_1", "social_story_9_16", "widescreen_16_9", "traditional_3_4", "classic_4_3"],
   "nano-banana-pro-flash": ["square_1_1", "social_story_9_16", "widescreen_16_9", "traditional_3_4", "classic_4_3"],
@@ -182,11 +185,21 @@ const IMAGE: Record<string, EngineEntry> = {
   },
   "flux-2-klein": {
     id: "flux-2-klein", kind: "image",
-    path: "/v1/ai/text-to-image/flux-2-klein", aspectStyle: "freepik",
-    build: (i) => ({
-      prompt: i.prompt, aspect_ratio: i.aspect,
-      ...(i.refs.length ? { reference_images: (i.refsB64 ?? []).slice(0, 4) } : {}),
-    }),
+    path: "/v1/ai/text-to-image/flux-2-klein", aspectStyle: "magnific",
+    build: (i) => {
+      const refs = (i.refsB64 ?? []).slice(0, 4);
+      const refFields: Record<string, string> = {};
+      if (refs[0]) refFields.input_image = refs[0];
+      if (refs[1]) refFields.input_image_2 = refs[1];
+      if (refs[2]) refFields.input_image_3 = refs[2];
+      if (refs[3]) refFields.input_image_4 = refs[3];
+      return {
+        prompt: i.prompt,
+        aspect_ratio: toMagnificAspect(i.aspect, "flux-2-klein"),
+        resolution: i.resolution || "1k",
+        ...refFields,
+      };
+    },
   },
   // Seedream
   "seedream-v4": {
@@ -196,16 +209,17 @@ const IMAGE: Record<string, EngineEntry> = {
   },
   "seedream-v4-edit": {
     id: "seedream-v4-edit", kind: "image",
-    path: "/v1/ai/seedream-edit-v4", aspectStyle: "freepik",
+    path: "/v1/ai/text-to-image/seedream-v4-edit", aspectStyle: "magnific",
     build: (i) => ({
       prompt: i.prompt,
-      ...(i.refs[0] ? { image: i.refs[0] } : {}),
+      aspect_ratio: toMagnificAspect(i.aspect, "seedream-v4-edit"),
+      ...(i.refs.length ? { reference_images: (i.refsB64 ?? i.refs).slice(0, 5) } : {}),
     }),
   },
   "hyperflux": {
     id: "hyperflux", kind: "image",
-    path: "/v1/ai/text-to-image/hyperflux", aspectStyle: "freepik",
-    build: (i) => ({ prompt: i.prompt, aspect_ratio: i.aspect, num_images: i.num }),
+    path: "/v1/ai/text-to-image/hyperflux", aspectStyle: "magnific",
+    build: (i) => ({ prompt: i.prompt, aspect_ratio: toMagnificAspect(i.aspect, "hyperflux") }),
   },
 };
 

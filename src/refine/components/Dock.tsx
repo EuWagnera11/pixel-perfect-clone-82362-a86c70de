@@ -211,7 +211,7 @@ export function Dock({
                 }}
               >
                 <Icon d="M3 12h18" />
-                <span>Estilo</span>
+                <span>{stylePack && stylePack !== "Nenhum" ? `Estilo · ${stylePack}` : "Estilo"}</span>
               </button>
               <span style={{ flex: 1 }}></span>
               <span className="dock-chip kbd">Ctrl + Enter</span>

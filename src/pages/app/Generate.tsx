@@ -37,7 +37,9 @@ export default function Generate() {
   const [ratio, setRatio] = useState("4:5");
   const [model, setModel] = useState({ model: "nano-banana-pro-flash", resolution: "2k" });
   const [numVars, setNumVars] = useState(4);
+  const [prompt, setPrompt] = useState("");
   const [refPath, setRefPath] = useState<string | null>(null);
+  const [refUrl, setRefUrl] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [generation, setGeneration] = useState<Generation | null>(null);
   const [costPreview, setCostPreview] = useState<number | null>(null);

@@ -99,18 +99,22 @@ export async function runUpscale(opts: {
   return { generationId: r.id, mediaType: "image", taskId: r.task_id };
 }
 
-// ───────── PRODUCT / E-COMMERCE / CHARACTER / ASSETS / 3D / DEPTH / MARKETING ─────────
-// Todos delegam pra runImage com defaults adequados ao caso.
+// ───────── NOVAS TOOLS (imageedit_*) ─────────
+const ie = (id: string, mediaType: ToolMediaKind = "image"): EnqueueResult => ({
+  generationId: id, mediaType, flow: "imageedit",
+});
+
 export async function runProduct(o: { prompt: string; aspect: string; sourceUrl?: string | null; model?: string }) {
   if (!o.sourceUrl) throw new Error("Anexe a foto do produto");
-  return runImage({ prompt: o.prompt, aspect: o.aspect, refs: [o.sourceUrl], model: o.model || "nano-banana-pro" });
+  if (!o.prompt.trim()) throw new Error("Descreva a cena de produto");
+  const r = await startProductGen({ image_url: o.sourceUrl, prompt: o.prompt, aspect_ratio: o.aspect, model: o.model });
+  return ie(r.generation_id);
 }
 export async function runEcommerce(o: { prompt: string; aspect: string; sourceUrl?: string | null; model?: string }) {
   if (!o.sourceUrl) throw new Error("Anexe a foto do produto");
-  return runImage({
-    prompt: `Studio e-commerce shot, clean background. ${o.prompt}`,
-    aspect: o.aspect, refs: [o.sourceUrl], model: o.model || "nano-banana-pro",
-  });
+  const prompt = `Studio e-commerce shot, clean white background. ${o.prompt}`;
+  const r = await startProductGen({ image_url: o.sourceUrl, prompt, aspect_ratio: o.aspect, model: o.model });
+  return ie(r.generation_id);
 }
 export async function runCharacter(o: { prompt: string; aspect: string; refs?: string[]; model?: string }) {
   return runImage({
@@ -118,30 +122,59 @@ export async function runCharacter(o: { prompt: string; aspect: string; refs?: s
     aspect: o.aspect || "4:5", refs: o.refs, model: o.model || "nano-banana-pro",
   });
 }
-export async function runR3D(o: { prompt: string; aspect: string; refs?: string[]; model?: string }) {
-  return runImage({
-    prompt: `Realistic 3D render, octane, raytracing. ${o.prompt}`,
-    aspect: o.aspect, refs: o.refs, model: o.model || "seedream-v4",
+export async function runR3D(o: { prompt: string; aspect: string; sourceUrl?: string | null; style?: "figurine"|"toy"|"sculpture"|"clay"; model?: string }) {
+  if (!o.sourceUrl) throw new Error("Anexe a imagem de referência");
+  const r = await startRealistic3D({
+    image_url: o.sourceUrl, style: o.style || "figurine",
+    prompt: o.prompt, aspect_ratio: o.aspect, model: o.model,
   });
+  return ie(r.generation_id);
 }
-export async function runDepth(o: { prompt: string; aspect: string; sourceUrl?: string | null }) {
+export async function runDepth(o: { sourceUrl?: string | null; mode?: "grayscale"|"colored" }) {
   if (!o.sourceUrl) throw new Error("Anexe a imagem para extrair depth");
-  return runImage({
-    prompt: `Depth map, grayscale, distance encoded. ${o.prompt}`,
-    aspect: o.aspect, refs: [o.sourceUrl], model: "nano-banana-pro",
-  });
+  const r = await startDepthMap({ image_url: o.sourceUrl, mode: o.mode || "grayscale" });
+  return ie(r.generation_id);
 }
-export async function runAssets(o: { prompt: string; aspect: string; refs?: string[] }) {
-  return runImage({
-    prompt: `Game asset, isolated on transparent background, clean PBR. ${o.prompt}`,
-    aspect: o.aspect, refs: o.refs, model: "nano-banana-pro-flash",
-  });
+export async function runAssets(o: { prompt: string; aspect: string; refs?: string[]; kind?: "icon"|"sprite"|"prop"|"ui" }) {
+  if (!o.prompt.trim()) throw new Error("Descreva o asset");
+  const r = await startAssetsGen({ prompt: o.prompt, refs: o.refs, kind: o.kind || "icon", aspect_ratio: o.aspect });
+  return ie(r.generation_id);
 }
 export async function runMarketing(o: { prompt: string; aspect: string; refs?: string[]; model?: string }) {
   return runImage({
     prompt: `Marketing campaign hero shot. ${o.prompt}`,
     aspect: o.aspect, refs: o.refs, model: o.model || "nano-banana-pro", numVariations: 1,
   });
+}
+// Edição via novas tools
+export async function runRemoveBg(o: { sourceUrl: string }) {
+  const r = await startRemoveBg({ image_url: o.sourceUrl });
+  return ie(r.generation_id);
+}
+export async function runReplaceBg(o: { sourceUrl: string; prompt: string; aspect?: string }) {
+  if (!o.prompt.trim()) throw new Error("Descreva o novo fundo");
+  const r = await startReplaceBg({ image_url: o.sourceUrl, prompt: o.prompt, aspect_ratio: o.aspect });
+  return ie(r.generation_id);
+}
+export async function runStyleTransferTool(o: { sourceUrl: string; styleUrl?: string; prompt?: string; aspect?: string }) {
+  const r = await startStyleTransfer({ image_url: o.sourceUrl, style_url: o.styleUrl, prompt: o.prompt, aspect_ratio: o.aspect });
+  return ie(r.generation_id);
+}
+export async function runExpand(o: { sourceUrl: string; prompt?: string; left?: number; right?: number; top?: number; bottom?: number }) {
+  const r = await startExpand({ image_url: o.sourceUrl, prompt: o.prompt, left: o.left, right: o.right, top: o.top, bottom: o.bottom });
+  return ie(r.generation_id);
+}
+export async function runColorize(o: { sourceUrl: string; palette?: "natural"|"vintage"|"vibrant"|"cinematic" }) {
+  const r = await startColorize({ image_url: o.sourceUrl, palette: o.palette });
+  return ie(r.generation_id);
+}
+export async function runFaceSwap(o: { sourceFaceUrl: string; targetUrl: string }) {
+  const r = await startFaceSwap({ source_face_url: o.sourceFaceUrl, target_image_url: o.targetUrl });
+  return ie(r.generation_id);
+}
+export async function runClothSwap(o: { personUrl: string; garmentUrl: string; category?: "top"|"bottom"|"dress"|"outerwear" }) {
+  const r = await startClothSwap({ person_url: o.personUrl, garment_url: o.garmentUrl, category: o.category });
+  return ie(r.generation_id);
 }
 
 // ───────── Dispatcher por tab ─────────

@@ -52,7 +52,7 @@ export const FREEPIK_EDITORS: FreepikModel[] = [
   {
     id: "seedream-v4-edit",
     label: "Seedream V4 Edit",
-    endpoint: "/v1/ai/seedream-v4-edit",
+    endpoint: "/v1/ai/text-to-image/seedream-v4-edit",
     kind: "editor",
     maxRefs: 6,
     description: "Edição alternativa, fallback.",

@@ -84,30 +84,30 @@ const IMAGE: Record<string, EngineEntry> = {
   // Nano Banana family (Gemini)
   "nano-banana-2": {
     id: "nano-banana-2", kind: "image",
-    path: "/v1/ai/gemini-2-5-flash-image-preview", aspectStyle: "freepik",
+    path: "/v1/ai/gemini-2-5-flash-image-preview", aspectStyle: "magnific",
     build: (i) => ({
       prompt: i.prompt,
-      aspect_ratio: i.aspect,
+      aspect_ratio: toMagnificAspect(i.aspect),
       num_images: i.num,
       ...(i.refs.length ? { reference_images: (i.refsB64 ?? []).slice(0, 4) } : {}),
     }),
   },
   "nano-banana-pro": {
     id: "nano-banana-pro", kind: "image",
-    path: "/v1/ai/text-to-image/nano-banana-pro", aspectStyle: "freepik",
+    path: "/v1/ai/text-to-image/nano-banana-pro", aspectStyle: "magnific",
     build: (i) => ({
       prompt: i.prompt,
-      aspect_ratio: i.aspect,
+      aspect_ratio: toMagnificAspect(i.aspect),
       num_images: i.num,
       ...(i.refs.length ? { reference_images: (i.refsB64 ?? []).slice(0, 4) } : {}),
     }),
   },
   "nano-banana-pro-flash": {
     id: "nano-banana-pro-flash", kind: "image",
-    path: "/v1/ai/text-to-image/nano-banana-pro-flash", aspectStyle: "freepik",
+    path: "/v1/ai/text-to-image/nano-banana-pro-flash", aspectStyle: "magnific",
     build: (i) => ({
       prompt: i.prompt,
-      aspect_ratio: i.aspect,
+      aspect_ratio: toMagnificAspect(i.aspect),
       num_images: i.num,
       ...(i.refs.length ? { reference_images: (i.refsB64 ?? []).slice(0, 4) } : {}),
     }),

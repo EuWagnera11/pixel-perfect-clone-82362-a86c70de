@@ -40,6 +40,18 @@ export async function startGeneration(args: StartArgs): Promise<Response> {
     .single();
   if (insErr) return json({ error: "DB insert failed", detail: insErr.message }, 500);
 
+  // Pre-fetch reference images as base64 (Freepik requires {image, mime_type} objects)
+  if (args.input.refs?.length && !args.input.refsB64) {
+    try {
+      args.input.refsB64 = await Promise.all(args.input.refs.slice(0, 4).map(urlToRefObject));
+    } catch (e) {
+      await args.auth.admin.from("generations").update({
+        status: "failed", error_message: `Ref fetch failed: ${(e as Error).message}`,
+      }).eq("id", gen.id);
+      return json({ error: "Ref fetch failed", detail: (e as Error).message, generation_id: gen.id }, 502);
+    }
+  }
+
   const body = buildBody(engine, args.input);
 
   const fp = await magnificFetch(engine.path, {

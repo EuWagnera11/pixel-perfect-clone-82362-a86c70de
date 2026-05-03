@@ -14,6 +14,91 @@ export type Database = {
   }
   public: {
     Tables: {
+      cloth_swap_logs: {
+        Row: {
+          category: string | null
+          created_at: string
+          garment_image_hash: string | null
+          generation_id: string | null
+          id: string
+          person_image_hash: string | null
+          report_reason: string | null
+          reported: boolean
+          user_id: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          garment_image_hash?: string | null
+          generation_id?: string | null
+          id?: string
+          person_image_hash?: string | null
+          report_reason?: string | null
+          reported?: boolean
+          user_id: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          garment_image_hash?: string | null
+          generation_id?: string | null
+          id?: string
+          person_image_hash?: string | null
+          report_reason?: string | null
+          reported?: boolean
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cloth_swap_logs_generation_id_fkey"
+            columns: ["generation_id"]
+            isOneToOne: false
+            referencedRelation: "imageedit_generations"
+            referencedColumns: ["generation_id"]
+          },
+        ]
+      }
+      face_swap_logs: {
+        Row: {
+          created_at: string
+          generation_id: string | null
+          id: string
+          report_reason: string | null
+          reported: boolean
+          source_face_hash: string | null
+          target_image_hash: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          generation_id?: string | null
+          id?: string
+          report_reason?: string | null
+          reported?: boolean
+          source_face_hash?: string | null
+          target_image_hash?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          generation_id?: string | null
+          id?: string
+          report_reason?: string | null
+          reported?: boolean
+          source_face_hash?: string | null
+          target_image_hash?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "face_swap_logs_generation_id_fkey"
+            columns: ["generation_id"]
+            isOneToOne: false
+            referencedRelation: "imageedit_generations"
+            referencedColumns: ["generation_id"]
+          },
+        ]
+      }
       generations: {
         Row: {
           aspect_ratio: string | null
@@ -118,6 +203,51 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      imageedit_generations: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          error_message: string | null
+          generation_id: string
+          input_urls: Json | null
+          metadata: Json | null
+          model: string
+          output_url: string | null
+          status: string
+          task_id: string | null
+          tool: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          generation_id?: string
+          input_urls?: Json | null
+          metadata?: Json | null
+          model: string
+          output_url?: string | null
+          status?: string
+          task_id?: string | null
+          tool: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          generation_id?: string
+          input_urls?: Json | null
+          metadata?: Json | null
+          model?: string
+          output_url?: string | null
+          status?: string
+          task_id?: string | null
+          tool?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       personas: {
         Row: {
@@ -284,6 +414,36 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      user_tos_accepts: {
+        Row: {
+          accepted_at: string
+          feature: string
+          id: string
+          ip_address: string | null
+          user_agent: string | null
+          user_id: string
+          version: string
+        }
+        Insert: {
+          accepted_at?: string
+          feature: string
+          id?: string
+          ip_address?: string | null
+          user_agent?: string | null
+          user_id: string
+          version: string
+        }
+        Update: {
+          accepted_at?: string
+          feature?: string
+          id?: string
+          ip_address?: string | null
+          user_agent?: string | null
+          user_id?: string
+          version?: string
         }
         Relationships: []
       }

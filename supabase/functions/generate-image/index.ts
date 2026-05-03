@@ -24,6 +24,10 @@ Deno.serve(async (req) => {
     ? body.refs.map((r: any) => (typeof r === "string" ? r : r?.url)).filter(Boolean)
     : [];
 
+  if (body.model === "flux-kontext-pro" && refs.length === 0) {
+    return json({ error: "flux-kontext-pro requires an input reference image" }, 400);
+  }
+
   const engineId = resolveImageEngine(refs.length, body.model);
 
   return await startGeneration({

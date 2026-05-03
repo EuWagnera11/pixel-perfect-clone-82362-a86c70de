@@ -127,7 +127,7 @@ const IMAGE: Record<string, EngineEntry> = {
     path: "/v1/ai/text-to-image/flux-2-klein", aspectStyle: "freepik",
     build: (i) => ({
       prompt: i.prompt, aspect_ratio: i.aspect,
-      ...(i.refs.length ? { reference_images: i.refs.slice(0, 4) } : {}),
+      ...(i.refs.length ? { reference_images: i.refs.slice(0, 4).map((url) => ({ image_url: url })) } : {}),
     }),
   },
   // Seedream

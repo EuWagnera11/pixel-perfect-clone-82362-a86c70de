@@ -29,8 +29,12 @@ Deno.serve(async (req) => {
   if (error) return json({ error: "DB error", detail: error.message }, 500);
   if (!gen) return json({ error: "Not found" }, 404);
 
+  const retryableFailure = gen.status === "failed"
+    && typeof gen.error_message === "string"
+    && (/task not found/i.test(gen.error_message) || /freepik status 404/i.test(gen.error_message));
+
   // Already settled — return as is
-  if (gen.status === "completed" || gen.status === "failed") {
+  if (gen.status === "completed" || (gen.status === "failed" && !retryableFailure)) {
     return json(gen);
   }
 
@@ -45,10 +49,33 @@ Deno.serve(async (req) => {
     logCtx: { userId: auth.userId, generationId, endpointKey: `${path}/:id` },
   });
 
+  const detailMessage = typeof fp.body?.message === "string"
+    ? fp.body.message
+    : typeof fp.body?.detail?.message === "string"
+    ? fp.body.detail.message
+    : "";
+
+  if (fp.status === 404 && /task not found/i.test(detailMessage)) {
+    if (gen.status === "failed") {
+      await auth.admin.from("generations").update({
+        status: "processing",
+        error_message: null,
+      }).eq("id", generationId);
+    }
+
+    return json({
+      ...gen,
+      status: "processing",
+      error_message: null,
+      polling_retryable: true,
+      polling_message: "Generation task is not visible yet. Retry polling shortly.",
+    });
+  }
+
   if (fp.status >= 400) {
     await auth.admin.from("generations").update({
       status: "failed",
-      error_message: `Freepik status ${fp.status}`,
+      error_message: `Freepik status ${fp.status}: ${detailMessage || "Unknown error"}`,
     }).eq("id", generationId);
     return json({ error: "Freepik status error", detail: fp.body }, 502);
   }

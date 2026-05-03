@@ -44,6 +44,32 @@ export function useGenerations() {
   }, []);
 
   useEffect(() => { refresh(); }, [refresh]);
+
+  // Realtime: re-fetch quando alguma geração muda (insert/update/delete)
+  useEffect(() => {
+    let userId: string | null = null;
+    let channel: ReturnType<typeof supabase.channel> | null = null;
+    (async () => {
+      const { data } = await supabase.auth.getUser();
+      userId = data.user?.id ?? null;
+      if (!userId) return;
+      channel = supabase
+        .channel("generations-realtime-" + userId)
+        .on(
+          "postgres_changes",
+          { event: "*", schema: "public", table: "generations", filter: `user_id=eq.${userId}` },
+          () => { refresh(); }
+        )
+        .on(
+          "postgres_changes",
+          { event: "*", schema: "public", table: "imageedit_generations", filter: `user_id=eq.${userId}` },
+          () => { refresh(); }
+        )
+        .subscribe();
+    })();
+    return () => { if (channel) supabase.removeChannel(channel); };
+  }, [refresh]);
+
   return { history, loading, refresh, setHistory };
 }
 

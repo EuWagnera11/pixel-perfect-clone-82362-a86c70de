@@ -13,6 +13,7 @@ import { Dock } from "./components/Dock";
 import { Rail } from "./components/Rail";
 import { Toast } from "./components/Toast";
 import { JobsPanel } from "./components/JobsPanel";
+import { ImageWorkspace } from "./components/ImageWorkspace";
 import { JobsProvider, useJobs, type Job } from "./lib/jobs";
 import { TAB_CONFIG } from "./lib/nav";
 import {
@@ -227,17 +228,20 @@ function Workspace() {
       showToast("Anexe uma imagem primeiro"); return;
     }
     const modelId = MODEL_LABEL_TO_ID[modelLabel] || null;
-    const result = await enqueue({
-      tab: currentTab, prompt: trimmed, aspect: ratio,
-      sourceUrl, model: modelId, thumb: sourceUrl || undefined,
-      quality, numVariations: variations, stylePack,
-    });
-    if (!result.ok) {
-      showToast("Erro: " + (result.error || "falha"));
-      return;
-    }
-    showToast(`Geração iniciada (${variations}× ${quality}) — você pode mandar outra`);
-    setPrompt(""); // libera o form pra próxima
+    // Dispara N jobs separados (cada variação = 1 imagem independente)
+    const n = Math.max(1, variations);
+    const promises = Array.from({ length: n }).map(() =>
+      enqueue({
+        tab: currentTab, prompt: trimmed, aspect: ratio,
+        sourceUrl, model: modelId, thumb: sourceUrl || undefined,
+        quality, numVariations: 1, stylePack,
+      })
+    );
+    const results = await Promise.all(promises);
+    const fail = results.find((r) => !r.ok);
+    if (fail) { showToast("Erro: " + (fail.error || "falha")); return; }
+    showToast(n > 1 ? `${n} gerações iniciadas em paralelo` : "Geração iniciada");
+    setPrompt("");
   }, [prompt, ratio, modelLabel, currentTab, sourceUrl, enqueue, showToast, quality, variations, stylePack]);
 
   // Quando um job completa, mostra no stage + adiciona ao history + toast
@@ -276,7 +280,7 @@ function Workspace() {
       <div className="bg-aurora" />
       <div className="bg-grid" />
 
-      <div className={"app" + (noRail ? " no-rail" : "")} id="app">
+      <div className={"app" + (noRail || currentTab === "image" ? " no-rail" : "")} id="app">
         <Sidebar
           currentTab={currentTab}
           onTabChange={(k) => navigate(`/${k}`)}
@@ -289,36 +293,81 @@ function Workspace() {
         />
 
         <section className="workspace">
-          <div className={"canvas" + (noDock ? " no-dock" : "")}>
-            <div ref={viewRef} dangerouslySetInnerHTML={{ __html: viewHtml }} />
-          </div>
-          {!noDock && (
-            <Dock
-              prompt={prompt}
-              onPromptChange={setPrompt}
-              modelLabel={modelLabel}
-              onModelChange={setModelLabel}
-              ratio={ratio}
-              onRatioChange={setRatio}
-              isGenerating={false}
-              onGenerate={handleGenerate}
-              placeholder={tabConfig.placeholder}
-              onAttach={handleAttach}
-              hasAttachment={!!sourceUrl}
-              attachmentRequired={tabRequiresUpload(currentTab)}
-              currentTab={currentTab}
-              activeJobsCount={activeJobsCount}
-              quality={quality}
-              onQualityChange={setQuality}
-              variations={variations}
-              onVariationsChange={setVariations}
-              stylePack={stylePack}
-              onStylePackChange={setStylePack}
+          {currentTab === "image" ? (
+            <ImageWorkspace
+              history={history}
+              onUploadRef={async (file) => {
+                try {
+                  showToast("Enviando imagem…");
+                  const url = await uploadFile(file);
+                  showToast("Referência adicionada");
+                  return url;
+                } catch (e: any) {
+                  showToast("Erro upload: " + (e?.message || "falha"));
+                  return null;
+                }
+              }}
+              showToast={showToast}
+              refreshHistory={async () => {
+                const { data } = await supabase.auth.getUser();
+                if (data.user) {
+                  const { data: rows } = await supabase
+                    .from("generations").select("*")
+                    .eq("user_id", data.user.id)
+                    .order("created_at", { ascending: false }).limit(60);
+                  if (rows) setHistory(rows.filter((g: any) =>
+                    g.status === "completed" && (g.image_urls?.length || g.video_urls?.length)
+                  ) as any);
+                }
+              }}
+              onDeleteGeneration={async (id) => {
+                const { error } = await supabase.from("generations").delete().eq("id", id);
+                if (error) { showToast("Erro: " + error.message); return; }
+                setHistory((p) => p.filter((g) => g.id !== id));
+                showToast("Excluído");
+              }}
+              onToggleFavorite={async (id, value) => {
+                const cur = history.find((g) => g.id === id) as any;
+                const md = { ...(cur?.metadata || {}), favorite: value };
+                const { error } = await supabase.from("generations").update({ metadata: md }).eq("id", id);
+                if (error) { showToast("Erro: " + error.message); return; }
+                setHistory((p) => p.map((g: any) => g.id === id ? { ...g, metadata: md } : g));
+              }}
             />
+          ) : (
+            <>
+              <div className={"canvas" + (noDock ? " no-dock" : "")}>
+                <div ref={viewRef} dangerouslySetInnerHTML={{ __html: viewHtml }} />
+              </div>
+              {!noDock && (
+                <Dock
+                  prompt={prompt}
+                  onPromptChange={setPrompt}
+                  modelLabel={modelLabel}
+                  onModelChange={setModelLabel}
+                  ratio={ratio}
+                  onRatioChange={setRatio}
+                  isGenerating={false}
+                  onGenerate={handleGenerate}
+                  placeholder={tabConfig.placeholder}
+                  onAttach={handleAttach}
+                  hasAttachment={!!sourceUrl}
+                  attachmentRequired={tabRequiresUpload(currentTab)}
+                  currentTab={currentTab}
+                  activeJobsCount={activeJobsCount}
+                  quality={quality}
+                  onQualityChange={setQuality}
+                  variations={variations}
+                  onVariationsChange={setVariations}
+                  stylePack={stylePack}
+                  onStylePackChange={setStylePack}
+                />
+              )}
+            </>
           )}
         </section>
 
-        {!noRail && (
+        {!noRail && currentTab !== "image" && (
           <Rail generations={history} onItemClick={handleHistoryClick} />
         )}
       </div>

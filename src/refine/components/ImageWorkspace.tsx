@@ -31,7 +31,7 @@ type Props = {
 };
 
 const QUALITIES = ["1K", "2K", "4K"] as const;
-const VARIATIONS = [1, 2, 3, 4, 6, 8] as const;
+const VARIATIONS = [1, 2, 4, 6, 8] as const;
 
 const STYLE_PRESETS: { id: string; label: string; suffix: string }[] = [
   { id: "none", label: "Nenhum", suffix: "" },

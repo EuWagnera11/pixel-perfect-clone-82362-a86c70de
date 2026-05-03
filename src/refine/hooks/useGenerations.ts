@@ -3,13 +3,15 @@ import { supabase } from "@/integrations/supabase/client";
 
 export type Generation = {
   id: string;
-  status: "queued" | "processing" | "enhancing" | "upscaling" | "completed" | "failed";
+  status: "queued" | "processing" | "completed" | "failed";
   prompt?: string;
   image_urls?: string[];
   video_urls?: string[];
   error_message?: string | null;
   credits_used: number;
   media_type?: "image" | "video" | "audio";
+  model?: string;
+  tool?: string;
   created_at: string;
   completed_at?: string | null;
 };
@@ -41,50 +43,63 @@ export function useGenerations() {
     }
   }, []);
 
-  useEffect(() => {
-    refresh();
-  }, [refresh]);
-
+  useEffect(() => { refresh(); }, [refresh]);
   return { history, loading, refresh, setHistory };
 }
 
-export type GenerateInput = {
-  prompt: string;
-  aspect_ratio: string;
-  resolution: "1k" | "2k" | "4k";
-  num_variations: number;
-  media_type?: "image" | "video";
-  model?: string;
-  video_engine?: string;
-  duration?: string;
-  image_url?: string;
-};
+// ============= dispatchers =============
 
-export async function createGeneration(input: GenerateInput) {
-  // Edge function expects the new envelope (tool=image only for now)
-  const payload: Record<string, unknown> = {
-    tool: "image",
-    prompt: input.prompt,
-    aspect_ratio: input.aspect_ratio,
-    num_variations: input.num_variations,
-    refs: input.image_url ? [{ url: input.image_url }] : [],
-  };
-  if (input.model) payload.model = input.model;
-  return await invokeFn<{ id: string; status: string; credits_used: number }>("generations", {
+type Created = { id: string; status: string; media_type?: string; task_id?: string };
+
+export async function startImage(input: {
+  prompt: string; aspect_ratio: string; num_variations?: number;
+  refs?: string[]; model?: string;
+}) {
+  return await invokeFn<Created>("generate-image", {
     method: "POST",
-    body: payload,
+    body: {
+      prompt: input.prompt,
+      aspect_ratio: input.aspect_ratio,
+      num_variations: input.num_variations ?? 1,
+      refs: (input.refs ?? []).map((url) => ({ url })),
+      model: input.model,
+    },
   });
+}
+
+export async function startVideo(input: {
+  prompt: string; image_url?: string; model: string;
+  duration?: string; aspect_ratio?: string;
+}) {
+  return await invokeFn<Created>("generate-video", {
+    method: "POST", body: input,
+  });
+}
+
+export async function startEdit(input: {
+  op: "remove-bg" | "replace-bg" | "relight" | "expand" | "style-transfer";
+  image_url: string; prompt?: string; style_url?: string;
+}) {
+  return await invokeFn<Created>("edit-image", { method: "POST", body: input });
+}
+
+export async function startUpscale(input: {
+  image_url: string; engine?: "magnific-creative" | "magnific-precision";
+}) {
+  return await invokeFn<Created>("upscale-image", { method: "POST", body: input });
+}
+
+export async function startAudio(input: { prompt: string; kind: "music" | "sfx" }) {
+  return await invokeFn<Created>("generate-audio", { method: "POST", body: input });
 }
 
 export async function fetchGeneration(id: string) {
-  // freepik-check-status pokes Freepik (if needed) and returns latest row
-  return await invokeFn<Generation>("freepik-check-status", {
-    method: "POST",
-    body: { generation_id: id },
+  return await invokeFn<Generation>("task-status", {
+    method: "POST", body: { generation_id: id },
   });
 }
 
-export async function pollGeneration(id: string, maxMs = 120_000) {
+export async function pollGeneration(id: string, maxMs = 300_000) {
   const start = Date.now();
   while (Date.now() - start < maxMs) {
     await new Promise((r) => setTimeout(r, 4000));

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { api } from "../lib/supabase";
+import { supabase } from "@/integrations/supabase/client";
 
 export type Generation = {
   id: string;
@@ -14,14 +14,26 @@ export type Generation = {
   completed_at?: string | null;
 };
 
+async function invokeFn<T>(name: string, init: { method?: string; body?: unknown } = {}): Promise<T> {
+  const { data, error } = await supabase.functions.invoke<T>(name, init as any);
+  if (error) throw error;
+  return data as T;
+}
+
 export function useGenerations() {
   const [history, setHistory] = useState<Generation[]>([]);
   const [loading, setLoading] = useState(true);
 
   const refresh = useCallback(async () => {
     try {
-      const list = await api<Generation[]>("/generations?limit=30");
-      setHistory(list.filter((g) => g.status === "completed" && ((g.image_urls?.length || 0) > 0 || (g.video_urls?.length || 0) > 0)));
+      const list = await invokeFn<Generation[]>("generations?limit=30", { method: "GET" });
+      setHistory(
+        (list || []).filter(
+          (g) =>
+            g.status === "completed" &&
+            ((g.image_urls?.length || 0) > 0 || (g.video_urls?.length || 0) > 0)
+        )
+      );
     } catch (e) {
       console.warn("[refine] generations refresh:", e);
     } finally {
@@ -49,27 +61,27 @@ export type GenerateInput = {
 };
 
 export async function createGeneration(input: GenerateInput) {
-  const body: Record<string, unknown> = {
+  // Edge function expects the new envelope (tool=image only for now)
+  const payload: Record<string, unknown> = {
+    tool: "image",
     prompt: input.prompt,
-    media_type: input.media_type || "image",
     aspect_ratio: input.aspect_ratio,
-    resolution: input.resolution,
     num_variations: input.num_variations,
-    enhance_skin: false,
-    upscale: false,
+    refs: input.image_url ? [{ url: input.image_url }] : [],
   };
-  if (input.model) body.model = input.model;
-  if (input.video_engine) body.video_engine = input.video_engine;
-  if (input.duration) body.duration = input.duration;
-  if (input.image_url) body.image_url = input.image_url;
-  return await api<{ id: string; status: string; credits_used: number }>("/generations", {
+  if (input.model) payload.model = input.model;
+  return await invokeFn<{ id: string; status: string; credits_used: number }>("generations", {
     method: "POST",
-    body,
+    body: payload,
   });
 }
 
 export async function fetchGeneration(id: string) {
-  return await api<Generation>(`/generations/${id}`);
+  // freepik-check-status pokes Freepik (if needed) and returns latest row
+  return await invokeFn<Generation>("freepik-check-status", {
+    method: "POST",
+    body: { generation_id: id },
+  });
 }
 
 export async function pollGeneration(id: string, maxMs = 120_000) {

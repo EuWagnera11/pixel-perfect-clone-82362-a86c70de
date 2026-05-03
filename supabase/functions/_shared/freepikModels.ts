@@ -44,7 +44,7 @@ export const FREEPIK_EDITORS: FreepikModel[] = [
   {
     id: "flux-kontext-pro",
     label: "Flux Kontext Pro",
-    endpoint: "/v1/ai/flux-kontext-pro",
+    endpoint: "/v1/ai/text-to-image/flux-kontext-pro",
     kind: "editor",
     maxRefs: 4,
     description: "Edições editoriais, retoques contextuais.",

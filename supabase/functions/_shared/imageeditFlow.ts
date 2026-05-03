@@ -16,11 +16,11 @@ import { toMagnificAspect } from "./engines.ts";
 const MAGNIFIC_ASPECT_ENDPOINTS = [
   "/v1/ai/text-to-image/nano-banana-pro",
   "/v1/ai/text-to-image/nano-banana-pro-flash",
-  "/v1/ai/seedream-v4",
-  "/v1/ai/seedream-v4-edit",
+  "/v1/ai/text-to-image/seedream-v4",
+  "/v1/ai/text-to-image/seedream-v4-edit",
   "/v1/ai/mystic",
-  "/v1/ai/imagen4-ultra",
-  "/v1/ai/imagen4-fast",
+  "/v1/ai/text-to-image/imagen4-ultra",
+  "/v1/ai/text-to-image/imagen4-fast",
 ];
 
 export type StartImageEditArgs = {

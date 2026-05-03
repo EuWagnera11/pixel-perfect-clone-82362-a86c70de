@@ -222,41 +222,41 @@ export function ImageWorkspace({
           <div className="img-ws-grid2">
             <div className="img-ws-section">
               <div className="img-ws-label">Variações</div>
-              <div className="img-ws-pillrow">
+              <select
+                className="img-ws-select"
+                value={variations}
+                onChange={(e) => setVariations(Number(e.target.value))}
+              >
                 {VARIATIONS.map((n) => (
-                  <button
-                    key={n}
-                    className={"img-ws-pill" + (n === variations ? " active" : "")}
-                    onClick={() => setVariations(n)}
-                  >{n}</button>
+                  <option key={n} value={n}>{n} {n > 1 ? "imagens" : "imagem"}</option>
                 ))}
-              </div>
+              </select>
             </div>
             <div className="img-ws-section">
               <div className="img-ws-label">Aspecto</div>
-              <div className="img-ws-pillrow">
+              <select
+                className="img-ws-select"
+                value={ratio}
+                onChange={(e) => setRatio(e.target.value as AspectRatio)}
+              >
                 {ASPECT_RATIOS.map((r) => (
-                  <button
-                    key={r}
-                    className={"img-ws-pill" + (r === ratio ? " active" : "")}
-                    onClick={() => setRatio(r)}
-                  >{r}</button>
+                  <option key={r} value={r}>{r}</option>
                 ))}
-              </div>
+              </select>
             </div>
           </div>
 
           <div className="img-ws-section">
             <div className="img-ws-label">Qualidade</div>
-            <div className="img-ws-pillrow">
+            <select
+              className="img-ws-select"
+              value={quality}
+              onChange={(e) => setQuality(e.target.value)}
+            >
               {QUALITIES.map((q) => (
-                <button
-                  key={q}
-                  className={"img-ws-pill" + (q === quality ? " active" : "")}
-                  onClick={() => setQuality(q)}
-                >{q}</button>
+                <option key={q} value={q}>{q}</option>
               ))}
-            </div>
+            </select>
           </div>
         </div>
 

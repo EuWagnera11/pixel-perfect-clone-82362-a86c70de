@@ -254,6 +254,12 @@ function Workspace() {
               attachmentRequired={tabRequiresUpload(currentTab)}
               currentTab={currentTab}
               activeJobsCount={activeJobsCount}
+              quality={quality}
+              onQualityChange={setQuality}
+              variations={variations}
+              onVariationsChange={setVariations}
+              stylePack={stylePack}
+              onStylePackChange={setStylePack}
             />
           )}
         </section>

@@ -323,12 +323,24 @@ export function Dock({
       )}
       {open === "style" && refs.style.current && (
         <Popover anchor={refs.style.current}>
-          <PopItem onClick={() => setOpen(null)}>(em breve)</PopItem>
+          {STYLE_PACKS.map((s) => (
+            <PopItem
+              key={s.name}
+              active={(stylePack || "Nenhum") === s.name}
+              onClick={() => { onStylePackChange?.(s.name === "Nenhum" ? null : s.name); setOpen(null); }}
+            >
+              {s.name}
+            </PopItem>
+          ))}
         </Popover>
       )}
     </>
   );
 }
+
+export const STYLE_PACK_SUFFIX: Record<string, string> = Object.fromEntries(
+  STYLE_PACKS.map((s) => [s.name, s.suffix])
+);
 
 function Popover({ anchor, children }: { anchor: HTMLElement; children: React.ReactNode }) {
   const rect = anchor.getBoundingClientRect();

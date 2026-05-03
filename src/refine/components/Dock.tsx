@@ -32,10 +32,25 @@ type DockProps = {
   currentTab?: string;
   /** Número de jobs em background — só visual no botão Gerar. */
   activeJobsCount?: number;
+  quality?: string;
+  onQualityChange?: (q: string) => void;
+  variations?: number;
+  onVariationsChange?: (n: number) => void;
+  stylePack?: string | null;
+  onStylePackChange?: (s: string | null) => void;
 };
 
 const QUALITIES = ["1K", "2K", "4K"];
 const VARIATIONS = [1, 2, 4];
+const STYLE_PACKS = [
+  { name: "Nenhum", suffix: "" },
+  { name: "Editorial", suffix: "editorial fashion photography, magazine cover, dramatic lighting" },
+  { name: "Cyberpunk", suffix: "cyberpunk neon city, blade runner aesthetic, rain, holograms" },
+  { name: "Fantasy", suffix: "epic fantasy art, painterly, magical lighting, cinematic" },
+  { name: "Cinematic", suffix: "cinematic film still, anamorphic lens, color graded, depth of field" },
+  { name: "Portrait", suffix: "studio portrait, soft key light, 85mm, shallow depth of field" },
+  { name: "Surreal", suffix: "surrealist scene, dreamlike, impossible geometry, vivid colors" },
+];
 
 export function Dock({
   prompt,

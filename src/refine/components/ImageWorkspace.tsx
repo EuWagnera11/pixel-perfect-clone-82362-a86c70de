@@ -31,6 +31,22 @@ type Props = {
 const QUALITIES = ["1K", "2K", "4K"] as const;
 const VARIATIONS = [1, 2, 3, 4, 6, 8] as const;
 
+const STYLE_PRESETS: { id: string; label: string; suffix: string }[] = [
+  { id: "none", label: "Nenhum", suffix: "" },
+  { id: "cinematic", label: "Cinematic", suffix: ", cinematic still, anamorphic, dramatic lighting, depth of field" },
+  { id: "editorial", label: "Editorial", suffix: ", editorial photography, magazine cover, soft natural light, fashion" },
+  { id: "product", label: "Product", suffix: ", product photography, studio lighting, clean background, high detail" },
+  { id: "anime", label: "Anime", suffix: ", anime illustration, cel shading, vibrant colors, detailed line art" },
+  { id: "3d", label: "3D Render", suffix: ", 3D render, octane, ray tracing, cinematic lighting, 8k" },
+];
+
+const PROMPT_EXAMPLES = [
+  "Retrato editorial de uma mulher ruiva, luz quente lateral, fundo desfocado",
+  "Café de Tóquio à noite, neon, chuva, reflexos, estilo cinematográfico",
+  "Tênis flutuando em fundo gradiente, foto de produto minimalista",
+  "Paisagem alpina ao amanhecer, neblina, luz dourada, ultra detalhada",
+];
+
 export function ImageWorkspace({
   history, onUploadRef, showToast, refreshHistory,
   onDeleteGeneration, onToggleFavorite,
@@ -45,6 +61,9 @@ export function ImageWorkspace({
   const [variations, setVariations] = useState<number>(4);
   const [refs, setRefs] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [stylePreset, setStylePreset] = useState<string>("none");
+  const [filterModel, setFilterModel] = useState<string>("all");
+  const [filterFav, setFilterFav] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [lightbox, setLightbox] = useState<{

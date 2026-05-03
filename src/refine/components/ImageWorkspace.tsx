@@ -274,7 +274,7 @@ export function ImageWorkspace({
                   <span className="ago">{timeAgo(g.created_at)}</span>
                 </span>
               </div>
-              <div className="img-ws-row-grid">
+          <div className="img-ws-row-grid">
                 {(g.image_urls || []).map((url, i) => (
                   <button
                     key={i}
@@ -282,6 +282,49 @@ export function ImageWorkspace({
                     onClick={() => openLightbox(g, i)}
                   >
                     <img src={url} alt={g.prompt || ""} loading="lazy" />
+                    <div className="img-ws-tile-overlay" onClick={(e) => e.stopPropagation()}>
+                      <button
+                        className="img-ws-tile-action"
+                        title="Favoritar"
+                        onClick={(e) => { e.stopPropagation(); onToggleFavorite(g.id, !(g as any).metadata?.favorite); }}
+                      >
+                        <Icon d="M12 2 14 9h7l-6 4 2 7-7-4-7 4 2-7-6-4h7z" />
+                      </button>
+                      <button
+                        className="img-ws-tile-action"
+                        title="Download"
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          try {
+                            const r = await fetch(url); const b = await r.blob();
+                            const u = URL.createObjectURL(b);
+                            const a = document.createElement("a");
+                            a.href = u; a.download = `refine-${Date.now()}.png`;
+                            document.body.appendChild(a); a.click(); a.remove();
+                            URL.revokeObjectURL(u);
+                          } catch { showToast("Falha"); }
+                        }}
+                      >
+                        <Icon d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14" />
+                      </button>
+                      <button
+                        className="img-ws-tile-action"
+                        title="Use as reference"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (refs.length >= 8) { showToast("Máximo 8 referências"); return; }
+                          setRefs((p) => [...p, url]);
+                          showToast("Adicionada como referência");
+                        }}
+                      >
+                        <Icon d="M5 12h14M12 5l7 7-7 7" />
+                      </button>
+                    </div>
+                    {(g as any).metadata?.favorite && (
+                      <span className="img-ws-tile-fav" title="Favorito">
+                        <Icon d="M12 2 14 9h7l-6 4 2 7-7-4-7 4 2-7-6-4h7z" strokeWidth={0} />
+                      </span>
+                    )}
                   </button>
                 ))}
               </div>

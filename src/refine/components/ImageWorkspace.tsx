@@ -163,38 +163,50 @@ export function ImageWorkspace({
       {/* ===== LEFT CONTROLS ===== */}
       <aside className="img-ws-controls">
         <div className="img-ws-sidebar-head">
-          <span className="img-ws-kicker">Image studio</span>
+          <span className="img-ws-kicker">
+            <span className="img-ws-kicker-dot" /> Image studio
+          </span>
           <h1>Criar imagens</h1>
-          <p>Prompt, referências e múltiplas saídas organizadas em um fluxo mais limpo para escolher a melhor opção.</p>
+          <p>Prompt, referências e múltiplas saídas em um fluxo limpo para escolher a melhor opção.</p>
         </div>
 
+        {/* MODELO */}
         <div className="img-ws-panel img-ws-panel--tight">
           <div className="img-ws-panel-head">
-            <div>Modelo</div>
+            <div className="img-ws-panel-title">
+              <span className="img-ws-panel-icon">
+                <Icon d="M4 7h16M4 12h16M4 17h10" />
+              </span>
+              Modelo
+            </div>
             <span>{IMAGE_MODELS.length} disponíveis</span>
           </div>
-          <div className="img-ws-section">
-            <select
-              className="img-ws-select"
-              value={modelLabel}
-              onChange={(e) => setModelLabel(e.target.value)}
-            >
-              {IMAGE_MODELS.map((m) => (
-                <option key={m.id} value={m.label}>
-                  {m.label}{m.costHint ? ` · ${m.costHint}` : ""}
-                </option>
-              ))}
-            </select>
-          </div>
+          <select
+            className="img-ws-select"
+            value={modelLabel}
+            onChange={(e) => setModelLabel(e.target.value)}
+          >
+            {IMAGE_MODELS.map((m) => (
+              <option key={m.id} value={m.label}>
+                {m.label}{m.costHint ? ` · ${m.costHint}` : ""}
+              </option>
+            ))}
+          </select>
         </div>
 
+        {/* REFERÊNCIAS */}
         <div className="img-ws-panel">
           <div className="img-ws-panel-head">
-            <div>Referências</div>
+            <div className="img-ws-panel-title">
+              <span className="img-ws-panel-icon">
+                <Icon d="M4 4h16v12H4z M4 16l4-4 4 4 4-4 4 4" />
+              </span>
+              Referências
+            </div>
             <span>{refs.length}/8</span>
           </div>
           <div className="img-ws-section">
-            <div className="img-ws-label">Use imagens para manter estilo, composição ou assunto</div>
+            <div className="img-ws-helper">Imagens para manter estilo, composição ou assunto.</div>
             <div className="img-ws-refs">
               {refs.map((url, i) => (
                 <div key={i} className="img-ws-ref">
@@ -204,16 +216,24 @@ export function ImageWorkspace({
                   </button>
                 </div>
               ))}
-              {refs.length < 8 && (
+              {Array.from({ length: Math.max(0, 4 - refs.length) }).slice(0, refs.length === 0 ? 4 : 4 - refs.length).map((_, i) => (
                 <button
-                  className="img-ws-ref-add"
+                  key={`slot-${i}`}
+                  className={"img-ws-ref-slot" + (i === 0 && refs.length < 8 ? " primary" : "")}
                   onClick={() => fileInputRef.current?.click()}
-                  disabled={uploading}
+                  disabled={uploading || refs.length >= 8}
                   aria-label="Adicionar referência"
                 >
-                  <Icon d="M12 5v14M5 12h14" />
+                  {i === 0 ? (
+                    <>
+                      <Icon d="M4 4h16v12H4z M4 16l4-4 4 4 4-4 4 4 M14 8a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z" />
+                      <span>{uploading ? "Enviando…" : "Adicionar"}</span>
+                    </>
+                  ) : (
+                    <Icon d="M12 5v14M5 12h14" />
+                  )}
                 </button>
-              )}
+              ))}
               <input
                 ref={fileInputRef}
                 type="file"
@@ -229,30 +249,54 @@ export function ImageWorkspace({
           </div>
         </div>
 
+        {/* PROMPT */}
         <div className="img-ws-panel">
           <div className="img-ws-panel-head">
-            <div>Prompt</div>
-            <span>Ctrl/⌘ + Enter para gerar</span>
+            <div className="img-ws-panel-title">
+              <span className="img-ws-panel-icon">
+                <Icon d="M4 6h16M4 12h16M4 18h10" />
+              </span>
+              Prompt
+            </div>
+            <span className="kbd-inline">⌘ + ↵</span>
           </div>
           <div className="img-ws-section">
-            <div className="img-ws-label">Descreva enquadramento, luz, estilo e detalhes</div>
+            <div className="img-ws-helper">Enquadramento, luz, estilo e detalhes.</div>
             <textarea
               className="img-ws-textarea"
-              placeholder="Descreva sua imagem — Ex: um retrato editorial de uma mulher ruiva com luz quente…"
+              placeholder="Ex: retrato editorial de uma mulher ruiva com luz quente lateral, fundo desfocado…"
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               onKeyDown={(e) => {
                 if ((e.metaKey || e.ctrlKey) && e.key === "Enter") { e.preventDefault(); handleGenerate(); }
               }}
-              rows={6}
+              rows={5}
             />
+            <div className="img-ws-helper" style={{ marginTop: 4 }}>Estilo</div>
+            <div className="img-ws-style-row">
+              {STYLE_PRESETS.map((s) => (
+                <button
+                  key={s.id}
+                  className={"img-ws-chip" + (s.id === stylePreset ? " active" : "")}
+                  onClick={() => setStylePreset(s.id)}
+                >
+                  {s.label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
+        {/* SAÍDA */}
         <div className="img-ws-panel">
           <div className="img-ws-panel-head">
-            <div>Saída</div>
-            <span>{variations} {variations > 1 ? "imagens" : "imagem"}</span>
+            <div className="img-ws-panel-title">
+              <span className="img-ws-panel-icon">
+                <Icon d="M4 4h7v7H4z M13 4h7v7h-7z M4 13h7v7H4z M13 13h7v7h-7z" />
+              </span>
+              Saída
+            </div>
+            <span>{variations} {variations > 1 ? "imagens" : "imagem"} · {ratio} · {quality}</span>
           </div>
           <div className="img-ws-grid2">
             <div className="img-ws-section">
@@ -297,8 +341,8 @@ export function ImageWorkspace({
 
         <div className="img-ws-generate-wrap">
           <button className="img-ws-generate" onClick={handleGenerate}>
-          <Icon d="m12 3 2.4 6.6L21 12l-6.6 2.4L12 21l-2.4-6.6L3 12l6.6-2.4z" strokeWidth={2} />
-          Gerar {variations > 1 ? `${variations} imagens` : "imagem"}
+            <Icon d="m12 3 2.4 6.6L21 12l-6.6 2.4L12 21l-2.4-6.6L3 12l6.6-2.4z" strokeWidth={2} />
+            <span className="img-ws-generate-label">Gerar {variations > 1 ? `${variations} imagens` : "imagem"}</span>
             <span className="kbd">⌘↵</span>
           </button>
         </div>

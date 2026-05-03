@@ -17,9 +17,10 @@ function loadKeys(): string[] {
 const KEYS = loadKeys();
 const cooldown = new Map<string, number>();
 
-function pickKey(): string | null {
+function pickKey(skip: Set<string> = new Set()): string | null {
   const now = Date.now();
   for (const k of KEYS) {
+    if (skip.has(k)) continue;
     if ((cooldown.get(k) ?? 0) <= now) return k;
   }
   return null;
@@ -50,9 +51,11 @@ export async function magnificFetch(
   const { logCtx, ...rest } = init;
   let lastResp: MagnificResp | null = null;
 
+  const tried = new Set<string>();
   for (let attempt = 0; attempt < KEYS.length; attempt++) {
-    const key = pickKey();
+    const key = pickKey(tried);
     if (!key) break;
+    tried.add(key);
 
     const headers = new Headers(rest.headers || {});
     // Send both header names so this works against api.magnific.com and legacy api.freepik.com
@@ -91,6 +94,13 @@ export async function magnificFetch(
 
     if (status === 401 || status === 402 || status === 429) {
       cooldown.set(key, Date.now() + 60_000);
+      lastResp = { status, body, rawText };
+      continue;
+    }
+
+    // Task created with another key — try the next key without burning cooldown
+    const msg = (body?.message ?? body?.detail?.message ?? "").toString();
+    if (status === 404 && /task not found/i.test(msg)) {
       lastResp = { status, body, rawText };
       continue;
     }

@@ -89,7 +89,7 @@ const IMAGE: Record<string, EngineEntry> = {
       prompt: i.prompt,
       aspect_ratio: i.aspect,
       num_images: i.num,
-      ...(i.refs.length ? { reference_images: i.refs.slice(0, 4).map((url) => ({ image_url: url })) } : {}),
+      ...(i.refs.length ? { reference_images: (i.refsB64 ?? []).slice(0, 4) } : {}),
     }),
   },
   "nano-banana-pro": {
@@ -99,7 +99,7 @@ const IMAGE: Record<string, EngineEntry> = {
       prompt: i.prompt,
       aspect_ratio: i.aspect,
       num_images: i.num,
-      ...(i.refs.length ? { reference_images: i.refs.slice(0, 4).map((url) => ({ image_url: url })) } : {}),
+      ...(i.refs.length ? { reference_images: (i.refsB64 ?? []).slice(0, 4) } : {}),
     }),
   },
   "nano-banana-pro-flash": {
@@ -109,7 +109,7 @@ const IMAGE: Record<string, EngineEntry> = {
       prompt: i.prompt,
       aspect_ratio: i.aspect,
       num_images: i.num,
-      ...(i.refs.length ? { reference_images: i.refs.slice(0, 4).map((url) => ({ image_url: url })) } : {}),
+      ...(i.refs.length ? { reference_images: (i.refsB64 ?? []).slice(0, 4) } : {}),
     }),
   },
   // Imagen
@@ -142,7 +142,7 @@ const IMAGE: Record<string, EngineEntry> = {
     path: "/v1/ai/text-to-image/flux-2-klein", aspectStyle: "freepik",
     build: (i) => ({
       prompt: i.prompt, aspect_ratio: i.aspect,
-      ...(i.refs.length ? { reference_images: i.refs.slice(0, 4).map((url) => ({ image_url: url })) } : {}),
+      ...(i.refs.length ? { reference_images: (i.refsB64 ?? []).slice(0, 4) } : {}),
     }),
   },
   // Seedream

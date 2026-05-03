@@ -115,19 +115,19 @@ const IMAGE: Record<string, EngineEntry> = {
   // Imagen
   "imagen4-ultra": {
     id: "imagen4-ultra", kind: "image",
-    path: "/v1/ai/text-to-image/imagen4-ultra", aspectStyle: "freepik",
-    build: (i) => ({ prompt: i.prompt, aspect_ratio: i.aspect, num_images: i.num }),
+    path: "/v1/ai/text-to-image/imagen4-ultra", aspectStyle: "magnific",
+    build: (i) => ({ prompt: i.prompt, aspect_ratio: toMagnificAspect(i.aspect), num_images: i.num }),
   },
   "imagen4-fast": {
     id: "imagen4-fast", kind: "image",
-    path: "/v1/ai/text-to-image/imagen4-fast", aspectStyle: "freepik",
-    build: (i) => ({ prompt: i.prompt, aspect_ratio: i.aspect, num_images: i.num }),
+    path: "/v1/ai/text-to-image/imagen4-fast", aspectStyle: "magnific",
+    build: (i) => ({ prompt: i.prompt, aspect_ratio: toMagnificAspect(i.aspect), num_images: i.num }),
   },
   // Flux
   "flux-pro-1-1": {
     id: "flux-pro-1-1", kind: "image",
-    path: "/v1/ai/text-to-image/flux-pro-v1-1", aspectStyle: "freepik",
-    build: (i) => ({ prompt: i.prompt, aspect_ratio: i.aspect }),
+    path: "/v1/ai/text-to-image/flux-pro-v1-1", aspectStyle: "magnific",
+    build: (i) => ({ prompt: i.prompt, aspect_ratio: toMagnificAspect(i.aspect) }),
   },
   "flux-kontext-pro": {
     id: "flux-kontext-pro", kind: "image",
@@ -148,8 +148,8 @@ const IMAGE: Record<string, EngineEntry> = {
   // Seedream
   "seedream-v4": {
     id: "seedream-v4", kind: "image",
-    path: "/v1/ai/text-to-image/seedream-v4", aspectStyle: "freepik",
-    build: (i) => ({ prompt: i.prompt, aspect_ratio: i.aspect, num_images: i.num }),
+    path: "/v1/ai/text-to-image/seedream-v4", aspectStyle: "magnific",
+    build: (i) => ({ prompt: i.prompt, aspect_ratio: toMagnificAspect(i.aspect), num_images: i.num }),
   },
   "seedream-v4-edit": {
     id: "seedream-v4-edit", kind: "image",

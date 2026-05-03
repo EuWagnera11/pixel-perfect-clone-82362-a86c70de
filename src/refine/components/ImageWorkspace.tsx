@@ -115,19 +115,19 @@ export function ImageWorkspace({
     [history]
   );
 
-  const usedModels = useMemo(() => {
-    const ids = new Set<string>();
-    imageHistory.forEach((g) => g.model && ids.add(g.model));
-    return Array.from(ids);
+  const usedAspects = useMemo(() => {
+    const set = new Set<string>();
+    imageHistory.forEach((g) => { const a = (g as any).aspect_ratio; if (a) set.add(a); });
+    return Array.from(set);
   }, [imageHistory]);
 
   const filteredHistory = useMemo(() => {
     return imageHistory.filter((g) => {
-      if (filterModel !== "all" && g.model !== filterModel) return false;
+      if (filterAspect !== "all" && (g as any).aspect_ratio !== filterAspect) return false;
       if (filterFav && !(g as any).metadata?.favorite) return false;
       return true;
     });
-  }, [imageHistory, filterModel, filterFav]);
+  }, [imageHistory, filterAspect, filterFav]);
 
   const totalImages = useMemo(
     () => filteredHistory.reduce((acc, g) => acc + (g.image_urls?.length || 0), 0),

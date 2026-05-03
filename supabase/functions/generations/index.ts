@@ -5,7 +5,7 @@
 import { corsHeaders, json } from "../_shared/cors.ts";
 import { requireAuth } from "../_shared/auth.ts";
 import { startGeneration } from "../_shared/generation-flow.ts";
-import { resolveImageEngine } from "../_shared/engines.ts";
+import { requiresReferenceImage, resolveImageEngine } from "../_shared/engines.ts";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });

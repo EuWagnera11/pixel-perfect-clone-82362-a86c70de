@@ -25,6 +25,9 @@ Deno.serve(async (req) => {
     : [];
 
   const engineId = resolveImageEngine(refs.length, body.model);
+  if (requiresReferenceImage(engineId) && refs.length === 0) {
+    return json({ error: `${engineId} requires at least 1 reference image` }, 400);
+  }
 
   return await startGeneration({
     auth,

@@ -70,6 +70,15 @@ Deno.serve(async (req) => {
     else if (gen.media_type === "audio") update.video_urls = urls; // reuse field
     else update.image_urls = urls;
   }
+  if (status === "failed") {
+    const d = fp.body?.data ?? {};
+    const reason =
+      d.error?.message ?? d.error ?? d.failure_reason ?? d.reason ?? d.message ??
+      detailMessage ??
+      "Geração rejeitada pelo provedor (possível filtro de conteúdo, marca registrada ou prompt inválido).";
+    update.error_message = typeof reason === "string" ? reason : JSON.stringify(reason);
+    update.completed_at = new Date().toISOString();
+  }
   await auth.admin.from("generations").update(update).eq("id", generationId);
 
   const { data: fresh } = await auth.admin

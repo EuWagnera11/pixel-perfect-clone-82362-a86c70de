@@ -73,6 +73,7 @@ const ENGINE_ALLOWED_ASPECT: Record<string, string[]> = {
   // Flux Pro 1.1 / Imagen4 / Seedream V4 / Mystic / Nano Banana Pro family
   // all support the same compact set:
   "flux-pro-1-1":          ["square_1_1", "social_story_9_16", "widescreen_16_9", "traditional_3_4", "classic_4_3"],
+  "flux-kontext-pro":      ["square_1_1", "classic_4_3", "traditional_3_4", "widescreen_16_9", "social_story_9_16", "standard_3_2", "portrait_2_3", "horizontal_2_1", "vertical_1_2", "social_post_4_5"],
   "imagen4-ultra":         ["square_1_1", "social_story_9_16", "widescreen_16_9", "traditional_3_4", "classic_4_3"],
   "imagen4-fast":          ["square_1_1", "social_story_9_16", "widescreen_16_9", "traditional_3_4", "classic_4_3"],
   "seedream-v4":           ["square_1_1", "social_story_9_16", "widescreen_16_9", "traditional_3_4", "classic_4_3"],
@@ -172,10 +173,11 @@ const IMAGE: Record<string, EngineEntry> = {
   },
   "flux-kontext-pro": {
     id: "flux-kontext-pro", kind: "image",
-    path: "/v1/ai/text-to-image/flux-kontext-pro", aspectStyle: "freepik",
+    path: "/v1/ai/text-to-image/flux-kontext-pro", aspectStyle: "magnific",
     build: (i) => ({
-      prompt: i.prompt, aspect_ratio: i.aspect,
-      ...(i.refs[0] ? { reference_image: i.refs[0] } : {}),
+      prompt: i.prompt,
+      aspect_ratio: toMagnificAspect(i.aspect, "flux-kontext-pro"),
+      ...(i.refs[0] ? { input_image: i.refs[0] } : {}),
     }),
   },
   "flux-2-klein": {
@@ -330,6 +332,7 @@ export function buildBody(engine: EngineEntry, input: BuildInput): Record<string
 
 /** Auto-route image based on refs: 2+ refs -> nano-banana-2; 1 -> nano-banana-pro; 0 -> nano-banana-pro */
 export function resolveImageEngine(refsCount: number, override?: string | null): string {
+  if (override === "flux-kontext-pro" && refsCount === 0) return "nano-banana-pro";
   if (override && getEngine(override)?.kind === "image") return override;
   if (refsCount >= 2) return "nano-banana-2";
   return "nano-banana-pro";

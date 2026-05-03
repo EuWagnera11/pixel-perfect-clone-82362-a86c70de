@@ -10,6 +10,18 @@
 import { json } from "./cors.ts";
 import { adminClient, requireUserId, checkRateLimit, checkTosAccepted } from "./gates.ts";
 import { freepikFetch } from "./freepik.ts";
+import { toMagnificAspect } from "./engines.ts";
+
+// Endpoints que exigem aspect no formato magnific (square_1_1, ...)
+const MAGNIFIC_ASPECT_ENDPOINTS = [
+  "/v1/ai/text-to-image/nano-banana-pro",
+  "/v1/ai/text-to-image/nano-banana-pro-flash",
+  "/v1/ai/seedream-v4",
+  "/v1/ai/seedream-v4-edit",
+  "/v1/ai/mystic",
+  "/v1/ai/imagen4-ultra",
+  "/v1/ai/imagen4-fast",
+];
 
 export type StartImageEditArgs = {
   req: Request;
@@ -62,9 +74,17 @@ export async function startImageEditJob(args: StartImageEditArgs): Promise<Respo
     return json({ error: { code: "DB_ERROR", message: insErr?.message || "Falha ao criar geração." } }, 500);
   }
 
+  // Normaliza aspect_ratio pro formato esperado pelo endpoint
+  const reqBody: Record<string, unknown> = { ...args.body };
+  if (typeof reqBody.aspect_ratio === "string" && /^\d+:\d+$/.test(reqBody.aspect_ratio as string)) {
+    if (MAGNIFIC_ASPECT_ENDPOINTS.includes(args.endpoint)) {
+      reqBody.aspect_ratio = toMagnificAspect(reqBody.aspect_ratio as string);
+    }
+  }
+
   const fp = await freepikFetch(args.endpoint, {
     method: "POST",
-    body: JSON.stringify(args.body),
+    body: JSON.stringify(reqBody),
     logCtx: { userId, generationId: gen.generation_id, endpointKey: args.endpoint },
   });
 

@@ -564,6 +564,10 @@ img{display:block;max-width:100%}
   transition:border-color .16s ease, box-shadow .16s ease, background .16s ease;
 }
 .img-ws-select:focus{outline:none;border-color:hsl(var(--ring));box-shadow:0 0 0 4px hsl(var(--ring) / .16)}
+.img-ws-select option,
+.img-ws-select optgroup{background:#141414;color:#f5f5f5}
+.img-ws-select option:checked,
+.img-ws-select option:hover{background:#1f1f1f;color:#fff}
 .img-ws-textarea{
   background:hsl(var(--input));color:hsl(var(--foreground));border:1px solid hsl(var(--border));
   border-radius:14px;padding:14px 15px;font-size:14px;font:inherit;resize:vertical;min-height:148px;

@@ -95,6 +95,13 @@ export async function magnificFetch(
       continue;
     }
 
+    // Task created with another key — try the next key without burning cooldown
+    const msg = (body?.message ?? body?.detail?.message ?? "").toString();
+    if (status === 404 && /task not found/i.test(msg)) {
+      lastResp = { status, body, rawText };
+      continue;
+    }
+
     return { status, body, rawText };
   }
 

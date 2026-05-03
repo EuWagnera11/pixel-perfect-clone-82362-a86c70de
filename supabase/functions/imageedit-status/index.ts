@@ -96,7 +96,16 @@ Deno.serve(async (req) => {
   try {
     const imgRes = await fetch(cdnUrl);
     if (imgRes.ok) {
-      const bytes = new Uint8Array(await imgRes.arrayBuffer());
+      let bytes = new Uint8Array(await imgRes.arrayBuffer());
+      // Aplica watermark server-side em tools sensíveis (face-swap / cloth-swap)
+      if (gen.metadata?.watermark === true) {
+        try {
+          const { applyWatermark } = await import("../_shared/watermark.ts");
+          bytes = await applyWatermark(bytes);
+        } catch (e) {
+          console.warn("[imageedit-status] watermark failed:", e);
+        }
+      }
       const path = `${userId}/${gen.tool}/${generationId}/output.png`;
       const up = await sb.storage.from("imageedit-outputs")
         .upload(path, bytes, { contentType: "image/png", upsert: true });

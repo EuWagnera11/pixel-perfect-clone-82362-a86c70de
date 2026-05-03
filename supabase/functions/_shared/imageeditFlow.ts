@@ -12,16 +12,16 @@ import { adminClient, requireUserId, checkRateLimit, checkTosAccepted } from "./
 import { freepikFetch } from "./freepik.ts";
 import { toMagnificAspect } from "./engines.ts";
 
-// Endpoints que exigem aspect no formato magnific (square_1_1, ...)
-const MAGNIFIC_ASPECT_ENDPOINTS = [
-  "/v1/ai/text-to-image/nano-banana-pro",
-  "/v1/ai/text-to-image/nano-banana-pro-flash",
-  "/v1/ai/text-to-image/seedream-v4",
-  "/v1/ai/text-to-image/seedream-v4-edit",
-  "/v1/ai/mystic",
-  "/v1/ai/text-to-image/imagen4-ultra",
-  "/v1/ai/text-to-image/imagen4-fast",
-];
+// Endpoints que exigem aspect no formato magnific (square_1_1, ...).
+// Mapeamos endpoint -> engine id para resolver o whitelist por motor.
+const MAGNIFIC_ASPECT_ENDPOINT_TO_ENGINE: Record<string, string> = {
+  "/v1/ai/text-to-image/nano-banana-pro": "nano-banana-pro",
+  "/v1/ai/text-to-image/nano-banana-pro-flash": "nano-banana-pro-flash",
+  "/v1/ai/text-to-image/seedream-v4": "seedream-v4",
+  "/v1/ai/mystic": "mystic",
+  "/v1/ai/text-to-image/imagen4-ultra": "imagen4-ultra",
+  "/v1/ai/text-to-image/imagen4-fast": "imagen4-fast",
+};
 
 export type StartImageEditArgs = {
   req: Request;

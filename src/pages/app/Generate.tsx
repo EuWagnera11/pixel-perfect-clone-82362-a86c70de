@@ -81,7 +81,7 @@ export default function Generate() {
         aspect_ratio: ratio,
         model: model.model,
       } as any);
-      setGeneration(g);
+      setGeneration(g as Generation);
       toast({ title: "Geração iniciada", description: "Aguarde alguns segundos..." });
     } catch (e) {
       const msg = e instanceof ApiError ? e.message : e instanceof Error ? e.message : "Erro desconhecido";

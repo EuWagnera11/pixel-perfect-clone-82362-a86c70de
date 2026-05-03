@@ -25,7 +25,7 @@ export async function ensureSession() {
 
 export async function api<T = unknown>(
   path: string,
-  opts: RequestInit & { body?: unknown } = {}
+  opts: Omit<RequestInit, "body"> & { body?: unknown } = {}
 ): Promise<T> {
   const session = (await supabase.auth.getSession()).data.session;
   if (!session) throw new Error("No session");

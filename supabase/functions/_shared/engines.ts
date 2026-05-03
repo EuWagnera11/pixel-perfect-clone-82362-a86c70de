@@ -50,7 +50,8 @@ export type BuildInput = {
 };
 
 // ---- aspect ratio helpers ----
-const FP_TO_MAGNIFIC: Record<string, string> = {
+// Master map of every Magnific aspect token we know about.
+const FP_TO_MAGNIFIC_ALL: Record<string, string> = {
   "1:1": "square_1_1",
   "4:3": "classic_4_3",
   "3:4": "traditional_3_4",
@@ -65,8 +66,48 @@ const FP_TO_MAGNIFIC: Record<string, string> = {
   "4:5": "social_post_4_5",
 };
 
-export function toMagnificAspect(fp: string): string {
-  return FP_TO_MAGNIFIC[fp] ?? "square_1_1";
+// Per-engine allowed aspect_ratio whitelist (Magnific tokens).
+// If the requested aspect is not allowed for that engine, we snap to the
+// closest supported one (by numeric ratio) to keep generation working.
+const ENGINE_ALLOWED_ASPECT: Record<string, string[]> = {
+  // Flux Pro 1.1 / Imagen4 / Seedream V4 / Mystic / Nano Banana Pro family
+  // all support the same compact set:
+  "flux-pro-1-1":          ["square_1_1", "social_story_9_16", "widescreen_16_9", "traditional_3_4", "classic_4_3"],
+  "imagen4-ultra":         ["square_1_1", "social_story_9_16", "widescreen_16_9", "traditional_3_4", "classic_4_3"],
+  "imagen4-fast":          ["square_1_1", "social_story_9_16", "widescreen_16_9", "traditional_3_4", "classic_4_3"],
+  "seedream-v4":           ["square_1_1", "social_story_9_16", "widescreen_16_9", "traditional_3_4", "classic_4_3"],
+  "mystic":                ["square_1_1", "social_story_9_16", "widescreen_16_9", "traditional_3_4", "classic_4_3"],
+  "nano-banana-pro":       ["square_1_1", "social_story_9_16", "widescreen_16_9", "traditional_3_4", "classic_4_3"],
+  "nano-banana-pro-flash": ["square_1_1", "social_story_9_16", "widescreen_16_9", "traditional_3_4", "classic_4_3"],
+  "nano-banana-2":         ["square_1_1", "social_story_9_16", "widescreen_16_9", "traditional_3_4", "classic_4_3"],
+};
+
+function aspectToNumber(token: string): number {
+  // "widescreen_16_9" -> 16/9
+  const m = token.match(/_(\d+)_(\d+)$/);
+  if (!m) return 1;
+  return Number(m[1]) / Number(m[2]);
+}
+
+function snapToAllowed(target: string, allowed: string[]): string {
+  if (allowed.includes(target)) return target;
+  const t = aspectToNumber(target);
+  let best = allowed[0];
+  let bestDiff = Infinity;
+  for (const a of allowed) {
+    const d = Math.abs(aspectToNumber(a) - t);
+    if (d < bestDiff) { bestDiff = d; best = a; }
+  }
+  return best;
+}
+
+/** Convert a freepik-style aspect ("16:9") to a Magnific token, scoped by engine. */
+export function toMagnificAspect(fp: string, engineId?: string): string {
+  const token = FP_TO_MAGNIFIC_ALL[fp] ?? "square_1_1";
+  if (!engineId) return token;
+  const allowed = ENGINE_ALLOWED_ASPECT[engineId];
+  if (!allowed) return token;
+  return snapToAllowed(token, allowed);
 }
 
 // =========== IMAGE engines ===========

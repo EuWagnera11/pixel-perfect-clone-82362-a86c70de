@@ -112,6 +112,13 @@ const ENGINE_ALLOWED_ASPECT: Record<string, string[]> = {
   "nano-banana-pro":       ["square_1_1", "social_story_9_16", "widescreen_16_9", "traditional_3_4", "classic_4_3"],
   "nano-banana-pro-flash": ["square_1_1", "social_story_9_16", "widescreen_16_9", "traditional_3_4", "classic_4_3"],
   "nano-banana-2":         ["square_1_1", "social_story_9_16", "widescreen_16_9", "traditional_3_4", "classic_4_3"],
+  // Flux 2 family + Flux Dev
+  "flux-dev":              ["square_1_1", "classic_4_3", "traditional_3_4", "widescreen_16_9", "social_story_9_16", "standard_3_2", "portrait_2_3", "horizontal_2_1", "vertical_1_2", "social_post_4_5"],
+  // Seedream 4.5 / 5 Lite share the same set
+  "seedream-v4-5":         ["square_1_1", "widescreen_16_9", "social_story_9_16", "portrait_2_3", "traditional_3_4", "standard_3_2", "classic_4_3", "cinematic_21_9"],
+  "seedream-v4-5-edit":    ["square_1_1", "widescreen_16_9", "social_story_9_16", "portrait_2_3", "traditional_3_4", "standard_3_2", "classic_4_3", "cinematic_21_9"],
+  "seedream-v5-lite":      ["square_1_1", "widescreen_16_9", "social_story_9_16", "portrait_2_3", "traditional_3_4", "standard_3_2", "classic_4_3", "cinematic_21_9"],
+  "seedream-v5-lite-edit": ["square_1_1", "widescreen_16_9", "social_story_9_16", "portrait_2_3", "traditional_3_4", "standard_3_2", "classic_4_3", "cinematic_21_9"],
 };
 
 function aspectToNumber(token: string): number {

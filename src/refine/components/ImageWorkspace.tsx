@@ -305,13 +305,49 @@ export function ImageWorkspace({
             setRefs((p) => [...p, url]);
             showToast("Adicionada como referência");
           }}
+          onUseAsStyle={(url) => {
+            if (refs.length >= 8) { showToast("Máximo 8 referências"); return; }
+            setRefs((p) => [...p, url]);
+            setPrompt((p) => p ? p + ", in the same visual style of the reference" : "Recreate using the visual style of the reference");
+            showToast("Estilo aplicado — ajuste o prompt");
+          }}
           onSendToEdit={(url) => navigate("/edit?ref=" + encodeURIComponent(url))}
           onSendToUpscale={(url) => navigate("/upscale?ref=" + encodeURIComponent(url))}
           onSendToVideo={(url) => navigate("/video?ref=" + encodeURIComponent(url))}
+          onSendTo3D={(url) => navigate("/r3d?ref=" + encodeURIComponent(url))}
+          onSendTo3DScene={(url) => navigate("/r3d?ref=" + encodeURIComponent(url) + "&style=scene")}
+          onSendToSkinEnhancer={(url) => navigate("/edit?ref=" + encodeURIComponent(url) + "&op=relight&preset=skin")}
           onRegenerate={(item) => {
             setPrompt(item.prompt);
             setLightbox(null);
             setTimeout(() => handleGenerate(), 50);
+          }}
+          onVariations={async (item) => {
+            const modelId = MODEL_LABEL_TO_ID[modelLabel] || "nano-banana-pro";
+            const promises = Array.from({ length: 4 }).map(() =>
+              enqueue({
+                tab: "image", prompt: item.prompt, aspect: ratio,
+                sourceUrl: item.url, model: modelId, thumb: item.url,
+                quality, numVariations: 1,
+              })
+            );
+            await Promise.all(promises);
+            showToast("4 variações em paralelo");
+            setLightbox(null);
+          }}
+          onChangeCamera={async (item) => {
+            const modelId = MODEL_LABEL_TO_ID[modelLabel] || "nano-banana-pro";
+            const newPrompt = `${item.prompt}, different camera angle, alternative perspective, same subject and style`;
+            const promises = Array.from({ length: 4 }).map(() =>
+              enqueue({
+                tab: "image", prompt: newPrompt, aspect: ratio,
+                sourceUrl: item.url, model: modelId, thumb: item.url,
+                quality, numVariations: 1,
+              })
+            );
+            await Promise.all(promises);
+            showToast("Gerando ângulos alternativos");
+            setLightbox(null);
           }}
           onToggleFavorite={async (item) => {
             const next = !item.isFav;

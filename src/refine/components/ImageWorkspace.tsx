@@ -406,10 +406,16 @@ type LightboxProps = {
   showToast: (m: string) => void;
   onCopyPrompt: (p: string) => void;
   onUseAsRef: (url: string) => void;
+  onUseAsStyle: (url: string) => void;
   onSendToEdit: (url: string) => void;
   onSendToUpscale: (url: string) => void;
   onSendToVideo: (url: string) => void;
+  onSendTo3D: (url: string) => void;
+  onSendTo3DScene: (url: string) => void;
+  onSendToSkinEnhancer: (url: string) => void;
   onRegenerate: (item: LightboxProps["items"][0]) => void;
+  onVariations: (item: LightboxProps["items"][0]) => void;
+  onChangeCamera: (item: LightboxProps["items"][0]) => void;
   onToggleFavorite: (item: LightboxProps["items"][0]) => void;
   onDelete: (item: LightboxProps["items"][0]) => void;
 };

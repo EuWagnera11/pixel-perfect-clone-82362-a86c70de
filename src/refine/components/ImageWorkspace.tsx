@@ -327,7 +327,7 @@ export function ImageWorkspace({
         <header className="img-ws-gallery-head">
           <div className="img-ws-gallery-title">
             <h2>Suas criações</h2>
-            <p>{totalImages} imagens em {filteredHistory.length} gerações{filteredHistory.length !== imageHistory.length ? ` · de ${imageHistory.length}` : ""}</p>
+            <p>{totalImages} {totalImages === 1 ? "imagem" : "imagens"} · atualizado agora</p>
           </div>
           <div className="img-ws-gallery-actions">
             <div className="img-ws-segmented" role="tablist">

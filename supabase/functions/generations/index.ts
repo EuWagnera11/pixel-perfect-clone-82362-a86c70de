@@ -5,7 +5,7 @@
 import { corsHeaders, json } from "../_shared/cors.ts";
 import { requireAuth } from "../_shared/auth.ts";
 import { startGeneration } from "../_shared/generation-flow.ts";
-import { resolveImageEngine } from "../_shared/engines.ts";
+import { requiresReferenceImage, resolveImageEngine } from "../_shared/engines.ts";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
@@ -57,6 +57,9 @@ Deno.serve(async (req) => {
     const refs: string[] = Array.isArray(body.refs)
       ? body.refs.map((r: any) => typeof r === "string" ? r : r?.url).filter(Boolean) : [];
     const engineId = resolveImageEngine(refs.length, body.model);
+    if (requiresReferenceImage(engineId) && refs.length === 0) {
+      return json({ error: `${engineId} requires at least 1 reference image` }, 400);
+    }
     return await startGeneration({
       auth, engineId, tool: "image",
       op: refs.length ? "i2i" : "t2i", mediaType: "image",

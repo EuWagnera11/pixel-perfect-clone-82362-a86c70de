@@ -456,6 +456,14 @@ export function buildBody(engine: EngineEntry, input: BuildInput): Record<string
 }
 
 /** Auto-route image based on refs: 2+ refs -> nano-banana-2; 1 -> nano-banana-pro; 0 -> nano-banana-pro */
+export function requiresReferenceImage(engineId: string): boolean {
+  return new Set([
+    "seedream-v4-edit",
+    "seedream-v4-5-edit",
+    "seedream-v5-lite-edit",
+  ]).has(engineId);
+}
+
 export function resolveImageEngine(refsCount: number, override?: string | null): string {
   if (override === "flux-kontext-pro" && refsCount === 0) return "nano-banana-pro";
   if (override && getEngine(override)?.kind === "image") return override;

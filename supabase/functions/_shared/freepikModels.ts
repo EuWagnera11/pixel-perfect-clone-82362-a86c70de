@@ -72,7 +72,7 @@ export const FREEPIK_GENERATORS: FreepikModel[] = [
 // ───────── Endpoints dedicados (não substituem editores) ─────────
 export const FREEPIK_DEDICATED: FreepikModel[] = [
   { id: "freepik-style-transfer", label: "Style Transfer", endpoint: "/v1/ai/image-style-transfer", kind: "dedicated" },
-  { id: "freepik-remove-bg", label: "Remove Background", endpoint: "/v1/ai/remove-background", kind: "dedicated" },
+  { id: "freepik-remove-bg", label: "Remove Background", endpoint: "/v1/ai/beta/remove-background", kind: "dedicated" },
   { id: "flux-pro-expand", label: "Expand (Flux Pro)", endpoint: "/v1/ai/image-expand/flux-pro", kind: "dedicated" },
   { id: "image-relight", label: "Relight", endpoint: "/v1/ai/image-relight", kind: "dedicated" },
 ];

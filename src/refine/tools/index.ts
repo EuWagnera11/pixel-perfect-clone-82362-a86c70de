@@ -143,31 +143,46 @@ export type DispatchInput = {
   aspect: string;
   sourceUrl?: string | null;
   model?: string | null;
-  /** Opções específicas por ferramenta */
   editOp?: "remove-bg" | "replace-bg" | "relight" | "expand" | "style-transfer";
   upscaleEngine?: "magnific-creative" | "magnific-precision";
   audioKind?: "music" | "sfx";
   duration?: string;
+  quality?: string;
+  numVariations?: number;
+  stylePack?: string | null;
 };
+
+const STYLE_PACK_SUFFIX: Record<string, string> = {
+  "Editorial": "editorial fashion photography, magazine cover, dramatic lighting",
+  "Cyberpunk": "cyberpunk neon city, blade runner aesthetic, rain, holograms",
+  "Fantasy": "epic fantasy art, painterly, magical lighting, cinematic",
+  "Cinematic": "cinematic film still, anamorphic lens, color graded, depth of field",
+  "Portrait": "studio portrait, soft key light, 85mm, shallow depth of field",
+  "Surreal": "surrealist scene, dreamlike, impossible geometry, vivid colors",
+};
+const applyStyle = (p: string, pack?: string | null) =>
+  pack && STYLE_PACK_SUFFIX[pack] ? `${p}. ${STYLE_PACK_SUFFIX[pack]}` : p;
 
 export async function dispatchTool(input: DispatchInput): Promise<EnqueueResult> {
   const refs = input.sourceUrl ? [input.sourceUrl] : [];
   const model = input.model || undefined;
+  const p = applyStyle(input.prompt, input.stylePack);
+  const num = input.numVariations ?? 1;
   switch (input.tab) {
-    case "image":      return runImage({ prompt: input.prompt, aspect: input.aspect, refs, model });
-    case "cinema":     return runCinema({ prompt: input.prompt, aspect: input.aspect, refs, model });
-    case "video":      return runVideo({ prompt: input.prompt, sourceUrl: input.sourceUrl!, model: model!, aspect: input.aspect, duration: input.duration });
-    case "audio":      return runAudio({ prompt: input.prompt, kind: input.audioKind });
-    case "edit":       return runEdit({ prompt: input.prompt, sourceUrl: input.sourceUrl!, op: input.editOp });
+    case "image":      return runImage({ prompt: p, aspect: input.aspect, refs, model, numVariations: num, quality: input.quality });
+    case "cinema":     return runCinema({ prompt: p, aspect: input.aspect, refs, model });
+    case "video":      return runVideo({ prompt: p, sourceUrl: input.sourceUrl!, model: model!, aspect: input.aspect, duration: input.duration });
+    case "audio":      return runAudio({ prompt: p, kind: input.audioKind });
+    case "edit":       return runEdit({ prompt: p, sourceUrl: input.sourceUrl!, op: input.editOp });
     case "upscale":    return runUpscale({ sourceUrl: input.sourceUrl!, engine: input.upscaleEngine });
-    case "product":    return runProduct({ prompt: input.prompt, aspect: input.aspect, sourceUrl: input.sourceUrl, model });
-    case "ecommerce":  return runEcommerce({ prompt: input.prompt, aspect: input.aspect, sourceUrl: input.sourceUrl, model });
-    case "character":  return runCharacter({ prompt: input.prompt, aspect: input.aspect, refs, model });
-    case "r3d":        return runR3D({ prompt: input.prompt, aspect: input.aspect, refs, model });
-    case "depth":      return runDepth({ prompt: input.prompt, aspect: input.aspect, sourceUrl: input.sourceUrl });
-    case "assets":     return runAssets({ prompt: input.prompt, aspect: input.aspect, refs });
-    case "marketing":  return runMarketing({ prompt: input.prompt, aspect: input.aspect, refs, model });
-    default:           return runImage({ prompt: input.prompt, aspect: input.aspect, refs, model });
+    case "product":    return runProduct({ prompt: p, aspect: input.aspect, sourceUrl: input.sourceUrl, model });
+    case "ecommerce":  return runEcommerce({ prompt: p, aspect: input.aspect, sourceUrl: input.sourceUrl, model });
+    case "character":  return runCharacter({ prompt: p, aspect: input.aspect, refs, model });
+    case "r3d":        return runR3D({ prompt: p, aspect: input.aspect, refs, model });
+    case "depth":      return runDepth({ prompt: p, aspect: input.aspect, sourceUrl: input.sourceUrl });
+    case "assets":     return runAssets({ prompt: p, aspect: input.aspect, refs });
+    case "marketing":  return runMarketing({ prompt: p, aspect: input.aspect, refs, model });
+    default:           return runImage({ prompt: p, aspect: input.aspect, refs, model, numVariations: num, quality: input.quality });
   }
 }
 

@@ -53,7 +53,7 @@ type Created = { id: string; status: string; media_type?: string; task_id?: stri
 
 export async function startImage(input: {
   prompt: string; aspect_ratio: string; num_variations?: number;
-  refs?: string[]; model?: string;
+  refs?: string[]; model?: string; resolution?: string;
 }) {
   return await invokeFn<Created>("generate-image", {
     method: "POST",
@@ -63,6 +63,7 @@ export async function startImage(input: {
       num_variations: input.num_variations ?? 1,
       refs: (input.refs ?? []).map((url) => ({ url })),
       model: input.model,
+      resolution: input.resolution,
     },
   });
 }

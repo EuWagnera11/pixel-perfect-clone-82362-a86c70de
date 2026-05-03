@@ -547,9 +547,9 @@ img{display:block;max-width:100%}
 .img-ws-sidebar-head p{margin:0;font-size:13px;line-height:1.55;color:hsl(var(--foreground-muted))}
 .img-ws-panel{
   display:flex;flex-direction:column;gap:12px;padding:14px;border-radius:16px;
-  background:linear-gradient(180deg,hsl(var(--surface-2) / .94),hsl(var(--surface) / .98));
-  border:1px solid hsl(var(--border));
-  box-shadow:0 10px 30px hsl(0 0% 0% / .14), inset 0 1px 0 hsl(var(--foreground) / .04);
+  background:#141414;
+  border:1px solid rgba(255,255,255,.08);
+  box-shadow:0 10px 30px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.03);
 }
 .img-ws-panel--tight{gap:10px}
 .img-ws-panel-head{display:flex;align-items:center;justify-content:space-between;gap:10px}

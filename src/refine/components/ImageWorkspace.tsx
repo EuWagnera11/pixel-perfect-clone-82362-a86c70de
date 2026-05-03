@@ -62,7 +62,7 @@ export function ImageWorkspace({
   const [refs, setRefs] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
   const [stylePreset, setStylePreset] = useState<string>("none");
-  const [filterModel, setFilterModel] = useState<string>("all");
+  const [filterAspect, setFilterAspect] = useState<string>("all");
   const [filterFav, setFilterFav] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -115,19 +115,19 @@ export function ImageWorkspace({
     [history]
   );
 
-  const usedModels = useMemo(() => {
-    const ids = new Set<string>();
-    imageHistory.forEach((g) => g.model && ids.add(g.model));
-    return Array.from(ids);
+  const usedAspects = useMemo(() => {
+    const set = new Set<string>();
+    imageHistory.forEach((g) => { const a = (g as any).aspect_ratio; if (a) set.add(a); });
+    return Array.from(set);
   }, [imageHistory]);
 
   const filteredHistory = useMemo(() => {
     return imageHistory.filter((g) => {
-      if (filterModel !== "all" && g.model !== filterModel) return false;
+      if (filterAspect !== "all" && (g as any).aspect_ratio !== filterAspect) return false;
       if (filterFav && !(g as any).metadata?.favorite) return false;
       return true;
     });
-  }, [imageHistory, filterModel, filterFav]);
+  }, [imageHistory, filterAspect, filterFav]);
 
   const totalImages = useMemo(
     () => filteredHistory.reduce((acc, g) => acc + (g.image_urls?.length || 0), 0),
@@ -298,44 +298,37 @@ export function ImageWorkspace({
             </div>
             <span>{variations} {variations > 1 ? "imagens" : "imagem"} · {ratio} · {quality}</span>
           </div>
-          <div className="img-ws-grid2">
-            <div className="img-ws-section">
-              <div className="img-ws-label">Variações</div>
+          <div className="img-ws-stats">
+            <label className="img-ws-stat">
+              <span className="img-ws-stat-label">Imagens</span>
               <select
-                className="img-ws-select"
+                className="img-ws-stat-select"
                 value={variations}
                 onChange={(e) => setVariations(Number(e.target.value))}
               >
-                {VARIATIONS.map((n) => (
-                  <option key={n} value={n}>{n} {n > 1 ? "imagens" : "imagem"}</option>
-                ))}
+                {VARIATIONS.map((n) => (<option key={n} value={n}>{n}</option>))}
               </select>
-            </div>
-            <div className="img-ws-section">
-              <div className="img-ws-label">Aspecto</div>
+            </label>
+            <label className="img-ws-stat">
+              <span className="img-ws-stat-label">Aspecto</span>
               <select
-                className="img-ws-select"
+                className="img-ws-stat-select"
                 value={ratio}
                 onChange={(e) => setRatio(e.target.value as AspectRatio)}
               >
-                {ASPECT_RATIOS.map((r) => (
-                  <option key={r} value={r}>{r}</option>
-                ))}
+                {ASPECT_RATIOS.map((r) => (<option key={r} value={r}>{r}</option>))}
               </select>
-            </div>
-          </div>
-
-          <div className="img-ws-section">
-            <div className="img-ws-label">Qualidade</div>
-            <select
-              className="img-ws-select"
-              value={quality}
-              onChange={(e) => setQuality(e.target.value)}
-            >
-              {QUALITIES.map((q) => (
-                <option key={q} value={q}>{q}</option>
-              ))}
-            </select>
+            </label>
+            <label className="img-ws-stat">
+              <span className="img-ws-stat-label">Qualidade</span>
+              <select
+                className="img-ws-stat-select"
+                value={quality}
+                onChange={(e) => setQuality(e.target.value)}
+              >
+                {QUALITIES.map((q) => (<option key={q} value={q}>{q}</option>))}
+              </select>
+            </label>
           </div>
         </div>
 
@@ -356,26 +349,26 @@ export function ImageWorkspace({
             <p>{totalImages} imagens em {filteredHistory.length} gerações{filteredHistory.length !== imageHistory.length ? ` · de ${imageHistory.length}` : ""}</p>
           </div>
           <div className="img-ws-gallery-actions">
-            <select
-              className="img-ws-filter"
-              value={filterModel}
-              onChange={(e) => setFilterModel(e.target.value)}
-              title="Filtrar por modelo"
-            >
-              <option value="all">Todos modelos</option>
-              {usedModels.map((m) => (
-                <option key={m} value={m}>{MODEL_ID_TO_LABEL[m] || m}</option>
+            <div className="img-ws-segmented" role="tablist">
+              <button
+                className={"img-ws-seg" + (filterAspect === "all" ? " active" : "")}
+                onClick={() => setFilterAspect("all")}
+              >Todos</button>
+              {usedAspects.map((a) => (
+                <button
+                  key={a}
+                  className={"img-ws-seg" + (filterAspect === a ? " active" : "")}
+                  onClick={() => setFilterAspect(a)}
+                >{a}</button>
               ))}
-            </select>
+            </div>
             <button
               className={"img-ws-filter-btn" + (filterFav ? " active" : "")}
               onClick={() => setFilterFav((v) => !v)}
               title="Apenas favoritos"
             >
               <Icon d="M12 2 14 9h7l-6 4 2 7-7-4-7 4 2-7-6-4h7z" />
-              <span>Favoritos</span>
             </button>
-            <span className="img-ws-live-pill"><span className="img-ws-live-dot" /> Ao vivo</span>
             <button className="img-ws-refresh" onClick={refreshHistory} title="Recarregar">
               <Icon d="M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5M21 12a9 9 0 0 1-15 6.7L3 16M3 21v-5h5" />
             </button>
@@ -383,23 +376,14 @@ export function ImageWorkspace({
         </header>
 
         <div className="img-ws-feed">
-          {/* jobs em andamento */}
+          {/* jobs em andamento — banner compacto */}
           {activeImageJobs.length > 0 && (
-            <div className="img-ws-row pending">
-              <div className="img-ws-row-prompt">
-                <div className="img-ws-row-copy">
-                  <span className="img-ws-prompt-text">Gerando agora…</span>
-                  <span className="img-ws-row-meta">
-                    <span className="tag">{activeImageJobs.length} em paralelo</span>
-                    <span className="ago">~30s</span>
-                  </span>
-                </div>
-              </div>
-              <div className="img-ws-row-grid">
-                {activeImageJobs.map((j) => (
-                  <PendingTile key={j.id} job={j} ratio={ratio} />
-                ))}
-              </div>
+            <div className="img-ws-progress">
+              <span className="img-ws-progress-spinner" />
+              <span className="img-ws-progress-text">
+                Gerando {activeImageJobs.length} {activeImageJobs.length > 1 ? "imagens" : "imagem"}…
+              </span>
+              <span className="img-ws-progress-eta">~{Math.max(8, activeImageJobs.length * 6)}s restantes</span>
             </div>
           )}
 

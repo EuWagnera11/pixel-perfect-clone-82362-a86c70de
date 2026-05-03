@@ -115,6 +115,17 @@ export default function Generate() {
           <h1 className="text-2xl font-semibold tracking-tight">Nova geração</h1>
         </div>
 
+        <div>
+          <div className="mb-2 font-mono text-[10px] uppercase tracking-wider text-muted-foreground">Prompt</div>
+          <textarea
+            value={prompt}
+            onChange={(e) => setPrompt(e.target.value)}
+            placeholder="Descreva a imagem que você quer gerar..."
+            rows={4}
+            className="w-full resize-none rounded-md border border-border bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:border-primary focus:outline-none"
+          />
+        </div>
+
         <Pills label="Aspect ratio" options={ratios} value={ratio} onChange={setRatio} />
         <ModelSelector value={model} onChange={setModel} />
         <Pills label="Variações" options={variations.map(String)} value={String(numVars)} onChange={v => setNumVars(Number(v))} />
@@ -124,7 +135,7 @@ export default function Generate() {
           label="Imagem de referência (opcional)"
           hint="Inspiração para estilo/pose — JPG, PNG, WebP"
           value={refPath}
-          onChange={(path) => setRefPath(path)}
+          onChange={(path, url) => { setRefPath(path); setRefUrl(url); }}
         />
 
         <div className="rounded-md border border-primary/30 bg-primary-light p-4">

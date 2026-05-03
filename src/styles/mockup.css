@@ -573,13 +573,14 @@ img{display:block;max-width:100%}
 .img-ws-ref-add:hover{color:#ff8a3d;border-color:rgba(255,138,61,.5)}
 .img-ws-ref-add svg{width:18px;height:18px}
 .img-ws-generate{
-  margin-top:auto;padding:14px;border-radius:12px;border:0;cursor:pointer;font:inherit;
+  position:sticky;bottom:0;margin:6px -16px 0;padding:14px;border-radius:0;border:0;cursor:pointer;font:inherit;
   background:linear-gradient(135deg,#fba94a,#e07238);color:#fff;font-weight:700;font-size:14px;
   display:flex;align-items:center;justify-content:center;gap:8px;
-  box-shadow:0 10px 30px -8px rgba(224,114,56,.5);transition:transform .12s;
+  box-shadow:0 -10px 30px -8px rgba(224,114,56,.4);transition:filter .12s;
+  z-index:2;
 }
-.img-ws-generate:hover{transform:translateY(-1px)}
-.img-ws-generate:active{transform:translateY(0)}
+.img-ws-generate:hover{filter:brightness(1.05)}
+.img-ws-generate:active{filter:brightness(.95)}
 .img-ws-generate svg{width:16px;height:16px}
 .img-ws-generate .kbd{
   margin-left:auto;padding:2px 6px;background:rgba(0,0,0,.25);border-radius:6px;

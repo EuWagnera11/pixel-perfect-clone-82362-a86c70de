@@ -23,8 +23,8 @@ export async function requireAuth(req: Request): Promise<AuthCtx | Response> {
   const userClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     global: { headers: { Authorization: authHeader } },
   });
-  const { data, error } = await userClient.auth.getClaims(jwt);
-  if (error || !data?.claims?.sub) {
+  const { data, error } = await userClient.auth.getUser(jwt);
+  if (error || !data?.user?.id) {
     return json({ error: "Unauthorized", detail: error?.message }, 401);
   }
 

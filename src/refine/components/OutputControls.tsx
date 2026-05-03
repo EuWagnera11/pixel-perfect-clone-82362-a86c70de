@@ -27,8 +27,8 @@ const ASPECT_META: Record<string, { use: string }> = {
 };
 
 const QUALITIES: { id: string; label: string; mult: number }[] = [
-  { id: "1K", label: "SD", mult: 1 },
-  { id: "2K", label: "HD", mult: 2 },
+  { id: "1K", label: "1K", mult: 1 },
+  { id: "2K", label: "2K", mult: 2 },
   { id: "4K", label: "4K", mult: 4 },
 ];
 

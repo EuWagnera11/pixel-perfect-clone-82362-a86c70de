@@ -117,7 +117,7 @@ const IMAGE: Record<string, EngineEntry> = {
     id: "mystic", kind: "image", path: "/v1/ai/mystic", aspectStyle: "magnific",
     build: (i) => ({
       prompt: i.prompt,
-      aspect_ratio: toMagnificAspect(i.aspect, "__SELF__"),
+      aspect_ratio: toMagnificAspect(i.aspect, "mystic"),
       resolution: i.resolution || "2k",
       ...(i.refs[0] ? { style_reference: i.refs[0] } : {}),
     }),
@@ -128,7 +128,7 @@ const IMAGE: Record<string, EngineEntry> = {
     path: "/v1/ai/gemini-2-5-flash-image-preview", aspectStyle: "magnific",
     build: (i) => ({
       prompt: i.prompt,
-      aspect_ratio: toMagnificAspect(i.aspect, "__SELF__"),
+      aspect_ratio: toMagnificAspect(i.aspect, "nano-banana-2"),
       num_images: i.num,
       ...(i.refs.length ? { reference_images: (i.refsB64 ?? []).slice(0, 4) } : {}),
     }),
@@ -138,7 +138,7 @@ const IMAGE: Record<string, EngineEntry> = {
     path: "/v1/ai/text-to-image/nano-banana-pro", aspectStyle: "magnific",
     build: (i) => ({
       prompt: i.prompt,
-      aspect_ratio: toMagnificAspect(i.aspect, "__SELF__"),
+      aspect_ratio: toMagnificAspect(i.aspect, "nano-banana-pro"),
       num_images: i.num,
       ...(i.refs.length ? { reference_images: (i.refsB64 ?? []).slice(0, 4) } : {}),
     }),
@@ -148,7 +148,7 @@ const IMAGE: Record<string, EngineEntry> = {
     path: "/v1/ai/text-to-image/nano-banana-pro-flash", aspectStyle: "magnific",
     build: (i) => ({
       prompt: i.prompt,
-      aspect_ratio: toMagnificAspect(i.aspect, "__SELF__"),
+      aspect_ratio: toMagnificAspect(i.aspect, "nano-banana-pro-flash"),
       num_images: i.num,
       ...(i.refs.length ? { reference_images: (i.refsB64 ?? []).slice(0, 4) } : {}),
     }),
@@ -157,18 +157,18 @@ const IMAGE: Record<string, EngineEntry> = {
   "imagen4-ultra": {
     id: "imagen4-ultra", kind: "image",
     path: "/v1/ai/text-to-image/imagen4-ultra", aspectStyle: "magnific",
-    build: (i) => ({ prompt: i.prompt, aspect_ratio: toMagnificAspect(i.aspect, "__SELF__"), num_images: i.num }),
+    build: (i) => ({ prompt: i.prompt, aspect_ratio: toMagnificAspect(i.aspect, "imagen4-ultra"), num_images: i.num }),
   },
   "imagen4-fast": {
     id: "imagen4-fast", kind: "image",
     path: "/v1/ai/text-to-image/imagen4-fast", aspectStyle: "magnific",
-    build: (i) => ({ prompt: i.prompt, aspect_ratio: toMagnificAspect(i.aspect, "__SELF__"), num_images: i.num }),
+    build: (i) => ({ prompt: i.prompt, aspect_ratio: toMagnificAspect(i.aspect, "imagen4-fast"), num_images: i.num }),
   },
   // Flux
   "flux-pro-1-1": {
     id: "flux-pro-1-1", kind: "image",
     path: "/v1/ai/text-to-image/flux-pro-v1-1", aspectStyle: "magnific",
-    build: (i) => ({ prompt: i.prompt, aspect_ratio: toMagnificAspect(i.aspect, "__SELF__") }),
+    build: (i) => ({ prompt: i.prompt, aspect_ratio: toMagnificAspect(i.aspect, "flux-pro-1-1") }),
   },
   "flux-kontext-pro": {
     id: "flux-kontext-pro", kind: "image",
@@ -190,7 +190,7 @@ const IMAGE: Record<string, EngineEntry> = {
   "seedream-v4": {
     id: "seedream-v4", kind: "image",
     path: "/v1/ai/text-to-image/seedream-v4", aspectStyle: "magnific",
-    build: (i) => ({ prompt: i.prompt, aspect_ratio: toMagnificAspect(i.aspect, "__SELF__"), num_images: i.num }),
+    build: (i) => ({ prompt: i.prompt, aspect_ratio: toMagnificAspect(i.aspect, "seedream-v4"), num_images: i.num }),
   },
   "seedream-v4-edit": {
     id: "seedream-v4-edit", kind: "image",

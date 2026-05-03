@@ -70,7 +70,7 @@ export function OutputControls({
       {/* ASPECTO */}
       <div className="oc-section">
         <div className="oc-section-head">
-          <span className="oc-label">Aspecto</span>
+          <span className="oc-label">Tamanho</span>
         </div>
         <div className="oc-aspects">
           {ASPECT_RATIOS.map((r) => {

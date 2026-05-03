@@ -305,13 +305,49 @@ export function ImageWorkspace({
             setRefs((p) => [...p, url]);
             showToast("Adicionada como referência");
           }}
+          onUseAsStyle={(url) => {
+            if (refs.length >= 8) { showToast("Máximo 8 referências"); return; }
+            setRefs((p) => [...p, url]);
+            setPrompt((p) => p ? p + ", in the same visual style of the reference" : "Recreate using the visual style of the reference");
+            showToast("Estilo aplicado — ajuste o prompt");
+          }}
           onSendToEdit={(url) => navigate("/edit?ref=" + encodeURIComponent(url))}
           onSendToUpscale={(url) => navigate("/upscale?ref=" + encodeURIComponent(url))}
           onSendToVideo={(url) => navigate("/video?ref=" + encodeURIComponent(url))}
+          onSendTo3D={(url) => navigate("/r3d?ref=" + encodeURIComponent(url))}
+          onSendTo3DScene={(url) => navigate("/r3d?ref=" + encodeURIComponent(url) + "&style=scene")}
+          onSendToSkinEnhancer={(url) => navigate("/edit?ref=" + encodeURIComponent(url) + "&op=relight&preset=skin")}
           onRegenerate={(item) => {
             setPrompt(item.prompt);
             setLightbox(null);
             setTimeout(() => handleGenerate(), 50);
+          }}
+          onVariations={async (item) => {
+            const modelId = MODEL_LABEL_TO_ID[modelLabel] || "nano-banana-pro";
+            const promises = Array.from({ length: 4 }).map(() =>
+              enqueue({
+                tab: "image", prompt: item.prompt, aspect: ratio,
+                sourceUrl: item.url, model: modelId, thumb: item.url,
+                quality, numVariations: 1,
+              })
+            );
+            await Promise.all(promises);
+            showToast("4 variações em paralelo");
+            setLightbox(null);
+          }}
+          onChangeCamera={async (item) => {
+            const modelId = MODEL_LABEL_TO_ID[modelLabel] || "nano-banana-pro";
+            const newPrompt = `${item.prompt}, different camera angle, alternative perspective, same subject and style`;
+            const promises = Array.from({ length: 4 }).map(() =>
+              enqueue({
+                tab: "image", prompt: newPrompt, aspect: ratio,
+                sourceUrl: item.url, model: modelId, thumb: item.url,
+                quality, numVariations: 1,
+              })
+            );
+            await Promise.all(promises);
+            showToast("Gerando ângulos alternativos");
+            setLightbox(null);
           }}
           onToggleFavorite={async (item) => {
             const next = !item.isFav;
@@ -370,10 +406,16 @@ type LightboxProps = {
   showToast: (m: string) => void;
   onCopyPrompt: (p: string) => void;
   onUseAsRef: (url: string) => void;
+  onUseAsStyle: (url: string) => void;
   onSendToEdit: (url: string) => void;
   onSendToUpscale: (url: string) => void;
   onSendToVideo: (url: string) => void;
+  onSendTo3D: (url: string) => void;
+  onSendTo3DScene: (url: string) => void;
+  onSendToSkinEnhancer: (url: string) => void;
   onRegenerate: (item: LightboxProps["items"][0]) => void;
+  onVariations: (item: LightboxProps["items"][0]) => void;
+  onChangeCamera: (item: LightboxProps["items"][0]) => void;
   onToggleFavorite: (item: LightboxProps["items"][0]) => void;
   onDelete: (item: LightboxProps["items"][0]) => void;
 };
@@ -454,16 +496,37 @@ function Lightbox(p: LightboxProps) {
               <Icon d="M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5" /> Regenerar
             </button>
             <button className="ils-btn" onClick={() => p.onUseAsRef(item.url)}>
-              <Icon d="M5 12h14M12 5l7 7-7 7" /> Usar como referência
+              <Icon d="M5 12h14M12 5l7 7-7 7" /> Use as reference
             </button>
-            <button className="ils-btn" onClick={() => p.onSendToEdit(item.url)}>
-              <Icon d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4z" /> Editar
+            <button className="ils-btn" onClick={() => p.onUseAsStyle(item.url)}>
+              <Icon d="M3 12h18M3 6h18M3 18h12" /> Use as style
+            </button>
+            <button className="ils-btn" onClick={() => p.onRegenerate(item)}>
+              <Icon d="M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5" /> Recreate
+            </button>
+            <button className="ils-btn" onClick={() => p.onVariations(item)}>
+              <Icon d="M4 4h7v7H4z M13 4h7v7h-7z M4 13h7v7H4z M13 13h7v7h-7z" /> Variations
+            </button>
+            <button className="ils-btn" onClick={() => p.onChangeCamera(item)}>
+              <Icon d="M3 7h4l2-3h6l2 3h4v12H3z M12 17a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" /> Change camera
             </button>
             <button className="ils-btn" onClick={() => p.onSendToUpscale(item.url)}>
               <Icon d="M3 16V8a2 2 0 0 1 2-2h14M21 8v8a2 2 0 0 1-2 2H5" /> Upscale
             </button>
+            <button className="ils-btn" onClick={() => p.onSendToSkinEnhancer(item.url)}>
+              <Icon d="M12 2a7 7 0 0 1 7 7c0 5-7 13-7 13S5 14 5 9a7 7 0 0 1 7-7z M12 11a2 2 0 1 0 0-4 2 2 0 0 0 0 4z" /> Skin enhancer
+            </button>
+            <button className="ils-btn" onClick={() => p.onSendTo3D(item.url)}>
+              <Icon d="M12 2 3 7v10l9 5 9-5V7z M12 12 3 7M12 12l9-5M12 12v10" /> 3D model
+            </button>
+            <button className="ils-btn" onClick={() => p.onSendTo3DScene(item.url)}>
+              <Icon d="M3 21V8l9-5 9 5v13M9 21V12h6v9" /> Create 3D scene
+            </button>
+            <button className="ils-btn" onClick={() => p.onSendToEdit(item.url)}>
+              <Icon d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4z" /> Edit
+            </button>
             <button className="ils-btn" onClick={() => p.onSendToVideo(item.url)}>
-              <Icon d="M4 6h12v12H4z M16 9l5-3v12l-5-3" /> Gerar vídeo
+              <Icon d="M4 6h12v12H4z M16 9l5-3v12l-5-3" /> Generate video
             </button>
             <button className="ils-btn danger" onClick={() => p.onDelete(item)}>
               <Icon d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14" /> Excluir

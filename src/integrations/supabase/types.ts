@@ -20,45 +20,87 @@ export type Database = {
           completed_at: string | null
           created_at: string
           credits_used: number
+          envelope_version: string | null
+          error_message: string | null
+          final_prompt: string | null
+          freepik_endpoint: string | null
           id: string
           image_urls: string[] | null
+          media_type: string | null
+          metadata: Json | null
+          model: string | null
           num_variations: number | null
+          op: string | null
+          parent_id: string | null
           persona_id: string | null
+          project_id: string | null
           prompt: string | null
+          raw_prompt: string | null
+          refs: Json | null
           resolution: string | null
           status: Database["public"]["Enums"]["generation_status"]
           template_id: string | null
+          tool: string | null
           user_id: string
+          video_urls: string[] | null
         }
         Insert: {
           aspect_ratio?: string | null
           completed_at?: string | null
           created_at?: string
           credits_used?: number
+          envelope_version?: string | null
+          error_message?: string | null
+          final_prompt?: string | null
+          freepik_endpoint?: string | null
           id?: string
           image_urls?: string[] | null
+          media_type?: string | null
+          metadata?: Json | null
+          model?: string | null
           num_variations?: number | null
+          op?: string | null
+          parent_id?: string | null
           persona_id?: string | null
+          project_id?: string | null
           prompt?: string | null
+          raw_prompt?: string | null
+          refs?: Json | null
           resolution?: string | null
           status?: Database["public"]["Enums"]["generation_status"]
           template_id?: string | null
+          tool?: string | null
           user_id: string
+          video_urls?: string[] | null
         }
         Update: {
           aspect_ratio?: string | null
           completed_at?: string | null
           created_at?: string
           credits_used?: number
+          envelope_version?: string | null
+          error_message?: string | null
+          final_prompt?: string | null
+          freepik_endpoint?: string | null
           id?: string
           image_urls?: string[] | null
+          media_type?: string | null
+          metadata?: Json | null
+          model?: string | null
           num_variations?: number | null
+          op?: string | null
+          parent_id?: string | null
           persona_id?: string | null
+          project_id?: string | null
           prompt?: string | null
+          raw_prompt?: string | null
+          refs?: Json | null
           resolution?: string | null
           status?: Database["public"]["Enums"]["generation_status"]
           template_id?: string | null
+          tool?: string | null
           user_id?: string
+          video_urls?: string[] | null
         }
         Relationships: [
           {
@@ -140,6 +182,45 @@ export type Database = {
           id?: string
           tier?: Database["public"]["Enums"]["subscription_tier"]
           updated_at?: string
+        }
+        Relationships: []
+      }
+      proxy_logs: {
+        Row: {
+          attempted_url: string | null
+          created_at: string
+          duration_ms: number | null
+          endpoint_key: string | null
+          generation_id: string | null
+          id: string
+          request_body: Json | null
+          response_body: Json | null
+          response_status: number | null
+          user_id: string | null
+        }
+        Insert: {
+          attempted_url?: string | null
+          created_at?: string
+          duration_ms?: number | null
+          endpoint_key?: string | null
+          generation_id?: string | null
+          id?: string
+          request_body?: Json | null
+          response_body?: Json | null
+          response_status?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          attempted_url?: string | null
+          created_at?: string
+          duration_ms?: number | null
+          endpoint_key?: string | null
+          generation_id?: string | null
+          id?: string
+          request_body?: Json | null
+          response_body?: Json | null
+          response_status?: number | null
+          user_id?: string | null
         }
         Relationships: []
       }

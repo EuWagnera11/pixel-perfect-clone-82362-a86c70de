@@ -10,6 +10,18 @@
 import { json } from "./cors.ts";
 import { adminClient, requireUserId, checkRateLimit, checkTosAccepted } from "./gates.ts";
 import { freepikFetch } from "./freepik.ts";
+import { toMagnificAspect } from "./engines.ts";
+
+// Endpoints que exigem aspect no formato magnific (square_1_1, ...)
+const MAGNIFIC_ASPECT_ENDPOINTS = [
+  "/v1/ai/text-to-image/nano-banana-pro",
+  "/v1/ai/text-to-image/nano-banana-pro-flash",
+  "/v1/ai/seedream-v4",
+  "/v1/ai/seedream-v4-edit",
+  "/v1/ai/mystic",
+  "/v1/ai/imagen4-ultra",
+  "/v1/ai/imagen4-fast",
+];
 
 export type StartImageEditArgs = {
   req: Request;

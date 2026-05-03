@@ -5,7 +5,8 @@
  */
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { fetchGeneration } from "../hooks/useGenerations";
-import { dispatchTool, type DispatchInput, type ToolMediaKind } from "../tools";
+import { fetchImageEditStatus } from "./imageedit";
+import { dispatchTool, type DispatchInput, type ToolMediaKind, type JobFlow } from "../tools";
 
 export type JobStatus = "processing" | "completed" | "failed";
 
@@ -21,6 +22,7 @@ export type Job = {
   resultUrl?: string;
   error?: string;
   model?: string;
+  flow?: JobFlow;
 };
 
 const STORAGE_KEY = "refine.jobs.v1";
@@ -54,7 +56,7 @@ export function JobsProvider({ children, onCompleted }: { children: ReactNode; o
   }, []);
 
   // Background poller for one job
-  const startPolling = useCallback((jobId: string, mediaType: ToolMediaKind) => {
+  const startPolling = useCallback((jobId: string, mediaType: ToolMediaKind, flow: JobFlow = "legacy") => {
     if (polling.current.has(jobId)) return;
     polling.current.add(jobId);
     const maxMs = mediaType === "video" ? 600_000 : 300_000;
@@ -63,26 +65,48 @@ export function JobsProvider({ children, onCompleted }: { children: ReactNode; o
       try {
         while (Date.now() - start < maxMs) {
           await new Promise((r) => setTimeout(r, 4000));
-          let g;
-          try { g = await fetchGeneration(jobId); } catch (e) { continue; }
-          if (g.status === "completed") {
-            const url = g.image_urls?.[0] || g.video_urls?.[0];
-            updateJob(jobId, { status: "completed", resultUrl: url, completedAt: Date.now() });
-            polling.current.delete(jobId);
-            if (url) {
-              const finalJob: Job = {
-                id: jobId, tool: "", prompt: g.prompt || "",
-                mediaType: (g.media_type as ToolMediaKind) || mediaType,
-                status: "completed", startedAt: start, resultUrl: url,
-              };
-              onCompletedRef.current?.(finalJob);
+          if (flow === "imageedit") {
+            try {
+              const s = await fetchImageEditStatus(jobId);
+              if (s.status === "COMPLETED") {
+                const url = s.output_url;
+                updateJob(jobId, { status: "completed", resultUrl: url, completedAt: Date.now() });
+                polling.current.delete(jobId);
+                if (url) {
+                  onCompletedRef.current?.({
+                    id: jobId, tool: s.tool || "", prompt: "", mediaType,
+                    status: "completed", startedAt: start, resultUrl: url, flow,
+                  });
+                }
+                return;
+              }
+              if (s.status === "FAILED") {
+                updateJob(jobId, { status: "failed", error: s.error || "Falhou", completedAt: Date.now() });
+                polling.current.delete(jobId);
+                return;
+              }
+            } catch { continue; }
+          } else {
+            let g;
+            try { g = await fetchGeneration(jobId); } catch { continue; }
+            if (g.status === "completed") {
+              const url = g.image_urls?.[0] || g.video_urls?.[0];
+              updateJob(jobId, { status: "completed", resultUrl: url, completedAt: Date.now() });
+              polling.current.delete(jobId);
+              if (url) {
+                onCompletedRef.current?.({
+                  id: jobId, tool: "", prompt: g.prompt || "",
+                  mediaType: (g.media_type as ToolMediaKind) || mediaType,
+                  status: "completed", startedAt: start, resultUrl: url,
+                });
+              }
+              return;
             }
-            return;
-          }
-          if (g.status === "failed") {
-            updateJob(jobId, { status: "failed", error: g.error_message || "Falhou", completedAt: Date.now() });
-            polling.current.delete(jobId);
-            return;
+            if (g.status === "failed") {
+              updateJob(jobId, { status: "failed", error: g.error_message || "Falhou", completedAt: Date.now() });
+              polling.current.delete(jobId);
+              return;
+            }
           }
         }
         updateJob(jobId, { status: "failed", error: "Timeout", completedAt: Date.now() });
@@ -94,13 +118,14 @@ export function JobsProvider({ children, onCompleted }: { children: ReactNode; o
 
   // On mount, restart polling for any "processing" job persisted
   useEffect(() => {
-    jobs.filter((j) => j.status === "processing").forEach((j) => startPolling(j.id, j.mediaType));
+    jobs.filter((j) => j.status === "processing").forEach((j) => startPolling(j.id, j.mediaType, j.flow || "legacy"));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const enqueue = useCallback(async (input: DispatchInput & { thumb?: string }) => {
     try {
       const res = await dispatchTool(input);
+      const flow: JobFlow = res.flow || "legacy";
       const job: Job = {
         id: res.generationId,
         tool: input.tab,
@@ -110,9 +135,10 @@ export function JobsProvider({ children, onCompleted }: { children: ReactNode; o
         status: "processing",
         startedAt: Date.now(),
         model: input.model || undefined,
+        flow,
       };
       setJobs((prev) => [job, ...prev].slice(0, MAX_KEPT));
-      startPolling(res.generationId, res.mediaType);
+      startPolling(res.generationId, res.mediaType, flow);
       return { ok: true, id: res.generationId };
     } catch (e: any) {
       return { ok: false, error: e?.message || "Falhou" };

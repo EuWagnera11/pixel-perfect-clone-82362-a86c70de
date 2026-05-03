@@ -82,19 +82,20 @@ export function Rail({ generations, onItemClick }: RailProps) {
               {h.kind === "video" ? (
                 <>
                   <video
-                    src={h.img}
+                    src={h.img + "#t=0.5"}
                     muted
                     playsInline
                     loop
-                    preload="metadata"
+                    preload="auto"
+                    onLoadedMetadata={(e) => { (e.currentTarget as HTMLVideoElement).currentTime = 0.5; }}
                     onMouseEnter={(e) => { (e.currentTarget as HTMLVideoElement).play().catch(() => {}); }}
-                    onMouseLeave={(e) => { (e.currentTarget as HTMLVideoElement).pause(); }}
-                    style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                    onMouseLeave={(e) => { const v = e.currentTarget as HTMLVideoElement; v.pause(); v.currentTime = 0.5; }}
+                    style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", background: "#0a0a0c" }}
                   />
                   <span style={{
-                    position: "absolute", top: 6, right: 6,
-                    background: "rgba(0,0,0,.6)", color: "#fff",
-                    fontSize: 10, padding: "2px 6px", borderRadius: 4,
+                    position: "absolute", top: 6, right: 6, zIndex: 2,
+                    background: "rgba(0,0,0,.7)", color: "#fff",
+                    fontSize: 10, padding: "2px 6px", borderRadius: 4, fontWeight: 600,
                   }}>▶ VIDEO</span>
                 </>
               ) : (

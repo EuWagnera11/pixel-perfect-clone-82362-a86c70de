@@ -19,7 +19,7 @@ export type EnqueueResult = {
 
 // ───────── IMAGE ─────────
 export async function runImage(opts: {
-  prompt: string; aspect: string; refs?: string[]; model?: string; numVariations?: number;
+  prompt: string; aspect: string; refs?: string[]; model?: string; numVariations?: number; quality?: string;
 }): Promise<EnqueueResult> {
   if (!opts.prompt.trim()) throw new Error("Digite um prompt");
   const r = await startImage({
@@ -28,6 +28,7 @@ export async function runImage(opts: {
     num_variations: opts.numVariations ?? 1,
     refs: opts.refs ?? [],
     model: opts.model,
+    resolution: opts.quality ? opts.quality.toLowerCase() : undefined,
   });
   return { generationId: r.id, mediaType: "image", taskId: r.task_id };
 }

@@ -256,6 +256,82 @@ const IMAGE: Record<string, EngineEntry> = {
     path: "/v1/ai/text-to-image/hyperflux", aspectStyle: "magnific",
     build: (i) => ({ prompt: i.prompt, aspect_ratio: toMagnificAspect(i.aspect, "hyperflux") }),
   },
+  // Flux 2 Pro / Turbo (use width/height instead of aspect_ratio)
+  "flux-2-pro": {
+    id: "flux-2-pro", kind: "image",
+    path: "/v1/ai/text-to-image/flux-2-pro", aspectStyle: "none",
+    build: (i) => {
+      const { width, height } = fpToWH(i.aspect, 1024);
+      const refs = (i.refsB64 ?? []).slice(0, 4);
+      const refFields: Record<string, string> = {};
+      if (refs[0]) refFields.input_image = refs[0];
+      if (refs[1]) refFields.input_image_2 = refs[1];
+      if (refs[2]) refFields.input_image_3 = refs[2];
+      if (refs[3]) refFields.input_image_4 = refs[3];
+      return { prompt: i.prompt, width, height, ...refFields };
+    },
+  },
+  "flux-2-turbo": {
+    id: "flux-2-turbo", kind: "image",
+    path: "/v1/ai/text-to-image/flux-2-turbo", aspectStyle: "none",
+    build: (i) => {
+      const { width, height } = fpToWH(i.aspect, 1024);
+      return { prompt: i.prompt, image_size: { width, height } };
+    },
+  },
+  "flux-dev": {
+    id: "flux-dev", kind: "image",
+    path: "/v1/ai/text-to-image/flux-dev", aspectStyle: "magnific",
+    build: (i) => ({ prompt: i.prompt, aspect_ratio: toMagnificAspect(i.aspect, "flux-dev") }),
+  },
+  // Seedream 4.5
+  "seedream-v4-5": {
+    id: "seedream-v4-5", kind: "image",
+    path: "/v1/ai/text-to-image/seedream-v4-5", aspectStyle: "magnific",
+    build: (i) => ({ prompt: i.prompt, aspect_ratio: toMagnificAspect(i.aspect, "seedream-v4-5") }),
+  },
+  "seedream-v4-5-edit": {
+    id: "seedream-v4-5-edit", kind: "image",
+    path: "/v1/ai/text-to-image/seedream-v4-5-edit", aspectStyle: "magnific",
+    build: (i) => ({
+      prompt: i.prompt,
+      aspect_ratio: toMagnificAspect(i.aspect, "seedream-v4-5-edit"),
+      reference_images: (i.refsB64 ?? i.refs).slice(0, 5),
+    }),
+  },
+  // Seedream V5 Lite
+  "seedream-v5-lite": {
+    id: "seedream-v5-lite", kind: "image",
+    path: "/v1/ai/text-to-image/seedream-v5-lite", aspectStyle: "magnific",
+    build: (i) => ({ prompt: i.prompt, aspect_ratio: toMagnificAspect(i.aspect, "seedream-v5-lite") }),
+  },
+  "seedream-v5-lite-edit": {
+    id: "seedream-v5-lite-edit", kind: "image",
+    path: "/v1/ai/text-to-image/seedream-v5-lite-edit", aspectStyle: "magnific",
+    build: (i) => ({
+      prompt: i.prompt,
+      aspect_ratio: toMagnificAspect(i.aspect, "seedream-v5-lite-edit"),
+      reference_images: (i.refsB64 ?? i.refs).slice(0, 5),
+    }),
+  },
+  // Z-Image Turbo
+  "z-image": {
+    id: "z-image", kind: "image",
+    path: "/v1/ai/text-to-image/z-image", aspectStyle: "none",
+    build: (i) => ({
+      prompt: i.prompt,
+      image_size: FP_TO_ZIMAGE[i.aspect] ?? "square_hd",
+    }),
+  },
+  // RunWay Text-to-Image
+  "runway-t2i": {
+    id: "runway-t2i", kind: "image",
+    path: "/v1/ai/text-to-image/runway", aspectStyle: "none",
+    build: (i) => ({
+      prompt: i.prompt,
+      ratio: FP_TO_RUNWAY[i.aspect] ?? "1024:1024",
+    }),
+  },
 };
 
 // =========== VIDEO engines (image-to-video unless noted) ===========

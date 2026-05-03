@@ -37,7 +37,9 @@ export default function Generate() {
   const [ratio, setRatio] = useState("4:5");
   const [model, setModel] = useState({ model: "nano-banana-pro-flash", resolution: "2k" });
   const [numVars, setNumVars] = useState(4);
+  const [prompt, setPrompt] = useState("");
   const [refPath, setRefPath] = useState<string | null>(null);
+  const [refUrl, setRefUrl] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [generation, setGeneration] = useState<Generation | null>(null);
   const [costPreview, setCostPreview] = useState<number | null>(null);
@@ -70,16 +72,22 @@ export default function Generate() {
   }, [generation?.id, generation?.status]);
 
   const handleGenerate = async () => {
+    if (!prompt.trim()) {
+      toast({ title: "Prompt obrigatório", description: "Descreva o que você quer gerar.", variant: "destructive" });
+      return;
+    }
     setSubmitting(true);
     setGeneration(null);
     try {
       const g = await api.generations.create({
         persona_id: personaId,
         template_id: templateId,
+        prompt: prompt.trim(),
         num_variations: numVars,
         resolution: model.resolution as "1k" | "2k" | "4k",
         aspect_ratio: ratio,
         model: model.model,
+        refs: refUrl ? [{ url: refUrl }] : undefined,
       } as any);
       setGeneration(g as Generation);
       toast({ title: "Geração iniciada", description: "Aguarde alguns segundos..." });
@@ -107,6 +115,17 @@ export default function Generate() {
           <h1 className="text-2xl font-semibold tracking-tight">Nova geração</h1>
         </div>
 
+        <div>
+          <div className="mb-2 font-mono text-[10px] uppercase tracking-wider text-muted-foreground">Prompt</div>
+          <textarea
+            value={prompt}
+            onChange={(e) => setPrompt(e.target.value)}
+            placeholder="Descreva a imagem que você quer gerar..."
+            rows={4}
+            className="w-full resize-none rounded-md border border-border bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:border-primary focus:outline-none"
+          />
+        </div>
+
         <Pills label="Aspect ratio" options={ratios} value={ratio} onChange={setRatio} />
         <ModelSelector value={model} onChange={setModel} />
         <Pills label="Variações" options={variations.map(String)} value={String(numVars)} onChange={v => setNumVars(Number(v))} />
@@ -116,7 +135,7 @@ export default function Generate() {
           label="Imagem de referência (opcional)"
           hint="Inspiração para estilo/pose — JPG, PNG, WebP"
           value={refPath}
-          onChange={(path) => setRefPath(path)}
+          onChange={(path, url) => { setRefPath(path); setRefUrl(url); }}
         />
 
         <div className="rounded-md border border-primary/30 bg-primary-light p-4">

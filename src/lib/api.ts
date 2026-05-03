@@ -245,10 +245,27 @@ export const api = {
   },
 
   // ──────────── GENERATIONS (image + video) ────────────
+  // Now powered by Supabase Edge Functions (`generations` + `freepik-check-status`)
+  // with native Freepik integration and 3-key rotation.
   generations: {
-    list: (limit = 50, offset = 0) => http.get<Generation[]>(`/generations?limit=${limit}&offset=${offset}`),
-    get: (id: string) => http.get<Generation>(`/generations/${id}`),
-    create: (body: {
+    list: async (limit = 50, _offset = 0) => {
+      const { data, error } = await supabase.functions.invoke<Generation[]>(
+        `generations?limit=${limit}`,
+        { method: "GET" as any }
+      );
+      if (error) throw new ApiError(500, error, error.message);
+      return data ?? [];
+    },
+    get: async (id: string) => {
+      // Trigger Freepik polling (no-op if already settled), then return latest row.
+      const { data, error } = await supabase.functions.invoke<Generation>(
+        "freepik-check-status",
+        { body: { generation_id: id } }
+      );
+      if (error) throw new ApiError(500, error, error.message);
+      return data as Generation;
+    },
+    create: async (body: {
       persona_id?: string;
       template_id?: string;
       learned_style_id?: string;
@@ -259,12 +276,38 @@ export const api = {
       media_type?: "image" | "video";
       enhance_skin?: boolean;
       upscale?: boolean;
-      // video
       image_url?: string;
-      video_engine?: "kling_v3" | "kling_v2_1" | "hailuo" | "wan_2_1" | "runway";
+      video_engine?: string;
       duration?: string;
-    }) => http.post<{ id: string; status: string; credits_used: number }>("/generations", body),
-    remove: (id: string) => http.delete<void>(`/generations/${id}`),
+      model?: string;
+      refs?: { url: string; role?: string }[];
+    }) => {
+      // Map legacy frontend shape -> new edge envelope (tool=image for now).
+      const refs =
+        body.refs ??
+        (body.image_url ? [{ url: body.image_url }] : []);
+      const payload = {
+        tool: "image" as const,
+        prompt: body.prompt ?? "",
+        aspect_ratio: body.aspect_ratio ?? "1:1",
+        num_variations: body.num_variations ?? 1,
+        refs,
+        ...(body.model ? { model: body.model } : {}),
+      };
+      const { data, error } = await supabase.functions.invoke<{
+        id: string;
+        status: string;
+        credits_used: number;
+      }>("generations", { body: payload });
+      if (error) throw new ApiError(500, error, error.message);
+      return data!;
+    },
+    remove: async (id: string) => {
+      const { error } = await supabase.functions.invoke(`generations/${id}`, {
+        method: "DELETE" as any,
+      });
+      if (error) throw new ApiError(500, error, error.message);
+    },
   },
 
   // ──────────── SWAPS ────────────

@@ -129,5 +129,5 @@ export const MODEL_LABEL_TO_ID: Record<string, string> = (() => {
   return m;
 })();
 
-export const ASPECT_RATIOS = ["1:1", "9:16", "16:9", "4:3", "3:4", "21:9"] as const;
+export const ASPECT_RATIOS = ["1:1", "9:16", "16:9", "4:5", "3:4", "4:3", "21:9", "2:3"] as const;
 export type AspectRatio = (typeof ASPECT_RATIOS)[number];

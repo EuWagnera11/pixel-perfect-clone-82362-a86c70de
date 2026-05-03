@@ -531,59 +531,43 @@ img{display:block;max-width:100%}
 }
 .img-ws-controls{
   border-right:1px solid rgba(255,255,255,.06);
-  padding:clamp(4px,.55vh,8px) 10px;
+  padding:12px 10px 10px;
   overflow:hidden;display:flex;flex-direction:column;
-  gap:clamp(3px,.4vh,6px);
+  gap:10px;
   scrollbar-width:none;height:100%;min-height:0;
 }
 .img-ws-controls::-webkit-scrollbar{display:none}
 .img-ws-controls{
   background:#0c0c0c;position:relative;
 }
-.img-ws-controls .img-ws-panel{padding:clamp(5px,.6vh,8px);gap:clamp(3px,.4vh,6px);flex:0 0 auto}
+.img-ws-controls .img-ws-panel{padding:12px;gap:10px;flex:0 0 auto}
 .img-ws-controls .img-ws-panel-head{gap:8px}
-.img-ws-controls .img-ws-panel-title{font-size:11.5px}
-.img-ws-controls .img-ws-panel-head span{font-size:10px}
-.img-ws-controls .img-ws-section{gap:4px}
-.img-ws-controls .img-ws-textarea{min-height:clamp(24px,3.2vh,40px);max-height:clamp(24px,3.2vh,40px);font-size:11.5px;line-height:1.25}
-.img-ws-controls .img-ws-style-row{gap:4px}
-.img-ws-controls .img-ws-chip{padding:3px 7px;font-size:9.5px}
-.img-ws-controls .img-ws-sidebar-head{padding:0 2px 2px;gap:1px}
-.img-ws-controls .img-ws-sidebar-head h1{font-size:clamp(12px,1.3vh,14px)}
-.img-ws-controls .img-ws-sidebar-head p{font-size:clamp(9px,1vh,10px)}
-.img-ws-controls .img-ws-generate{padding:8px 12px}
-.img-ws-controls .img-ws-generate-wrap{padding:3px 0 0;margin-top:auto}
-.img-ws-controls .oc{gap:4px}
-.img-ws-controls .oc-section{gap:3px}
-.img-ws-controls .oc-aspects{gap:3px}
-.img-ws-controls .oc-aspect{padding:3px 2px}
-.img-ws-controls .oc-summary{font-size:9.5px;padding-top:1px}
-
-@media (max-height:980px) and (min-width:769px){
-  .img-ws-controls{padding:4px 8px;gap:3px}
-  .img-ws-controls .img-ws-panel{padding:4px 6px;gap:3px}
-  .img-ws-controls .img-ws-sidebar-head p,
-  .img-ws-controls .oc-summary,
-  .img-ws-controls .img-ws-generate .kbd{display:none}
-  .img-ws-controls .img-ws-textarea{min-height:22px;max-height:34px;font-size:11px}
-  .img-ws-controls .img-ws-chip{padding:2px 6px;font-size:9px}
-  .img-ws-controls .img-ws-refs{gap:4px}
-  .img-ws-controls .mp-trigger{padding:7px 9px;font-size:12px}
-  .img-ws-controls .oc-pill{padding:4px 0;font-size:10.5px}
-  .img-ws-controls .oc-aspect-frame{width:24px;height:24px}
-  .img-ws-controls .oc-aspect-label em{display:none}
-  .img-ws-controls .oc-seg{padding:4px 0;font-size:10px}
-  .img-ws-controls .oc-seg-mult{font-size:8px}
-}
+.img-ws-controls .img-ws-panel-title{font-size:12px}
+.img-ws-controls .img-ws-panel-head span{font-size:11px}
+.img-ws-controls .img-ws-section{gap:8px}
+.img-ws-controls .img-ws-sidebar-head{padding:0 2px 0;gap:4px}
+.img-ws-controls .img-ws-sidebar-head h1{font-size:15px}
+.img-ws-controls .img-ws-sidebar-head p{font-size:11px}
+.img-ws-controls .img-ws-style-row{gap:6px}
+.img-ws-controls .img-ws-chip{padding:5px 10px;font-size:11px}
+.img-ws-controls .img-ws-textarea{min-height:96px;max-height:none;font-size:13px;line-height:1.45;flex:1}
+.img-ws-controls .img-ws-panel--prompt{flex:1;min-height:0}
+.img-ws-controls .img-ws-panel--prompt .img-ws-section{flex:1;min-height:0}
+.img-ws-controls .img-ws-generate{padding:10px 12px}
+.img-ws-controls .img-ws-generate-wrap{padding:0;margin-top:0}
+.img-ws-controls .oc{gap:8px}
+.img-ws-controls .oc-section{gap:6px}
+.img-ws-controls .oc-aspects{gap:6px}
+.img-ws-controls .oc-aspect{padding:6px 4px}
+.img-ws-controls .oc-summary{font-size:11px;padding-top:2px}
 
 @media (max-height:860px) and (min-width:769px){
-  .img-ws-controls .img-ws-sidebar-head{padding-bottom:0}
-  .img-ws-controls .img-ws-textarea{min-height:20px;max-height:28px;line-height:1.2}
-  .img-ws-controls .img-ws-style-row{gap:3px}
-  .img-ws-controls .img-ws-generate{padding:7px 10px;font-size:12px}
-  .img-ws-controls .oc{gap:3px}
-  .img-ws-controls .oc-label{font-size:10px}
-  .img-ws-controls .oc-meta{font-size:9px}
+  .img-ws-controls{padding:10px 8px 8px;gap:8px}
+  .img-ws-controls .img-ws-panel{padding:10px;gap:8px}
+  .img-ws-controls .img-ws-textarea{min-height:72px}
+  .img-ws-controls .img-ws-chip{padding:4px 8px;font-size:10px}
+  .img-ws-controls .oc{gap:6px}
+  .img-ws-controls .oc-section{gap:5px}
 }
 .img-ws-brand{display:flex;align-items:center;gap:10px;padding:4px 4px 6px}
 .img-ws-brand-mark{

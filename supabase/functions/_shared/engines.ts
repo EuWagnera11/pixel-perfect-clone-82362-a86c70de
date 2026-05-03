@@ -57,7 +57,8 @@ const FP_TO_MAGNIFIC_ALL: Record<string, string> = {
   "3:4": "traditional_3_4",
   "16:9": "widescreen_16_9",
   "9:16": "social_story_9_16",
-  "21:9": "smartphone_horizontal_20_9",
+  "21:9": "cinematic_21_9",
+  "20:9": "smartphone_horizontal_20_9",
   "3:2": "standard_3_2",
   "2:3": "portrait_2_3",
   "2:1": "horizontal_2_1",
@@ -65,6 +66,33 @@ const FP_TO_MAGNIFIC_ALL: Record<string, string> = {
   "5:4": "social_5_4",
   "4:5": "social_post_4_5",
 };
+
+// Runway uses explicit pixel ratios.
+const FP_TO_RUNWAY: Record<string, string> = {
+  "1:1": "1024:1024",
+  "16:9": "1920:1080",
+  "9:16": "1080:1920",
+  "4:3": "1440:1080",
+  "3:4": "1080:1440",
+  "21:9": "2112:912",
+};
+
+// Z-Image uses its own image_size enum.
+const FP_TO_ZIMAGE: Record<string, string> = {
+  "1:1": "square_hd",
+  "16:9": "landscape_16_9",
+  "9:16": "portrait_9_16",
+  "4:3": "landscape_4_3",
+  "3:4": "portrait_3_4",
+};
+
+// freepik-style ("16:9") -> { width, height } for engines that take dimensions.
+function fpToWH(fp: string, base = 1024): { width: number; height: number } {
+  const [w, h] = (fp || "1:1").split(":").map(Number);
+  if (!w || !h) return { width: base, height: base };
+  if (w >= h) return { width: base, height: Math.round((base * h) / w / 16) * 16 };
+  return { width: Math.round((base * w) / h / 16) * 16, height: base };
+}
 
 // Per-engine allowed aspect_ratio whitelist (Magnific tokens).
 // If the requested aspect is not allowed for that engine, we snap to the
@@ -84,6 +112,13 @@ const ENGINE_ALLOWED_ASPECT: Record<string, string[]> = {
   "nano-banana-pro":       ["square_1_1", "social_story_9_16", "widescreen_16_9", "traditional_3_4", "classic_4_3"],
   "nano-banana-pro-flash": ["square_1_1", "social_story_9_16", "widescreen_16_9", "traditional_3_4", "classic_4_3"],
   "nano-banana-2":         ["square_1_1", "social_story_9_16", "widescreen_16_9", "traditional_3_4", "classic_4_3"],
+  // Flux 2 family + Flux Dev
+  "flux-dev":              ["square_1_1", "classic_4_3", "traditional_3_4", "widescreen_16_9", "social_story_9_16", "standard_3_2", "portrait_2_3", "horizontal_2_1", "vertical_1_2", "social_post_4_5"],
+  // Seedream 4.5 / 5 Lite share the same set
+  "seedream-v4-5":         ["square_1_1", "widescreen_16_9", "social_story_9_16", "portrait_2_3", "traditional_3_4", "standard_3_2", "classic_4_3", "cinematic_21_9"],
+  "seedream-v4-5-edit":    ["square_1_1", "widescreen_16_9", "social_story_9_16", "portrait_2_3", "traditional_3_4", "standard_3_2", "classic_4_3", "cinematic_21_9"],
+  "seedream-v5-lite":      ["square_1_1", "widescreen_16_9", "social_story_9_16", "portrait_2_3", "traditional_3_4", "standard_3_2", "classic_4_3", "cinematic_21_9"],
+  "seedream-v5-lite-edit": ["square_1_1", "widescreen_16_9", "social_story_9_16", "portrait_2_3", "traditional_3_4", "standard_3_2", "classic_4_3", "cinematic_21_9"],
 };
 
 function aspectToNumber(token: string): number {
@@ -220,6 +255,82 @@ const IMAGE: Record<string, EngineEntry> = {
     id: "hyperflux", kind: "image",
     path: "/v1/ai/text-to-image/hyperflux", aspectStyle: "magnific",
     build: (i) => ({ prompt: i.prompt, aspect_ratio: toMagnificAspect(i.aspect, "hyperflux") }),
+  },
+  // Flux 2 Pro / Turbo (use width/height instead of aspect_ratio)
+  "flux-2-pro": {
+    id: "flux-2-pro", kind: "image",
+    path: "/v1/ai/text-to-image/flux-2-pro", aspectStyle: "none",
+    build: (i) => {
+      const { width, height } = fpToWH(i.aspect, 1024);
+      const refs = (i.refsB64 ?? []).slice(0, 4);
+      const refFields: Record<string, string> = {};
+      if (refs[0]) refFields.input_image = refs[0];
+      if (refs[1]) refFields.input_image_2 = refs[1];
+      if (refs[2]) refFields.input_image_3 = refs[2];
+      if (refs[3]) refFields.input_image_4 = refs[3];
+      return { prompt: i.prompt, width, height, ...refFields };
+    },
+  },
+  "flux-2-turbo": {
+    id: "flux-2-turbo", kind: "image",
+    path: "/v1/ai/text-to-image/flux-2-turbo", aspectStyle: "none",
+    build: (i) => {
+      const { width, height } = fpToWH(i.aspect, 1024);
+      return { prompt: i.prompt, image_size: { width, height } };
+    },
+  },
+  "flux-dev": {
+    id: "flux-dev", kind: "image",
+    path: "/v1/ai/text-to-image/flux-dev", aspectStyle: "magnific",
+    build: (i) => ({ prompt: i.prompt, aspect_ratio: toMagnificAspect(i.aspect, "flux-dev") }),
+  },
+  // Seedream 4.5
+  "seedream-v4-5": {
+    id: "seedream-v4-5", kind: "image",
+    path: "/v1/ai/text-to-image/seedream-v4-5", aspectStyle: "magnific",
+    build: (i) => ({ prompt: i.prompt, aspect_ratio: toMagnificAspect(i.aspect, "seedream-v4-5") }),
+  },
+  "seedream-v4-5-edit": {
+    id: "seedream-v4-5-edit", kind: "image",
+    path: "/v1/ai/text-to-image/seedream-v4-5-edit", aspectStyle: "magnific",
+    build: (i) => ({
+      prompt: i.prompt,
+      aspect_ratio: toMagnificAspect(i.aspect, "seedream-v4-5-edit"),
+      reference_images: (i.refsB64 ?? i.refs).slice(0, 5),
+    }),
+  },
+  // Seedream V5 Lite
+  "seedream-v5-lite": {
+    id: "seedream-v5-lite", kind: "image",
+    path: "/v1/ai/text-to-image/seedream-v5-lite", aspectStyle: "magnific",
+    build: (i) => ({ prompt: i.prompt, aspect_ratio: toMagnificAspect(i.aspect, "seedream-v5-lite") }),
+  },
+  "seedream-v5-lite-edit": {
+    id: "seedream-v5-lite-edit", kind: "image",
+    path: "/v1/ai/text-to-image/seedream-v5-lite-edit", aspectStyle: "magnific",
+    build: (i) => ({
+      prompt: i.prompt,
+      aspect_ratio: toMagnificAspect(i.aspect, "seedream-v5-lite-edit"),
+      reference_images: (i.refsB64 ?? i.refs).slice(0, 5),
+    }),
+  },
+  // Z-Image Turbo
+  "z-image": {
+    id: "z-image", kind: "image",
+    path: "/v1/ai/text-to-image/z-image", aspectStyle: "none",
+    build: (i) => ({
+      prompt: i.prompt,
+      image_size: FP_TO_ZIMAGE[i.aspect] ?? "square_hd",
+    }),
+  },
+  // RunWay Text-to-Image
+  "runway-t2i": {
+    id: "runway-t2i", kind: "image",
+    path: "/v1/ai/text-to-image/runway", aspectStyle: "none",
+    build: (i) => ({
+      prompt: i.prompt,
+      ratio: FP_TO_RUNWAY[i.aspect] ?? "1024:1024",
+    }),
   },
 };
 

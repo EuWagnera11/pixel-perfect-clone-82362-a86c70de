@@ -182,6 +182,7 @@ export function ImageWorkspace({
     <div className="img-ws">
       {/* ===== LEFT CONTROLS ===== */}
       <aside className="img-ws-controls">
+        <div className="img-ws-controls-inner">
         <div className="img-ws-sidebar-head">
           <h1>Criar imagens</h1>
           <p>Prompt, referências e saídas</p>
@@ -299,6 +300,7 @@ export function ImageWorkspace({
             <span className="img-ws-generate-label">Gerar {variations > 1 ? `${variations} imagens` : "imagem"}</span>
             <span className="kbd">⌘↵</span>
           </button>
+        </div>
         </div>
       </aside>
 

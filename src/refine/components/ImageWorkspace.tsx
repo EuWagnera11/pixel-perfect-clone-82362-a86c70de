@@ -349,26 +349,26 @@ export function ImageWorkspace({
             <p>{totalImages} imagens em {filteredHistory.length} gerações{filteredHistory.length !== imageHistory.length ? ` · de ${imageHistory.length}` : ""}</p>
           </div>
           <div className="img-ws-gallery-actions">
-            <select
-              className="img-ws-filter"
-              value={filterModel}
-              onChange={(e) => setFilterModel(e.target.value)}
-              title="Filtrar por modelo"
-            >
-              <option value="all">Todos modelos</option>
-              {usedModels.map((m) => (
-                <option key={m} value={m}>{MODEL_ID_TO_LABEL[m] || m}</option>
+            <div className="img-ws-segmented" role="tablist">
+              <button
+                className={"img-ws-seg" + (filterAspect === "all" ? " active" : "")}
+                onClick={() => setFilterAspect("all")}
+              >Todos</button>
+              {usedAspects.map((a) => (
+                <button
+                  key={a}
+                  className={"img-ws-seg" + (filterAspect === a ? " active" : "")}
+                  onClick={() => setFilterAspect(a)}
+                >{a}</button>
               ))}
-            </select>
+            </div>
             <button
               className={"img-ws-filter-btn" + (filterFav ? " active" : "")}
               onClick={() => setFilterFav((v) => !v)}
               title="Apenas favoritos"
             >
               <Icon d="M12 2 14 9h7l-6 4 2 7-7-4-7 4 2-7-6-4h7z" />
-              <span>Favoritos</span>
             </button>
-            <span className="img-ws-live-pill"><span className="img-ws-live-dot" /> Ao vivo</span>
             <button className="img-ws-refresh" onClick={refreshHistory} title="Recarregar">
               <Icon d="M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5M21 12a9 9 0 0 1-15 6.7L3 16M3 21v-5h5" />
             </button>
@@ -376,23 +376,14 @@ export function ImageWorkspace({
         </header>
 
         <div className="img-ws-feed">
-          {/* jobs em andamento */}
+          {/* jobs em andamento — banner compacto */}
           {activeImageJobs.length > 0 && (
-            <div className="img-ws-row pending">
-              <div className="img-ws-row-prompt">
-                <div className="img-ws-row-copy">
-                  <span className="img-ws-prompt-text">Gerando agora…</span>
-                  <span className="img-ws-row-meta">
-                    <span className="tag">{activeImageJobs.length} em paralelo</span>
-                    <span className="ago">~30s</span>
-                  </span>
-                </div>
-              </div>
-              <div className="img-ws-row-grid">
-                {activeImageJobs.map((j) => (
-                  <PendingTile key={j.id} job={j} ratio={ratio} />
-                ))}
-              </div>
+            <div className="img-ws-progress">
+              <span className="img-ws-progress-spinner" />
+              <span className="img-ws-progress-text">
+                Gerando {activeImageJobs.length} {activeImageJobs.length > 1 ? "imagens" : "imagem"}…
+              </span>
+              <span className="img-ws-progress-eta">~{Math.max(8, activeImageJobs.length * 6)}s restantes</span>
             </div>
           )}
 

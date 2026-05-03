@@ -74,7 +74,7 @@ const IMAGE: Record<string, EngineEntry> = {
       prompt: i.prompt,
       aspect_ratio: i.aspect,
       num_images: i.num,
-      ...(i.refs.length ? { reference_images: i.refs.slice(0, 4) } : {}),
+      ...(i.refs.length ? { reference_images: i.refs.slice(0, 4).map((url) => ({ image_url: url })) } : {}),
     }),
   },
   "nano-banana-pro": {
@@ -84,7 +84,7 @@ const IMAGE: Record<string, EngineEntry> = {
       prompt: i.prompt,
       aspect_ratio: i.aspect,
       num_images: i.num,
-      ...(i.refs.length ? { reference_images: i.refs.slice(0, 4) } : {}),
+      ...(i.refs.length ? { reference_images: i.refs.slice(0, 4).map((url) => ({ image_url: url })) } : {}),
     }),
   },
   "nano-banana-pro-flash": {
@@ -94,7 +94,7 @@ const IMAGE: Record<string, EngineEntry> = {
       prompt: i.prompt,
       aspect_ratio: i.aspect,
       num_images: i.num,
-      ...(i.refs.length ? { reference_images: i.refs.slice(0, 4) } : {}),
+      ...(i.refs.length ? { reference_images: i.refs.slice(0, 4).map((url) => ({ image_url: url })) } : {}),
     }),
   },
   // Imagen

@@ -51,9 +51,11 @@ export async function magnificFetch(
   const { logCtx, ...rest } = init;
   let lastResp: MagnificResp | null = null;
 
+  const tried = new Set<string>();
   for (let attempt = 0; attempt < KEYS.length; attempt++) {
-    const key = pickKey();
+    const key = pickKey(tried);
     if (!key) break;
+    tried.add(key);
 
     const headers = new Headers(rest.headers || {});
     // Send both header names so this works against api.magnific.com and legacy api.freepik.com

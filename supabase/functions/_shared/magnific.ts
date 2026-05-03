@@ -17,9 +17,10 @@ function loadKeys(): string[] {
 const KEYS = loadKeys();
 const cooldown = new Map<string, number>();
 
-function pickKey(): string | null {
+function pickKey(skip: Set<string> = new Set()): string | null {
   const now = Date.now();
   for (const k of KEYS) {
+    if (skip.has(k)) continue;
     if ((cooldown.get(k) ?? 0) <= now) return k;
   }
   return null;

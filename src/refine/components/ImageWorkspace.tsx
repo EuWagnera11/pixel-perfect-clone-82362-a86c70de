@@ -298,44 +298,37 @@ export function ImageWorkspace({
             </div>
             <span>{variations} {variations > 1 ? "imagens" : "imagem"} · {ratio} · {quality}</span>
           </div>
-          <div className="img-ws-grid2">
-            <div className="img-ws-section">
-              <div className="img-ws-label">Variações</div>
+          <div className="img-ws-stats">
+            <label className="img-ws-stat">
+              <span className="img-ws-stat-label">Imagens</span>
               <select
-                className="img-ws-select"
+                className="img-ws-stat-select"
                 value={variations}
                 onChange={(e) => setVariations(Number(e.target.value))}
               >
-                {VARIATIONS.map((n) => (
-                  <option key={n} value={n}>{n} {n > 1 ? "imagens" : "imagem"}</option>
-                ))}
+                {VARIATIONS.map((n) => (<option key={n} value={n}>{n}</option>))}
               </select>
-            </div>
-            <div className="img-ws-section">
-              <div className="img-ws-label">Aspecto</div>
+            </label>
+            <label className="img-ws-stat">
+              <span className="img-ws-stat-label">Aspecto</span>
               <select
-                className="img-ws-select"
+                className="img-ws-stat-select"
                 value={ratio}
                 onChange={(e) => setRatio(e.target.value as AspectRatio)}
               >
-                {ASPECT_RATIOS.map((r) => (
-                  <option key={r} value={r}>{r}</option>
-                ))}
+                {ASPECT_RATIOS.map((r) => (<option key={r} value={r}>{r}</option>))}
               </select>
-            </div>
-          </div>
-
-          <div className="img-ws-section">
-            <div className="img-ws-label">Qualidade</div>
-            <select
-              className="img-ws-select"
-              value={quality}
-              onChange={(e) => setQuality(e.target.value)}
-            >
-              {QUALITIES.map((q) => (
-                <option key={q} value={q}>{q}</option>
-              ))}
-            </select>
+            </label>
+            <label className="img-ws-stat">
+              <span className="img-ws-stat-label">Qualidade</span>
+              <select
+                className="img-ws-stat-select"
+                value={quality}
+                onChange={(e) => setQuality(e.target.value)}
+              >
+                {QUALITIES.map((q) => (<option key={q} value={q}>{q}</option>))}
+              </select>
+            </label>
           </div>
         </div>
 

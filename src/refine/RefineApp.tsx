@@ -280,7 +280,7 @@ function Workspace() {
       <div className="bg-aurora" />
       <div className="bg-grid" />
 
-      <div className={"app" + (noRail ? " no-rail" : "")} id="app">
+      <div className={"app" + (noRail || currentTab === "image" ? " no-rail" : "")} id="app">
         <Sidebar
           currentTab={currentTab}
           onTabChange={(k) => navigate(`/${k}`)}

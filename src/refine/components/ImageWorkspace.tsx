@@ -131,6 +131,24 @@ export function ImageWorkspace({
     });
   }, [imageHistory, filterAspect, filterFav]);
 
+  // Agrupar gerações com mesmo prompt+modelo+aspecto em janela de 90s
+  const groupedHistory = useMemo(() => {
+    const groups: { key: string; gens: Generation[] }[] = [];
+    const WINDOW_MS = 90_000;
+    for (const g of filteredHistory) {
+      const t = g.created_at ? new Date(g.created_at).getTime() : 0;
+      const key = `${(g.prompt || "").trim()}|${g.model || ""}|${(g as any).aspect_ratio || ""}`;
+      const last = groups[groups.length - 1];
+      const lastT = last?.gens[0]?.created_at ? new Date(last.gens[0].created_at).getTime() : 0;
+      if (last && last.key === key && Math.abs(lastT - t) <= WINDOW_MS) {
+        last.gens.push(g);
+      } else {
+        groups.push({ key, gens: [g] });
+      }
+    }
+    return groups;
+  }, [filteredHistory]);
+
   const totalImages = useMemo(
     () => filteredHistory.reduce((acc, g) => acc + (g.image_urls?.length || 0), 0),
     [filteredHistory]

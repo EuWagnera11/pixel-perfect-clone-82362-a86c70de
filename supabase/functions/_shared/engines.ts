@@ -42,6 +42,7 @@ export type BuildInput = {
   prompt: string;
   aspect: string; // freepik-style "1:1"
   refs: string[]; // URLs
+  refsB64?: Array<{ image: string; mime_type: string }>;
   num: number;
   duration?: string; // "5" | "6" | "10"
   resolution?: string; // "1k" | "2k" | "4k"

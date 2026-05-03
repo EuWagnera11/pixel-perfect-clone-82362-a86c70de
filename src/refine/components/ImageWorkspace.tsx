@@ -183,17 +183,7 @@ export function ImageWorkspace({
               Modelo
             </div>
           </div>
-          <select
-            className="img-ws-select"
-            value={modelLabel}
-            onChange={(e) => setModelLabel(e.target.value)}
-          >
-            {IMAGE_MODELS.map((m) => (
-              <option key={m.id} value={m.label}>
-                {m.label}{m.costHint ? ` · ${m.costHint}` : ""}
-              </option>
-            ))}
-          </select>
+          <ModelPicker value={modelLabel} onChange={setModelLabel} />
         </div>
 
         {/* REFERÊNCIAS */}
@@ -281,38 +271,14 @@ export function ImageWorkspace({
           <div className="img-ws-panel-head">
             <div className="img-ws-panel-title">Saída</div>
           </div>
-          <div className="img-ws-stats">
-            <label className="img-ws-stat">
-              <span className="img-ws-stat-label">Imagens</span>
-              <select
-                className="img-ws-stat-select"
-                value={variations}
-                onChange={(e) => setVariations(Number(e.target.value))}
-              >
-                {VARIATIONS.map((n) => (<option key={n} value={n}>{n}</option>))}
-              </select>
-            </label>
-            <label className="img-ws-stat">
-              <span className="img-ws-stat-label">Aspecto</span>
-              <select
-                className="img-ws-stat-select"
-                value={ratio}
-                onChange={(e) => setRatio(e.target.value as AspectRatio)}
-              >
-                {ASPECT_RATIOS.map((r) => (<option key={r} value={r}>{r}</option>))}
-              </select>
-            </label>
-            <label className="img-ws-stat">
-              <span className="img-ws-stat-label">Qualidade</span>
-              <select
-                className="img-ws-stat-select"
-                value={quality}
-                onChange={(e) => setQuality(e.target.value)}
-              >
-                {QUALITIES.map((q) => (<option key={q} value={q}>{q}</option>))}
-              </select>
-            </label>
-          </div>
+          <OutputControls
+            variations={variations}
+            onVariations={setVariations}
+            ratio={ratio}
+            onRatio={setRatio}
+            quality={quality}
+            onQuality={setQuality}
+          />
         </div>
 
         <div className="img-ws-generate-wrap">

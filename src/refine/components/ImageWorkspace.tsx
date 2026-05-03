@@ -62,7 +62,7 @@ export function ImageWorkspace({
   const [refs, setRefs] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
   const [stylePreset, setStylePreset] = useState<string>("none");
-  const [filterModel, setFilterModel] = useState<string>("all");
+  const [filterAspect, setFilterAspect] = useState<string>("all");
   const [filterFav, setFilterFav] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 

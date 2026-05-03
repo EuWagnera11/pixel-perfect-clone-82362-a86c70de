@@ -219,16 +219,9 @@ export default function RefineApp() {
     }
   }, [prompt, ratio, modelLabel, currentTab, sourceUrl, isGenerating, refreshProfile, setHistory, showToast, renderResultOnStage]);
 
-  const handleHistoryClick = ({ img, prompt: p }: { img: string; prompt: string }) => {
-    const el = viewRef.current;
-    if (el) {
-      const stageImg = el.querySelector("#stageImg") as HTMLImageElement | null;
-      if (stageImg) stageImg.src = img;
-      (el.querySelector(".stage-inner") as HTMLElement | null)?.style.setProperty(
-        "--stage-bg",
-        `url("${img}")`
-      );
-    }
+  const handleHistoryClick = ({ img, prompt: p, kind }: { img: string; prompt: string; kind?: "image" | "video" }) => {
+    const isVideo = kind === "video" || /\.mp4(\?|$)/i.test(img);
+    renderResultOnStage(img, isVideo ? "video" : "image");
     setPrompt(p);
     showToast("Geração carregada");
   };

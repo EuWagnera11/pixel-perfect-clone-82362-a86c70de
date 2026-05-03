@@ -16,11 +16,12 @@ export function Rail({ generations, onItemClick }: RailProps) {
 
   // Combina geracoes reais (topo) + history mockado pra preencher
   const real: HistoryItem[] = generations
-    .filter((g) => g.image_urls?.[0])
+    .filter((g) => (g.image_urls?.[0] || g.video_urls?.[0]))
     .map((g) => ({
       p: g.prompt || "(sem prompt)",
-      img: g.image_urls![0],
+      img: (g.video_urls?.[0] || g.image_urls?.[0])!,
       t: timeAgo(g.created_at),
+      kind: g.video_urls?.[0] ? "video" : "image",
     }));
   const items = [...real, ...HISTORY_MOCK].slice(0, 30);
 
@@ -75,10 +76,30 @@ export function Rail({ generations, onItemClick }: RailProps) {
             <article
               key={i}
               className="history"
-              style={{ animationDelay: `${i * 55}ms` }}
-              onClick={() => onItemClick({ img: h.img, prompt: h.p })}
+              style={{ animationDelay: `${i * 55}ms`, position: "relative" }}
+              onClick={() => onItemClick({ img: h.img, prompt: h.p, kind: h.kind })}
             >
-              <img src={h.img} alt={h.p} loading="lazy" />
+              {h.kind === "video" ? (
+                <>
+                  <video
+                    src={h.img}
+                    muted
+                    playsInline
+                    loop
+                    preload="metadata"
+                    onMouseEnter={(e) => { (e.currentTarget as HTMLVideoElement).play().catch(() => {}); }}
+                    onMouseLeave={(e) => { (e.currentTarget as HTMLVideoElement).pause(); }}
+                    style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                  />
+                  <span style={{
+                    position: "absolute", top: 6, right: 6,
+                    background: "rgba(0,0,0,.6)", color: "#fff",
+                    fontSize: 10, padding: "2px 6px", borderRadius: 4,
+                  }}>▶ VIDEO</span>
+                </>
+              ) : (
+                <img src={h.img} alt={h.p} loading="lazy" />
+              )}
               {h.pin && <span className={"pin " + (h.pin === "FAV" ? "fav" : "")}>{h.pin}</span>}
               <div className="label">
                 <div>{h.p}</div>

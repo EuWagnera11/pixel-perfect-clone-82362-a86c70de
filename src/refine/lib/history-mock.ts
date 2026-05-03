@@ -8,6 +8,7 @@ export type HistoryItem = {
   img: string;
   t: string;
   pin?: string;
+  kind?: "image" | "video";
 };
 
 const A = "/refine-assets/";

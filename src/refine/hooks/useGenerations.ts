@@ -21,7 +21,7 @@ export function useGenerations() {
   const refresh = useCallback(async () => {
     try {
       const list = await api<Generation[]>("/generations?limit=30");
-      setHistory(list.filter((g) => g.status === "completed" && (g.image_urls?.length || 0) > 0));
+      setHistory(list.filter((g) => g.status === "completed" && ((g.image_urls?.length || 0) > 0 || (g.video_urls?.length || 0) > 0)));
     } catch (e) {
       console.warn("[refine] generations refresh:", e);
     } finally {

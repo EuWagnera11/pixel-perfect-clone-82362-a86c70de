@@ -624,10 +624,29 @@ img{display:block;max-width:100%}
 .img-ws-tile{
   position:relative;border-radius:14px;overflow:hidden;background:rgba(255,255,255,.04);
   cursor:pointer;border:1px solid rgba(255,255,255,.06);padding:0;font:inherit;
-  transition:transform .18s,border-color .18s;aspect-ratio:auto;
+  transition:transform .18s,border-color .18s,box-shadow .18s;aspect-ratio:auto;
 }
 .img-ws-tile img{width:100%;height:100%;object-fit:cover;display:block}
-.img-ws-tile:hover{transform:scale(1.01);border-color:rgba(255,138,61,.4)}
+.img-ws-tile:hover{transform:translateY(-2px);border-color:rgba(255,138,61,.4);box-shadow:0 12px 30px -10px rgba(0,0,0,.6)}
+.img-ws-tile-overlay{
+  position:absolute;inset:auto 0 0 0;padding:10px;display:flex;gap:6px;justify-content:flex-end;
+  background:linear-gradient(180deg,transparent,rgba(0,0,0,.65));
+  opacity:0;transition:opacity .18s;pointer-events:none;
+}
+.img-ws-tile:hover .img-ws-tile-overlay{opacity:1;pointer-events:auto}
+.img-ws-tile-action{
+  width:30px;height:30px;border-radius:8px;background:rgba(0,0,0,.55);
+  border:1px solid rgba(255,255,255,.15);color:#fff;cursor:pointer;
+  display:grid;place-items:center;backdrop-filter:blur(6px);transition:all .12s;
+}
+.img-ws-tile-action:hover{background:rgba(255,138,61,.85);border-color:transparent;transform:scale(1.05)}
+.img-ws-tile-action svg{width:13px;height:13px}
+.img-ws-tile-fav{
+  position:absolute;top:8px;left:8px;width:22px;height:22px;border-radius:50%;
+  background:rgba(255,138,61,.92);display:grid;place-items:center;color:#fff;
+  box-shadow:0 4px 12px rgba(0,0,0,.4);
+}
+.img-ws-tile-fav svg{width:12px;height:12px;fill:#fff}
 .img-ws-tile.pending{
   display:grid;place-items:center;height:0;width:100%;position:relative;
 }

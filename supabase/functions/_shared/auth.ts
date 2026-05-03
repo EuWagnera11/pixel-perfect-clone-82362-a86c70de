@@ -32,5 +32,5 @@ export async function requireAuth(req: Request): Promise<AuthCtx | Response> {
     auth: { persistSession: false, autoRefreshToken: false },
   });
 
-  return { userId: data.claims.sub as string, jwt, admin };
+  return { userId: data.user.id, jwt, admin };
 }

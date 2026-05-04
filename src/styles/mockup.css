@@ -2682,10 +2682,7 @@ img{display:block;max-width:100%}
 .lib-new-btn:hover{background:var(--accent-soft);border-color:rgba(255,106,26,.3);color:var(--accent-2)}
 .lib-new-btn svg{width:12px;height:12px}
 
-.lib-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;scrollbar-width:thin;scrollbar-color:var(--hairline-2) transparent}
-@media (min-width:1400px){.lib-grid{grid-template-columns:repeat(5,1fr)}}
-.lib-grid::-webkit-scrollbar{width:6px}
-.lib-grid::-webkit-scrollbar-thumb{background:var(--hairline-2);border-radius:3px}
+.lib-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:10px;overflow:hidden;align-content:start}
 .lib-grid-empty{grid-column:1/-1;display:flex;flex-direction:column;align-items:center;gap:8px;padding:60px 20px;color:var(--text-3);text-align:center}
 .lib-grid-empty svg{width:32px;height:32px}
 .lib-grid-empty strong{font-size:14px;color:var(--text-2);font-weight:600}

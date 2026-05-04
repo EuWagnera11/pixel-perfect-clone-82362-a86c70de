@@ -419,7 +419,7 @@ export function ImageWorkspace({
                 </div>
                 <span className="img-ws-row-count">{tiles.length} {tiles.length > 1 ? "imgs" : "img"}</span>
               </div>
-          <div className="img-ws-row-grid">
+          <div className="img-ws-gen-grid">
                 {tiles.map(({ url, gen: g }, i) => (
                   <button
                     key={g.id + ":" + i}

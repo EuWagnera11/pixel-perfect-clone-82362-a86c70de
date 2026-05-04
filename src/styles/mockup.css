@@ -28,7 +28,28 @@ img{display:block;max-width:100%}
 .app.no-rail .rail{display:none}
 
 /* SIDEBAR */
-.sidebar{border-right:1px solid var(--hairline);padding:14px 12px 12px;display:flex;flex-direction:column;background:linear-gradient(180deg,rgba(255,255,255,.015),transparent 30%),rgba(8,8,10,.5);backdrop-filter:blur(20px) saturate(160%);min-height:0;height:100%;overflow:hidden}
+.sidebar{position:relative;border-right:1px solid var(--hairline);padding:14px 12px 12px;display:flex;flex-direction:column;background:linear-gradient(180deg,rgba(255,255,255,.015),transparent 30%),rgba(8,8,10,.5);backdrop-filter:blur(20px) saturate(160%);min-height:0;height:100%;overflow:hidden;transition:width .35s var(--spring)}
+.sidebar-toggle{position:absolute;top:14px;right:-12px;width:24px;height:24px;border-radius:50%;background:rgba(20,20,24,.95);border:1px solid var(--hairline-2);color:var(--text-2);display:grid;place-items:center;cursor:pointer;z-index:10;transition:.3s var(--spring);box-shadow:0 4px 12px rgba(0,0,0,.4)}
+.sidebar-toggle:hover{color:var(--accent);border-color:var(--accent);transform:scale(1.08)}
+.sidebar-toggle svg{width:12px;height:12px}
+.app:has(.sidebar.collapsed){grid-template-columns:56px 1fr var(--rail-w)}
+.app.no-rail:has(.sidebar.collapsed){grid-template-columns:56px 1fr 0px}
+.sidebar.collapsed{padding:14px 8px 12px}
+.sidebar.collapsed .brand-name,
+.sidebar.collapsed .brand-status,
+.sidebar.collapsed .nav-cap,
+.sidebar.collapsed .nav-item span,
+.sidebar.collapsed .nav-item .pill,
+.sidebar.collapsed .cta-new span:not(.arrow),
+.sidebar.collapsed .cta-new .arrow,
+.sidebar.collapsed .credits,
+.sidebar.collapsed .user-meta{display:none}
+.sidebar.collapsed .brand{justify-content:center;padding:6px 0 14px}
+.sidebar.collapsed .cta-new{justify-content:center;padding:0;margin:6px 0 12px;height:38px;width:38px;align-self:center;border-radius:10px}
+.sidebar.collapsed .nav-item{justify-content:center;padding:7px 0}
+.sidebar.collapsed .nav-item.active::before{left:-8px}
+.sidebar.collapsed .sidebar-foot{align-items:center;padding-top:10px}
+.sidebar.collapsed .user{justify-content:center;padding:0}
 .sidebar svg{width:15px;height:15px;flex-shrink:0;stroke-width:1.6}
 .sidebar svg.chev{width:12px;height:12px}
 .brand{display:flex;align-items:center;gap:10px;padding:6px 6px 14px}

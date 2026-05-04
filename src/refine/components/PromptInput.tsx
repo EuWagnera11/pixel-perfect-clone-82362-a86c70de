@@ -363,7 +363,7 @@ export const PromptInput = forwardRef<PromptInputHandle, Props>(function PromptI
         }}
       />
 
-      {open && (
+      {open && createPortal(
         <div
           ref={dropdownRef}
           className="mention-dropdown"

@@ -668,13 +668,15 @@ export function ImageWorkspace({
           showToast={showToast}
           onCopyPrompt={(p) => { setPrompt(p); showToast("Prompt copiado pro editor"); }}
           onUseAsRef={(url) => {
-            if (refs.length >= 8) { showToast("Máximo 8 referências"); return; }
-            setRefs((p) => [...p, url]);
+            const lim = getRefLimit(MODEL_LABEL_TO_ID[modelLabel] || "nano-banana-pro");
+            if (refs.length >= lim) { showToast(`Máximo ${lim} referências`); return; }
+            setRefs((p) => [...p, { url, source: "library" as const }]);
             showToast("Adicionada como referência");
           }}
           onUseAsStyle={(url) => {
-            if (refs.length >= 8) { showToast("Máximo 8 referências"); return; }
-            setRefs((p) => [...p, url]);
+            const lim = getRefLimit(MODEL_LABEL_TO_ID[modelLabel] || "nano-banana-pro");
+            if (refs.length >= lim) { showToast(`Máximo ${lim} referências`); return; }
+            setRefs((p) => [...p, { url, source: "library" as const }]);
             setPrompt((p) => p ? p + ", in the same visual style of the reference" : "Recreate using the visual style of the reference");
             showToast("Estilo aplicado — ajuste o prompt");
           }}

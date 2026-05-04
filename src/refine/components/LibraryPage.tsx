@@ -116,6 +116,9 @@ export function LibraryPage({
     [onUploadFile, onPick]
   );
 
+  const [selected, setSelected] = useState<MentionItem | null>(null);
+  useEffect(() => { if (!open) setSelected(null); }, [open]);
+
   if (!open) return null;
 
   const titleByCat: Record<Category, string> = {
@@ -128,12 +131,38 @@ export function LibraryPage({
     stock: "Histórico",
   };
 
+  const handleApply = () => {
+    if (!selected) return;
+    onPick(selected);
+    onClose();
+  };
+
   return (
-    <div className="library-page" role="dialog" aria-modal="true">
-      {/* Botão fechar flutuante */}
-      <button className="library-close" onClick={onClose} title="Fechar (Esc)" aria-label="Fechar">
-        <Icon d="M6 6l12 12M6 18L18 6" strokeWidth={2.2} />
-      </button>
+    <div
+      className="style-modal-overlay"
+      role="dialog"
+      aria-modal="true"
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <div className="style-modal">
+        {/* TOPBAR */}
+        <div className="modal-topbar">
+          <div className="topbar-left">
+            <span className="topbar-icon">
+              <Icon d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z" />
+            </span>
+            <div className="topbar-title">
+              <span className="topbar-eyebrow">REFINE · BIBLIOTECA</span>
+              <span className="topbar-text">{titleByCat[category]}</span>
+            </div>
+          </div>
+          <div className="topbar-right">
+            <button className="topbar-btn close" onClick={onClose} aria-label="Fechar">
+              <Icon d="M6 6l12 12M6 18L18 6" strokeWidth={2.2} />
+              <span className="kbd">Esc</span>
+            </button>
+          </div>
+        </div>
 
       {/* SIDEBAR */}
       <aside className="library-sidebar">
@@ -218,74 +247,93 @@ export function LibraryPage({
             </div>
           )}
 
-          {filtered.map((it) => (
-            <button
-              key={`${it.type}:${it.id}`}
-              className="lib-card"
-              onClick={() => {
-                onPick(it);
-                onClose();
-              }}
-            >
-              <div className="card-thumb">
-                {it.avatarSrc ? (
-                  <img src={it.avatarSrc} alt={it.name} />
-                ) : (
-                  <div style={{ display: "grid", placeItems: "center", height: "100%" }}>
-                    <Icon d="M4 4h16v16H4z M4 16l4-4 4 4 4-4 4 4" />
-                  </div>
-                )}
-              </div>
-              <span className="card-name">#{it.name}</span>
-            </button>
-          ))}
+          {filtered.map((it) => {
+            const isSel = selected && selected.type === it.type && selected.id === it.id;
+            return (
+              <button
+                key={`${it.type}:${it.id}`}
+                className={"lib-card style-card" + (isSel ? " selected" : "")}
+                onClick={() => setSelected(it)}
+                onDoubleClick={() => { onPick(it); onClose(); }}
+              >
+                <div className="card-thumb">
+                  {it.avatarSrc ? (
+                    <img src={it.avatarSrc} alt={it.name} />
+                  ) : (
+                    <div style={{ display: "grid", placeItems: "center", height: "100%" }}>
+                      <Icon d="M4 4h16v16H4z M4 16l4-4 4 4 4-4 4 4" />
+                    </div>
+                  )}
+                </div>
+                <span className="card-name">#{it.name}</span>
+              </button>
+            );
+          })}
         </div>
       </main>
 
       {/* RIGHT PANEL */}
-      <aside className="library-rightpanel">
-        <div
-          className={"rightpanel-empty" + (dragOver ? " dragover" : "")}
-          onDragEnter={(e) => {
-            e.preventDefault();
-            setDragOver(true);
-          }}
-          onDragOver={(e) => {
-            e.preventDefault();
-            setDragOver(true);
-          }}
-          onDragLeave={() => setDragOver(false)}
-          onDrop={(e) => {
-            e.preventDefault();
-            setDragOver(false);
-            const files = Array.from(e.dataTransfer.files);
-            if (files.length) handleFiles(files);
-          }}
-        >
-          <Icon d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14" />
-          <p>
-            Arraste uma imagem ou
-            <br />
-            carregue sua própria mídia
-          </p>
-          <div className="rightpanel-actions">
-            <button
-              className="btn-secondary"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={uploading}
-            >
-              <Icon d="M12 5v14M5 12h14" />
-              {uploading ? "Enviando…" : "Carregar mídia"}
-            </button>
-            <button
-              className="btn-secondary"
-              onClick={() => showToast("Câmera ainda não disponível")}
-            >
-              <Icon d="M3 7h4l2-3h6l2 3h4v12H3z M12 17a4 4 0 1 1 0-8 4 4 0 0 1 0 8z" />
-              Tirar foto
-            </button>
+      <aside className="library-rightpanel modal-rightpanel">
+        {!selected ? (
+          <div
+            className={"rightpanel-empty" + (dragOver ? " dragover" : "")}
+            onDragEnter={(e) => { e.preventDefault(); setDragOver(true); }}
+            onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+            onDragLeave={() => setDragOver(false)}
+            onDrop={(e) => {
+              e.preventDefault();
+              setDragOver(false);
+              const files = Array.from(e.dataTransfer.files);
+              if (files.length) handleFiles(files);
+            }}
+          >
+            <Icon d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14" />
+            <p>Arraste uma imagem ou<br />carregue sua própria mídia</p>
+            <div className="rightpanel-actions">
+              <button className="btn-secondary" onClick={() => fileInputRef.current?.click()} disabled={uploading}>
+                <Icon d="M12 5v14M5 12h14" />
+                {uploading ? "Enviando…" : "Carregar mídia"}
+              </button>
+              <button className="btn-secondary" onClick={() => showToast("Câmera ainda não disponível")}>
+                <Icon d="M3 7h4l2-3h6l2 3h4v12H3z M12 17a4 4 0 1 1 0-8 4 4 0 0 1 0 8z" />
+                Tirar foto
+              </button>
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="rightpanel-selected">
+            <div className="selected-preview">
+              {selected.avatarSrc ? (
+                <img src={selected.avatarSrc} alt={selected.name} />
+              ) : (
+                <div style={{ display: "grid", placeItems: "center", height: "100%", color: "var(--text-3)" }}>
+                  <Icon d="M4 4h16v16H4z M4 16l4-4 4 4 4-4 4 4" />
+                </div>
+              )}
+            </div>
+            <div className="selected-info">
+              <span className="selected-eyebrow">{titleByCat[category]} selecionado</span>
+              <h3 className="selected-name">#{selected.name}</h3>
+            </div>
+            <div className="selected-meta">
+              <div className="meta-item">
+                <span className="meta-label">Tipo</span>
+                <span className="meta-value">{selected.type}</span>
+              </div>
+              <div className="meta-item">
+                <span className="meta-label">ID</span>
+                <span className="meta-value mono">{String(selected.id).slice(0, 8)}</span>
+              </div>
+            </div>
+            <div className="selected-actions">
+              <button className="btn-primary" onClick={handleApply}>
+                <Icon d="M5 12l5 5L20 7" strokeWidth={2.2} />
+                Aplicar {category === "personagem" ? "personagem" : "estilo"}
+              </button>
+              <button className="btn-ghost" onClick={() => setSelected(null)}>Remover</button>
+            </div>
+          </div>
+        )}
 
         <input
           ref={fileInputRef}
@@ -300,6 +348,7 @@ export function LibraryPage({
           }}
         />
       </aside>
+      </div>
     </div>
   );
 }

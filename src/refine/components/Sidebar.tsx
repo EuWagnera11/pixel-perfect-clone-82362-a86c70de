@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { NAV } from "../lib/nav";
 import { Icon } from "./Icon";
 import type { Profile } from "../hooks/useAuth";
@@ -23,16 +24,24 @@ export function Sidebar({
   onSignInGoogle,
   onSignOut,
 }: SidebarProps) {
+  const [collapsed, setCollapsed] = useState(false);
   const credits = profile?.credits ?? 0;
   const tier = profile?.tier ?? "free";
-  // Capacity bar — assume 5000 = 100% pra free
   const capacity = tier === "free" ? 5000 : 50000;
   const pct = Math.min(100, (credits / capacity) * 100);
   const initial = (email || tier)[0]?.toUpperCase() ?? "U";
   const userName = email?.split("@")[0] || "Anônimo";
 
   return (
-    <aside className="sidebar">
+    <aside className={"sidebar" + (collapsed ? " collapsed" : "")}>
+      <button
+        className="sidebar-toggle"
+        onClick={() => setCollapsed((v) => !v)}
+        title={collapsed ? "Expandir menu" : "Recolher menu"}
+        aria-label={collapsed ? "Expandir menu" : "Recolher menu"}
+      >
+        <Icon d={collapsed ? "M9 6l6 6-6 6" : "M15 6l-6 6 6 6"} />
+      </button>
       <div className="brand">
         <div className="brand-mark">R</div>
         <div className="brand-name">

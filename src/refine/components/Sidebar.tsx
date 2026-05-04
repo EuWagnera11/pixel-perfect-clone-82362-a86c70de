@@ -15,8 +15,6 @@ type SidebarProps = {
 };
 
 const LS_KEY = "sidebar-locked";
-// Itens "Studio" que ficam visíveis sempre (top). Resto vai pro accordion "Mais".
-const STUDIO_PRIMARY = new Set(["image", "video", "cinema", "edit", "upscale"]);
 
 export function Sidebar({
   currentTab,

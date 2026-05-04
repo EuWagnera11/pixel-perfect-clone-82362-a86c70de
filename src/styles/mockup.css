@@ -1830,7 +1830,8 @@ img{display:block;max-width:100%}
   height:100vh !important; max-height:100vh !important; min-height:0 !important;
   padding:var(--pad-card) !important;
   gap:var(--gap-stack) !important;
-  overflow:hidden !important;
+  overflow-x:hidden !important;
+  overflow-y:auto !important;
   container-type:size; container-name:panel;
 }
 
@@ -1845,7 +1846,7 @@ img{display:block;max-width:100%}
 /* Prompt: the only flexible card */
 .img-ws-controls .img-ws-panel--prompt{
   flex:1 1 auto !important;
-  min-height:110px !important; max-height:300px !important;
+  min-height:110px !important; max-height:clamp(160px, 26vh, 260px) !important;
   overflow:hidden !important;
   display:flex; flex-direction:column;
 }
@@ -1931,7 +1932,14 @@ img{display:block;max-width:100%}
 .img-ws-controls .img-ws-generate{
   height:var(--h-button) !important; font-size:var(--fs-body) !important;
 }
-.img-ws-controls .img-ws-generate-wrap{padding:0 !important; margin-top:0 !important}
+.img-ws-controls .img-ws-generate-wrap{
+  position:sticky;
+  bottom:0;
+  z-index:4;
+  padding:10px 0 0 !important;
+  margin-top:auto !important;
+  background:linear-gradient(180deg, rgba(12,12,12,0) 0%, rgba(12,12,12,.92) 34%, #0c0c0c 100%);
+}
 
 /* Container queries — adapt as panel shrinks */
 @container panel (height < 760px){

@@ -199,15 +199,59 @@ export function ImageWorkspace({
 
   // ===== global keys =====
   useEffect(() => {
-    if (!lightbox) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setLightbox(null);
-      else if (e.key === "ArrowRight") setLightbox((l) => l && { ...l, index: Math.min(l.items.length - 1, l.index + 1) });
-      else if (e.key === "ArrowLeft") setLightbox((l) => l && { ...l, index: Math.max(0, l.index - 1) });
+      const tag = (e.target as HTMLElement)?.tagName;
+      const inField = tag === "INPUT" || tag === "TEXTAREA";
+      // Lightbox-only
+      if (lightbox) {
+        if (e.key === "Escape") setLightbox(null);
+        else if (e.key === "ArrowRight") setLightbox((l) => l && { ...l, index: Math.min(l.items.length - 1, l.index + 1) });
+        else if (e.key === "ArrowLeft") setLightbox((l) => l && { ...l, index: Math.max(0, l.index - 1) });
+        return;
+      }
+      // Cmd/Ctrl+K → focus search
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault(); searchRef.current?.focus(); return;
+      }
+      if (inField) return;
+      if (e.key === "Escape") {
+        if (selectMode) { setSelectMode(false); setSelected(new Set()); }
+        else if (search) setSearch("");
+      } else if (e.key.toLowerCase() === "f") {
+        setFilterFav((v) => !v);
+      } else if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "a" && selectMode) {
+        e.preventDefault();
+        const all = new Set<string>();
+        filteredHistory.forEach((g) => (g.image_urls || []).forEach((u, i) => all.add(`${g.id}:${i}`)));
+        setSelected(all);
+      }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [lightbox]);
+  }, [lightbox, selectMode, search, filteredHistory]);
+
+  // helpers
+  const dateLabel = (iso?: string) => {
+    if (!iso) return "";
+    const d = new Date(iso);
+    const now = new Date();
+    const start = (x: Date) => new Date(x.getFullYear(), x.getMonth(), x.getDate()).getTime();
+    const diff = (start(now) - start(d)) / 86400000;
+    if (diff === 0) return "Hoje";
+    if (diff === 1) return "Ontem";
+    if (diff < 7) return d.toLocaleDateString("pt-BR", { weekday: "long" });
+    if (diff < 31) return "Este mês";
+    return d.toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
+  };
+
+  const toggleSelect = (key: string) => {
+    setSelected((s) => {
+      const n = new Set(s);
+      if (n.has(key)) n.delete(key); else n.add(key);
+      return n;
+    });
+  };
+
 
   return (
     <div className="img-ws">
@@ -336,39 +380,119 @@ export function ImageWorkspace({
       {/* ===== RIGHT GALLERY ===== */}
       <section className="img-ws-gallery">
         <header className="img-ws-gallery-head">
-          <div className="img-ws-gallery-title">
-            <h2>Suas criações</h2>
-            <p>{totalImages} {totalImages === 1 ? "imagem" : "imagens"} · atualizado agora</p>
-          </div>
-          <div className="img-ws-gallery-actions">
-            <div className="img-ws-segmented" role="tablist">
-              <button
-                className={"img-ws-seg" + (filterAspect === "all" ? " active" : "")}
-                onClick={() => setFilterAspect("all")}
-              >Todos</button>
-              {usedAspects.map((a) => (
-                <button
-                  key={a}
-                  className={"img-ws-seg" + (filterAspect === a ? " active" : "")}
-                  onClick={() => setFilterAspect(a)}
-                >{a}</button>
-              ))}
+          <div className="img-ws-gh-row">
+            <div className="img-ws-gallery-title">
+              <h2>Suas criações</h2>
+              <p>{totalImages} {totalImages === 1 ? "imagem" : "imagens"} em {filteredHistory.length} {filteredHistory.length === 1 ? "geração" : "gerações"}</p>
             </div>
+            <div className="img-ws-gallery-actions">
+              <button
+                className={"img-ws-chip-btn icon" + (selectMode ? " active" : "")}
+                onClick={() => { setSelectMode((v) => !v); setSelected(new Set()); }}
+                title="Modo seleção"
+              >
+                <Icon d="M9 11l3 3 8-8M3 12a9 9 0 1 0 18 0 9 9 0 0 0-18 0z" />
+              </button>
+              <button className="img-ws-chip-btn icon" onClick={refreshHistory} title="Recarregar">
+                <Icon d="M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5M21 12a9 9 0 0 1-15 6.7L3 16M3 21v-5h5" />
+              </button>
+            </div>
+          </div>
+
+          <div className="img-ws-gh-row">
+            <div className="img-ws-search">
+              <Icon d="M11 4a7 7 0 1 1 0 14 7 7 0 0 1 0-14z M21 21l-4.3-4.3" />
+              <input
+                ref={searchRef}
+                type="text"
+                placeholder="Buscar nos seus prompts..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+              <span className="kbd-inline">⌘K</span>
+            </div>
+            <label className="img-ws-chip-btn">
+              <Icon d="M4 6h16M7 12h10M10 18h4" />
+              <select value={filterModel} onChange={(e) => setFilterModel(e.target.value)}>
+                <option value="all">Modelo</option>
+                {usedModels.map((m) => (
+                  <option key={m} value={m}>{MODEL_ID_TO_LABEL[m] || m}</option>
+                ))}
+              </select>
+            </label>
+            <label className="img-ws-chip-btn">
+              <Icon d="M3 5h18v4H3z M5 11h14v8H5z" />
+              <select value={filterAspect} onChange={(e) => setFilterAspect(e.target.value)}>
+                <option value="all">Aspecto</option>
+                {usedAspects.map((a) => (
+                  <option key={a} value={a}>{a}</option>
+                ))}
+              </select>
+            </label>
+            <label className="img-ws-chip-btn">
+              <Icon d="M4 6h16M4 12h16M4 18h16" />
+              <select value={filterDate} onChange={(e) => setFilterDate(e.target.value)}>
+                <option value="all">Data</option>
+                <option value="today">Hoje</option>
+                <option value="yesterday">Ontem</option>
+                <option value="week">Esta semana</option>
+                <option value="month">Este mês</option>
+              </select>
+            </label>
             <button
-              className={"img-ws-filter-btn" + (filterFav ? " active" : "")}
+              className={"img-ws-chip-btn" + (filterFav ? " active" : "")}
               onClick={() => setFilterFav((v) => !v)}
-              title="Apenas favoritos"
+              title="Favoritas (F)"
             >
               <Icon d="M12 2 14 9h7l-6 4 2 7-7-4-7 4 2-7-6-4h7z" />
+              <span>Favoritas</span>
             </button>
-            <button className="img-ws-refresh" onClick={refreshHistory} title="Recarregar">
-              <Icon d="M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5M21 12a9 9 0 0 1-15 6.7L3 16M3 21v-5h5" />
-            </button>
+            {hasActiveFilters && (
+              <button className="img-ws-chip-btn clear" onClick={clearFilters}>
+                <Icon d="M6 6l12 12M6 18L18 6" />
+                <span>Limpar</span>
+              </button>
+            )}
           </div>
+
+          {hasActiveFilters && (
+            <div className="img-ws-active-chips">
+              {search && (
+                <span className="img-ws-active-chip">
+                  Busca: "{search}"
+                  <button onClick={() => setSearch("")}><Icon d="M6 6l12 12M6 18L18 6" /></button>
+                </span>
+              )}
+              {filterModel !== "all" && (
+                <span className="img-ws-active-chip">
+                  Modelo: {MODEL_ID_TO_LABEL[filterModel] || filterModel}
+                  <button onClick={() => setFilterModel("all")}><Icon d="M6 6l12 12M6 18L18 6" /></button>
+                </span>
+              )}
+              {filterAspect !== "all" && (
+                <span className="img-ws-active-chip">
+                  Aspecto: {filterAspect}
+                  <button onClick={() => setFilterAspect("all")}><Icon d="M6 6l12 12M6 18L18 6" /></button>
+                </span>
+              )}
+              {filterDate !== "all" && (
+                <span className="img-ws-active-chip">
+                  Data: {filterDate}
+                  <button onClick={() => setFilterDate("all")}><Icon d="M6 6l12 12M6 18L18 6" /></button>
+                </span>
+              )}
+              {filterFav && (
+                <span className="img-ws-active-chip">
+                  Favoritas
+                  <button onClick={() => setFilterFav(false)}><Icon d="M6 6l12 12M6 18L18 6" /></button>
+                </span>
+              )}
+            </div>
+          )}
         </header>
 
         <div className="img-ws-feed">
-          {/* jobs em andamento — banner compacto */}
+          {/* jobs em andamento */}
           {activeImageJobs.length > 0 && (
             <div className="img-ws-progress">
               <span className="img-ws-progress-spinner" />
@@ -381,10 +505,9 @@ export function ImageWorkspace({
 
           {imageHistory.length === 0 && activeImageJobs.length === 0 && (
             <div className="img-ws-empty">
-              <div className="img-ws-empty-glow" />
               <Icon d="M4 4h16v16H4z M4 16l4-4 4 4 4-4 4 4" strokeWidth={1.4} />
-              <h3>Comece pela inspiração</h3>
-              <p>Toque em um exemplo para preencher o prompt — ou escreva o seu.</p>
+              <h3>Suas primeiras criações aparecem aqui</h3>
+              <p>Comece descrevendo no painel à esquerda.</p>
               <div className="img-ws-examples">
                 {PROMPT_EXAMPLES.map((ex) => (
                   <button key={ex} className="img-ws-example" onClick={() => setPrompt(ex)}>
@@ -398,85 +521,159 @@ export function ImageWorkspace({
 
           {filteredHistory.length === 0 && imageHistory.length > 0 && (
             <div className="img-ws-empty">
-              <p>Nenhuma imagem com esse filtro.</p>
+              <Icon d="M11 4a7 7 0 1 1 0 14 7 7 0 0 1 0-14z M21 21l-4.3-4.3" strokeWidth={1.4} />
+              <h3>Nenhum resultado encontrado</h3>
+              <p>Tente ajustar os filtros ou usar outras palavras.</p>
+              <button className="linkbtn" onClick={clearFilters}>Limpar filtros</button>
             </div>
           )}
 
-          {groupedHistory.map((grp) => {
+          {groupedHistory.map((grp, gi) => {
             const head = grp.gens[0];
             const tiles: { url: string; gen: Generation }[] = [];
             grp.gens.forEach((g) => (g.image_urls || []).forEach((url) => tiles.push({ url, gen: g })));
+            const prevHead = gi > 0 ? groupedHistory[gi - 1].gens[0] : null;
+            const showDate = !prevHead || dateLabel(prevHead.created_at) !== dateLabel(head.created_at);
+            const colCount = Math.min(4, tiles.length);
             return (
-            <article key={head.id} className="img-ws-row">
-              <div className="img-ws-row-prompt">
-                <div className="img-ws-row-copy">
-                  <span className="img-ws-prompt-text" title={head.prompt}>{head.prompt || "(sem prompt)"}</span>
-                  <span className="img-ws-row-meta">
-                    <span className="tag">{(head as any).aspect_ratio || "16:9"}</span>
-                    <span className="tag">{MODEL_ID_TO_LABEL[head.model || ""] || head.model || "—"}</span>
-                    <span className="ago">{timeAgo(head.created_at)}</span>
-                  </span>
-                </div>
-                <span className="img-ws-row-count">{tiles.length} {tiles.length > 1 ? "imgs" : "img"}</span>
-              </div>
-          <div className="img-ws-gen-grid">
-                {tiles.map(({ url, gen: g }, i) => (
-                  <button
-                    key={g.id + ":" + i}
-                    className="img-ws-tile"
-                    onClick={() => openLightbox({ ...g, image_urls: tiles.map((t) => t.url) } as Generation, i)}
-                  >
-                    <img src={url} alt={g.prompt || ""} loading="lazy" />
-                    <div className="img-ws-tile-overlay" onClick={(e) => e.stopPropagation()}>
+              <div key={head.id}>
+                {showDate && (
+                  <div className="img-ws-date-sep"><span>{dateLabel(head.created_at)}</span></div>
+                )}
+                <article className="img-ws-gen">
+                  <div className="img-ws-gen-head">
+                    <span className="img-ws-gen-prompt" title={head.prompt}>
+                      {head.prompt || "(sem prompt)"}
+                    </span>
+                    <div className="img-ws-gen-meta">
+                      <span className="tag">{MODEL_ID_TO_LABEL[head.model || ""] || head.model || "—"}</span>
+                      <span className="tag">{(head as any).aspect_ratio || "16:9"}</span>
+                      <span className="ago">{timeAgo(head.created_at)}</span>
                       <button
-                        className="img-ws-tile-action"
-                        title="Favoritar"
-                        onClick={(e) => { e.stopPropagation(); onToggleFavorite(g.id, !(g as any).metadata?.favorite); }}
+                        className="img-ws-gen-menu"
+                        onClick={(e) => { e.stopPropagation(); setOpenMenuId(openMenuId === head.id ? null : head.id); }}
+                        title="Mais ações"
                       >
-                        <Icon d="M12 2 14 9h7l-6 4 2 7-7-4-7 4 2-7-6-4h7z" />
-                      </button>
-                      <button
-                        className="img-ws-tile-action"
-                        title="Download"
-                        onClick={async (e) => {
-                          e.stopPropagation();
-                          try {
-                            const r = await fetch(url); const b = await r.blob();
-                            const u = URL.createObjectURL(b);
-                            const a = document.createElement("a");
-                            a.href = u; a.download = `refine-${Date.now()}.png`;
-                            document.body.appendChild(a); a.click(); a.remove();
-                            URL.revokeObjectURL(u);
-                          } catch { showToast("Falha"); }
-                        }}
-                      >
-                        <Icon d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14" />
-                      </button>
-                      <button
-                        className="img-ws-tile-action"
-                        title="Use as reference"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (refs.length >= 8) { showToast("Máximo 8 referências"); return; }
-                          setRefs((p) => [...p, url]);
-                          showToast("Adicionada como referência");
-                        }}
-                      >
-                        <Icon d="M5 12h14M12 5l7 7-7 7" />
+                        <Icon d="M12 5v.01M12 12v.01M12 19v.01" strokeWidth={2.5} />
+                        {openMenuId === head.id && (
+                          <div className="img-ws-gen-menu-pop" onMouseLeave={() => setOpenMenuId(null)}>
+                            <button onClick={(e) => { e.stopPropagation(); navigator.clipboard.writeText(head.prompt || ""); showToast("Prompt copiado"); setOpenMenuId(null); }}>Copiar prompt</button>
+                            <button onClick={(e) => { e.stopPropagation(); setPrompt(head.prompt || ""); setOpenMenuId(null); showToast("Prompt no editor"); }}>Editar prompt</button>
+                            <button onClick={(e) => { e.stopPropagation(); setPrompt(head.prompt || ""); setOpenMenuId(null); setTimeout(() => handleGenerate(), 50); }}>Gerar novamente</button>
+                            <button onClick={(e) => { e.stopPropagation(); grp.gens.forEach((g) => onToggleFavorite(g.id, true)); setOpenMenuId(null); }}>Favoritar todas</button>
+                            <button className="danger" onClick={(e) => { e.stopPropagation(); if (confirm("Excluir esta geração?")) grp.gens.forEach((g) => onDeleteGeneration(g.id)); setOpenMenuId(null); }}>Excluir</button>
+                          </div>
+                        )}
                       </button>
                     </div>
-                    {(g as any).metadata?.favorite && (
-                      <span className="img-ws-tile-fav" title="Favorito">
-                        <Icon d="M12 2 14 9h7l-6 4 2 7-7-4-7 4 2-7-6-4h7z" strokeWidth={0} />
-                      </span>
-                    )}
-                  </button>
-                ))}
+                  </div>
+                  <div
+                    className="img-ws-gen-grid"
+                    style={{ gridTemplateColumns: `repeat(${colCount}, 1fr)` }}
+                  >
+                    {tiles.map(({ url, gen: g }, i) => {
+                      const key = `${g.id}:${i}`;
+                      const isSel = selected.has(key);
+                      const fav = !!(g as any).metadata?.favorite;
+                      const ar = (g as any).aspect_ratio || "1:1";
+                      const [aw, ah] = ar.split(":").map(Number);
+                      const aspectStyle = aw && ah ? { aspectRatio: `${aw} / ${ah}` } : undefined;
+                      return (
+                        <button
+                          key={key}
+                          className={"img-ws-tile" + (isSel ? " selected" : "")}
+                          style={aspectStyle as any}
+                          onClick={() => {
+                            if (selectMode) toggleSelect(key);
+                            else openLightbox({ ...g, image_urls: tiles.map((t) => t.url) } as Generation, i);
+                          }}
+                        >
+                          <img src={url} alt={g.prompt || ""} loading="lazy" />
+                          <div className="img-ws-tile-overlay" />
+                          {selectMode && (
+                            <span className={"img-ws-tile-check" + (isSel ? " checked" : "")}>
+                              <Icon d="M5 12l5 5L20 7" strokeWidth={3} />
+                            </span>
+                          )}
+                          {!selectMode && (
+                            <div className="img-ws-tile-actions" onClick={(e) => e.stopPropagation()}>
+                              <button
+                                className={"img-ws-tile-action" + (fav ? " active" : "")}
+                                title="Favoritar"
+                                onClick={(e) => { e.stopPropagation(); onToggleFavorite(g.id, !fav); }}
+                              >
+                                <Icon d="M12 2 14 9h7l-6 4 2 7-7-4-7 4 2-7-6-4h7z" />
+                              </button>
+                              <button
+                                className="img-ws-tile-action"
+                                title="Download"
+                                onClick={async (e) => {
+                                  e.stopPropagation();
+                                  try {
+                                    const r = await fetch(url); const b = await r.blob();
+                                    const u = URL.createObjectURL(b);
+                                    const a = document.createElement("a");
+                                    a.href = u; a.download = `refine-${Date.now()}.png`;
+                                    document.body.appendChild(a); a.click(); a.remove();
+                                    URL.revokeObjectURL(u);
+                                  } catch { showToast("Falha"); }
+                                }}
+                              >
+                                <Icon d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14" />
+                              </button>
+                              <button
+                                className="img-ws-tile-action"
+                                title="Detalhes"
+                                onClick={(e) => { e.stopPropagation(); openLightbox({ ...g, image_urls: tiles.map((t) => t.url) } as Generation, i); }}
+                              >
+                                <Icon d="M12 8v.01M11 12h1v4h1" strokeWidth={2} />
+                              </button>
+                            </div>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </article>
               </div>
-            </article>
             );
           })}
         </div>
+
+        {/* Bulk action bar */}
+        {selectMode && selected.size > 0 && (
+          <div className="img-ws-bulk">
+            <span className="img-ws-bulk-count">{selected.size} selecionada{selected.size > 1 ? "s" : ""}</span>
+            <span className="img-ws-bulk-sep" />
+            <button onClick={() => {
+              const all = new Set<string>();
+              filteredHistory.forEach((g) => (g.image_urls || []).forEach((_, i) => all.add(`${g.id}:${i}`)));
+              setSelected(all);
+            }}>Selecionar todas</button>
+            <button onClick={() => setSelected(new Set())}>Limpar</button>
+            <span className="img-ws-bulk-sep" />
+            <button onClick={() => showToast("Download em lote em breve")}>
+              <Icon d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14" /> Baixar
+            </button>
+            <button onClick={() => {
+              const ids = new Set<string>();
+              selected.forEach((k) => ids.add(k.split(":")[0]));
+              ids.forEach((id) => onToggleFavorite(id, true));
+              showToast("Favoritadas");
+            }}>
+              <Icon d="M12 2 14 9h7l-6 4 2 7-7-4-7 4 2-7-6-4h7z" /> Favoritar
+            </button>
+            <button className="danger" onClick={() => {
+              if (!confirm(`Excluir ${selected.size} item(ns)?`)) return;
+              const ids = new Set<string>();
+              selected.forEach((k) => ids.add(k.split(":")[0]));
+              ids.forEach((id) => onDeleteGeneration(id));
+              setSelected(new Set()); setSelectMode(false);
+            }}>
+              <Icon d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14" /> Excluir
+            </button>
+          </div>
+        )}
       </section>
 
       {/* ===== LIGHTBOX ===== */}

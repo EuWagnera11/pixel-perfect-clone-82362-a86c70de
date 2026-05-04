@@ -49,6 +49,12 @@ const PROMPT_EXAMPLES = [
   "Paisagem alpina ao amanhecer, neblina, luz dourada, ultra detalhada",
 ];
 
+const PROMPT_PLACEHOLDERS = [
+  "Ex: retrato editorial de uma mulher ruiva com luz quente lateral, fundo desfocado…",
+  "Ex: cena cinematográfica anos 70, grão de filme, Kodak Portra…",
+  "Ex: produto premium em cenário minimalista, luz suave de janela…",
+];
+
 export function ImageWorkspace({
   history, onUploadRef, showToast, refreshHistory,
   onDeleteGeneration, onToggleFavorite,
@@ -72,8 +78,14 @@ export function ImageWorkspace({
   const [selectMode, setSelectMode] = useState<boolean>(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const [phIdx, setPhIdx] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const t = setInterval(() => setPhIdx((i) => (i + 1) % PROMPT_PLACEHOLDERS.length), 4000);
+    return () => clearInterval(t);
+  }, []);
 
   const [lightbox, setLightbox] = useState<{
     items: { url: string; genId: string; prompt: string; meta?: any; isFav?: boolean }[];
@@ -258,6 +270,7 @@ export function ImageWorkspace({
       {/* ===== LEFT CONTROLS ===== */}
       <aside className="img-ws-controls">
         <div className="img-ws-sidebar-head">
+          <span className="eyebrow">WORKSPACE · IMAGE</span>
           <h1>Criar imagens</h1>
           <p>Prompt, referências e saídas</p>
         </div>
@@ -331,7 +344,7 @@ export function ImageWorkspace({
           <div className="img-ws-section">
             <textarea
               className="img-ws-textarea"
-              placeholder="Ex: retrato editorial de uma mulher ruiva com luz quente lateral, fundo desfocado…"
+              placeholder={PROMPT_PLACEHOLDERS[phIdx]}
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               onKeyDown={(e) => {
@@ -382,6 +395,7 @@ export function ImageWorkspace({
         <header className="img-ws-gallery-head">
           <div className="img-ws-gh-row">
             <div className="img-ws-gallery-title">
+              <span className="eyebrow">GALERIA · CRIAÇÕES</span>
               <h2>Suas criações</h2>
               <p>{totalImages} {totalImages === 1 ? "imagem" : "imagens"} em {filteredHistory.length} {filteredHistory.length === 1 ? "geração" : "gerações"}</p>
             </div>
@@ -575,18 +589,27 @@ export function ImageWorkspace({
                       const ar = (g as any).aspect_ratio || "1:1";
                       const [aw, ah] = ar.split(":").map(Number);
                       const aspectStyle = aw && ah ? { aspectRatio: `${aw} / ${ah}` } : undefined;
+                      const qual = (g as any).resolution || (g as any).metadata?.resolution;
                       return (
                         <button
                           key={key}
                           className={"img-ws-tile" + (isSel ? " selected" : "")}
-                          style={aspectStyle as any}
+                          style={{ ...(aspectStyle as any), animationDelay: `${(i % 4) * 40}ms` }}
                           onClick={() => {
                             if (selectMode) toggleSelect(key);
                             else openLightbox({ ...g, image_urls: tiles.map((t) => t.url) } as Generation, i);
                           }}
                         >
-                          <img src={url} alt={g.prompt || ""} loading="lazy" />
+                          <img
+                            src={url}
+                            alt={g.prompt || ""}
+                            loading="lazy"
+                            onError={(e) => {
+                              (e.currentTarget.parentElement as HTMLElement)?.classList.add("broken");
+                            }}
+                          />
                           <div className="img-ws-tile-overlay" />
+                          <span className="img-ws-tile-meta">{ar}{qual ? ` · ${qual}` : ""}</span>
                           {selectMode && (
                             <span className={"img-ws-tile-check" + (isSel ? " checked" : "")}>
                               <Icon d="M5 12l5 5L20 7" strokeWidth={3} />

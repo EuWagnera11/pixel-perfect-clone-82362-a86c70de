@@ -239,7 +239,7 @@ export function VideoWorkspace({
             <div className="vid-panel-head">
               <div className="vid-panel-title"><span className="vid-dot" /> Modelo</div>
             </div>
-            <VideoModelPicker value={modelLabel} onChange={setModelLabel} open={modelPickerOpen} setOpen={setModelPickerOpen} />
+            <VideoModelPicker value={modelLabel} onChange={setModelLabel} open={modelPickerOpen} setOpen={setModelPickerOpen} mode={mode} />
           </div>
 
           {/* REFERÊNCIAS — depende do modo */}

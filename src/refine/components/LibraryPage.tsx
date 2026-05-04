@@ -67,6 +67,7 @@ export function LibraryPage({
   const [search, setSearch] = useState(initialQuery);
   const [dragOver, setDragOver] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [compactViewport, setCompactViewport] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -75,6 +76,16 @@ export function LibraryPage({
       setSearch(initialQuery);
     }
   }, [open, defaultCategory, initialQuery]);
+
+  useEffect(() => {
+    if (!open) return;
+    const syncViewport = () => {
+      setCompactViewport(window.innerHeight <= 760 || window.innerWidth <= 1240);
+    };
+    syncViewport();
+    window.addEventListener("resize", syncViewport);
+    return () => window.removeEventListener("resize", syncViewport);
+  }, [open]);
 
   // Esc fecha
   useEffect(() => {
@@ -137,6 +148,9 @@ export function LibraryPage({
     onClose();
   };
 
+  const trendingItems = filtered.slice(0, compactViewport ? 2 : 3);
+  const recommendedItems = filtered.slice(compactViewport ? 2 : 3, compactViewport ? 4 : 7);
+
   return (
     <div
       className="style-modal-overlay"
@@ -144,7 +158,7 @@ export function LibraryPage({
       aria-modal="true"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
-      <div className="style-modal">
+      <div className={"style-modal" + (compactViewport ? " compact" : "")}>
         {/* TOPBAR */}
         <div className="modal-topbar">
           <div className="topbar-left">
@@ -277,7 +291,8 @@ export function LibraryPage({
       {/* RIGHT PANEL */}
       <aside className="library-rightpanel modal-rightpanel">
         {!selected ? (
-          <div
+            <div
+              className={"rightpanel-stack" + (compactViewport ? " compact" : "")}
             onDragEnter={(e) => { e.preventDefault(); setDragOver(true); }}
             onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
             onDragLeave={() => setDragOver(false)}
@@ -287,7 +302,6 @@ export function LibraryPage({
               const files = Array.from(e.dataTransfer.files);
               if (files.length) handleFiles(files);
             }}
-            style={{ display: "flex", flexDirection: "column", gap: 0 }}
           >
             {/* EM ALTA */}
             <div className="rp-block">
@@ -298,7 +312,7 @@ export function LibraryPage({
                 </div>
                 <span className="rp-period">7 dias</span>
               </div>
-              {(filtered.slice(0, 3)).map((it, i) => {
+              {trendingItems.map((it, i) => {
                 const styleIdx = (it.name.charCodeAt(0) + i) % 6;
                 return (
                   <button key={`tr-${it.id}`} className="trending-item" onClick={() => setSelected(it)}>
@@ -325,7 +339,7 @@ export function LibraryPage({
               </div>
               <div className="rp-block-sub">Baseado nas últimas gerações</div>
               <div className="rec-grid">
-                {(filtered.slice(3, 7)).map((it, i) => {
+                {recommendedItems.map((it, i) => {
                   const styleIdx = (it.name.charCodeAt(0) + i + 2) % 6;
                   return (
                     <button key={`rec-${it.id}`} className="rec-card" onClick={() => setSelected(it)}>

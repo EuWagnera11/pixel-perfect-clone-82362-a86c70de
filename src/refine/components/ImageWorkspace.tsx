@@ -589,18 +589,27 @@ export function ImageWorkspace({
                       const ar = (g as any).aspect_ratio || "1:1";
                       const [aw, ah] = ar.split(":").map(Number);
                       const aspectStyle = aw && ah ? { aspectRatio: `${aw} / ${ah}` } : undefined;
+                      const qual = (g as any).resolution || (g as any).metadata?.resolution;
                       return (
                         <button
                           key={key}
                           className={"img-ws-tile" + (isSel ? " selected" : "")}
-                          style={aspectStyle as any}
+                          style={{ ...(aspectStyle as any), animationDelay: `${(i % 4) * 40}ms` }}
                           onClick={() => {
                             if (selectMode) toggleSelect(key);
                             else openLightbox({ ...g, image_urls: tiles.map((t) => t.url) } as Generation, i);
                           }}
                         >
-                          <img src={url} alt={g.prompt || ""} loading="lazy" />
+                          <img
+                            src={url}
+                            alt={g.prompt || ""}
+                            loading="lazy"
+                            onError={(e) => {
+                              (e.currentTarget.parentElement as HTMLElement)?.classList.add("broken");
+                            }}
+                          />
                           <div className="img-ws-tile-overlay" />
+                          <span className="img-ws-tile-meta">{ar}{qual ? ` · ${qual}` : ""}</span>
                           {selectMode && (
                             <span className={"img-ws-tile-check" + (isSel ? " checked" : "")}>
                               <Icon d="M5 12l5 5L20 7" strokeWidth={3} />

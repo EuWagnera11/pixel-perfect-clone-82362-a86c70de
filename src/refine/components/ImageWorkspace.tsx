@@ -139,6 +139,20 @@ export function ImageWorkspace({
     [jobs]
   );
 
+  // Items disponíveis para @ menção (refs como img1..N + style presets como mock)
+  const mentionItems = useMemo<MentionItem[]>(() => {
+    const fromRefs: MentionItem[] = refs.map((r, i) => ({
+      id: `ref-${i}`,
+      type: "image" as MentionType,
+      name: `img${i + 1}`,
+      avatarSrc: r.url,
+    }));
+    const fromStyles: MentionItem[] = STYLE_PRESETS
+      .filter((s) => s.id !== "none")
+      .map((s) => ({ id: s.id, type: "style" as MentionType, name: s.id }));
+    return [...fromRefs, ...fromStyles];
+  }, [refs]);
+
   const imageHistory = useMemo(
     () => history.filter((g) => (g.image_urls?.length || 0) > 0 && g.media_type !== "video"),
     [history]

@@ -132,10 +132,11 @@ export function ModelPicker({ value, onChange }: Props) {
     [recents]
   );
 
-  const renderItem = (m: ImageModel) => {
+  const renderItem = (m: ImageModel, opts?: { showActive?: boolean }) => {
     const meta = FAMILY_META[m.family];
     const b = badgeFor(m);
-    const active = m.label === value;
+    const showActive = opts?.showActive ?? true;
+    const active = showActive && m.label === value;
     return (
       <button
         key={m.id}

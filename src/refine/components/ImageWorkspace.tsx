@@ -11,6 +11,8 @@ import { Icon } from "./Icon";
 import { ModelPicker } from "./ModelPicker";
 import { OutputControls } from "./OutputControls";
 import { ReferencesPanel, getRefLimit, type RefItem } from "./ReferencesPanel";
+import { PromptInput, type PromptInputHandle, type MentionItem, type MentionType } from "./PromptInput";
+import { LibraryPage } from "./LibraryPage";
 import { useJobs, type Job } from "../lib/jobs";
 import { type Generation } from "../hooks/useGenerations";
 import {

@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 import { Icon } from "./Icon";
 import { ModelPicker } from "./ModelPicker";
 import { OutputControls } from "./OutputControls";
+import { ReferencesPanel, getRefLimit, type RefItem } from "./ReferencesPanel";
 import { useJobs, type Job } from "../lib/jobs";
 import { type Generation } from "../hooks/useGenerations";
 import {
@@ -67,7 +68,7 @@ export function ImageWorkspace({
   const [ratio, setRatio] = useState<AspectRatio>("16:9");
   const [quality, setQuality] = useState<string>("2K");
   const [variations, setVariations] = useState<number>(4);
-  const [refs, setRefs] = useState<string[]>([]);
+  const [refs, setRefs] = useState<RefItem[]>([]);
   const [uploading, setUploading] = useState(false);
   const [stylePreset, setStylePreset] = useState<string>("none");
   const [filterAspect, setFilterAspect] = useState<string>("all");
@@ -104,9 +105,9 @@ export function ImageWorkspace({
         tab: "image",
         prompt: finalPrompt,
         aspect: ratio,
-        sourceUrl: refs[0] || null,
+        sourceUrl: refs[0]?.url || null,
         model: modelId,
-        thumb: refs[0] || undefined,
+        thumb: refs[0]?.url || undefined,
         quality,
         numVariations: 1,
       })
@@ -118,12 +119,13 @@ export function ImageWorkspace({
   }, [prompt, modelLabel, ratio, quality, variations, refs, enqueue, showToast, stylePreset]);
 
   const handleAttach = useCallback(async (file: File) => {
-    if (refs.length >= 8) { showToast("Máximo 8 referências"); return; }
+    const lim = getRefLimit(MODEL_LABEL_TO_ID[modelLabel] || "nano-banana-pro");
+    if (refs.length >= lim) { showToast(`Máximo ${lim} referências`); return; }
     setUploading(true);
     const url = await onUploadRef(file);
     setUploading(false);
-    if (url) setRefs((p) => [...p, url]);
-  }, [refs.length, onUploadRef, showToast]);
+    if (url) setRefs((p) => [...p, { url, source: "upload", name: file.name }]);
+  }, [refs.length, onUploadRef, showToast, modelLabel]);
 
   // ===== feed: jobs ativos + history (realtime) =====
   const activeImageJobs = useMemo(
@@ -285,54 +287,14 @@ export function ImageWorkspace({
           <ModelPicker value={modelLabel} onChange={setModelLabel} />
         </div>
 
-        {/* REFERÊNCIAS */}
-        <div className="img-ws-panel">
-          <div className="img-ws-panel-head">
-            <div className="img-ws-panel-title">Referências</div>
-            <span>{refs.length} / 8</span>
-          </div>
-          <div className="img-ws-section">
-            <div className="img-ws-refs">
-              {refs.map((url, i) => (
-                <div key={i} className="img-ws-ref">
-                  <img src={url} alt="ref" />
-                  <button onClick={() => setRefs((p) => p.filter((_, j) => j !== i))} aria-label="Remover">
-                    <Icon d="M6 6l12 12M6 18L18 6" />
-                  </button>
-                </div>
-              ))}
-              {Array.from({ length: Math.max(0, 4 - refs.length) }).slice(0, refs.length === 0 ? 4 : 4 - refs.length).map((_, i) => (
-                <button
-                  key={`slot-${i}`}
-                  className={"img-ws-ref-slot" + (i === 0 && refs.length < 8 ? " primary" : "")}
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={uploading || refs.length >= 8}
-                  aria-label="Adicionar referência"
-                >
-                  {i === 0 ? (
-                    <>
-                      <Icon d="M4 4h16v12H4z M4 16l4-4 4 4 4-4 4 4 M14 8a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z" />
-                      <span>{uploading ? "Enviando…" : "Adicionar"}</span>
-                    </>
-                  ) : (
-                    <Icon d="M12 5v14M5 12h14" />
-                  )}
-                </button>
-              ))}
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                hidden
-                onChange={(e) => {
-                  const f = e.target.files?.[0];
-                  if (f) handleAttach(f);
-                  if (e.currentTarget) e.currentTarget.value = "";
-                }}
-              />
-            </div>
-          </div>
-        </div>
+        <ReferencesPanel
+          refs={refs}
+          onChange={setRefs}
+          onUploadFile={onUploadRef}
+          modelId={MODEL_LABEL_TO_ID[modelLabel] || "nano-banana-pro"}
+          modelLabel={modelLabel}
+          showToast={showToast}
+        />
 
         {/* PROMPT */}
         <div className="img-ws-panel img-ws-panel--prompt">
@@ -706,13 +668,15 @@ export function ImageWorkspace({
           showToast={showToast}
           onCopyPrompt={(p) => { setPrompt(p); showToast("Prompt copiado pro editor"); }}
           onUseAsRef={(url) => {
-            if (refs.length >= 8) { showToast("Máximo 8 referências"); return; }
-            setRefs((p) => [...p, url]);
+            const lim = getRefLimit(MODEL_LABEL_TO_ID[modelLabel] || "nano-banana-pro");
+            if (refs.length >= lim) { showToast(`Máximo ${lim} referências`); return; }
+            setRefs((p) => [...p, { url, source: "library" as const }]);
             showToast("Adicionada como referência");
           }}
           onUseAsStyle={(url) => {
-            if (refs.length >= 8) { showToast("Máximo 8 referências"); return; }
-            setRefs((p) => [...p, url]);
+            const lim = getRefLimit(MODEL_LABEL_TO_ID[modelLabel] || "nano-banana-pro");
+            if (refs.length >= lim) { showToast(`Máximo ${lim} referências`); return; }
+            setRefs((p) => [...p, { url, source: "library" as const }]);
             setPrompt((p) => p ? p + ", in the same visual style of the reference" : "Recreate using the visual style of the reference");
             showToast("Estilo aplicado — ajuste o prompt");
           }}

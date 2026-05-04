@@ -359,7 +359,7 @@ export function ImageWorkspace({
                     <div className="prompt-style-wrap">
                       <button
                         className={"prompt-tool-btn" + (active ? " has-selection" : "")}
-                        onClick={() => setStylePopoverOpen((v) => !v)}
+                        onClick={() => { setLibraryCategory("estilo"); setLibraryQuery(""); setLibraryOpen(true); }}
                         title={active ? `Estilo: ${active.label}` : "Escolher estilo"}
                       >
                         <svg className="tool-icon" viewBox="0 0 24 24"><path d="M12 2l2.4 7.4H22l-6.2 4.5L18.2 22 12 17.5 5.8 22l2.4-8.1L2 9.4h7.6z" /></svg>

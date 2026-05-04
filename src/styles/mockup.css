@@ -2045,8 +2045,9 @@ img{display:block;max-width:100%}
   .references-card{gap:8px; padding:10px}
   .references-grid{gap:5px}
   .ref-slot{max-height:54px}
-  .references-toolbar{padding-top:6px}
-  .ref-toolbar-btn{height:24px; font-size:9.5px}
+  .references-toolbar{padding-top:6px; gap:3px}
+  .ref-toolbar-btn{height:24px; font-size:9.5px; padding:0 4px; gap:3px; min-width:0}
+  .ref-toolbar-btn .kbd{display:none}
   .img-ws-controls .img-ws-panel--prompt .img-ws-style-row{
     flex-wrap:nowrap; overflow-x:auto; max-height:32px;
     padding-right:14px; margin-left:0; margin-right:0;

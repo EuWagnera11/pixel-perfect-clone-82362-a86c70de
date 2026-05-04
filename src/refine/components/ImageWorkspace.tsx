@@ -900,9 +900,23 @@ function Lightbox(p: LightboxProps) {
   const [exportSub, setExportSub] = useState(false);
   const [shareSub, setShareSub] = useState(false);
   const [genSub, setGenSub] = useState(false);
+  const [idle, setIdle] = useState(false);
+
+  // Cinema mode: auto-hide chrome after 3s of mouse inactivity
+  useEffect(() => {
+    let t: ReturnType<typeof setTimeout>;
+    const reset = () => {
+      setIdle(false);
+      clearTimeout(t);
+      t = setTimeout(() => setIdle(true), 3000);
+    };
+    reset();
+    window.addEventListener("mousemove", reset);
+    return () => { window.removeEventListener("mousemove", reset); clearTimeout(t); };
+  }, []);
 
   return (
-    <div className="ilx" onClick={p.onClose} data-panel={showPanel ? "open" : "closed"}>
+    <div className={`ilx ${idle ? "is-idle" : ""}`} onClick={p.onClose} data-panel={showPanel ? "open" : "closed"}>
       {/* Top bar */}
       <div className="ilx-topbar" onClick={(e) => e.stopPropagation()}>
         <div className="ilx-glass-group">
@@ -930,12 +944,75 @@ function Lightbox(p: LightboxProps) {
 
       {/* Stage */}
       <div className="ilx-stage" onClick={(e) => e.stopPropagation()}>
-        <img
-          src={item.url}
-          alt={item.prompt}
-          className={zoomed ? "zoomed" : ""}
-          onClick={() => setZoomed((z) => !z)}
-        />
+        <div className={`ilx-frame-outer ${showPanel ? "with-panel" : ""}`}>
+          <div className="ilx-frame-inner" style={{ ["--current-image" as any]: `url(${item.url})` }}>
+            <img
+              src={item.url}
+              alt={item.prompt}
+              className={zoomed ? "zoomed" : ""}
+              onClick={() => setZoomed((z) => !z)}
+            />
+
+            {/* Meta capsule */}
+            <div className="ilx-meta-capsule">
+              {(MODEL_ID_TO_LABEL[meta.model] || meta.model) && (
+                <span>{MODEL_ID_TO_LABEL[meta.model] || meta.model}</span>
+              )}
+              {meta.seed && <><span className="sep">·</span><span className="seed">{meta.seed}</span></>}
+              {meta.ratio && <><span className="sep">·</span><span className="aspect">{meta.ratio}</span></>}
+            </div>
+
+            {/* Image action buttons */}
+            <div className="ilx-img-actions">
+              <button
+                className={`ilx-img-act ${item.isFav ? "active" : ""}`}
+                onClick={(e) => { e.stopPropagation(); p.onToggleFavorite(item); }}
+                title="Favoritar (F)"
+              >
+                <Icon d="M12 2 14 9h7l-6 4 2 7-7-4-7 4 2-7-6-4h7z" strokeWidth={1.75} />
+              </button>
+              <button
+                className="ilx-img-act"
+                onClick={(e) => { e.stopPropagation(); download("png"); }}
+                title="Exportar (D)"
+              >
+                <Icon d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14" strokeWidth={1.75} />
+              </button>
+              <button
+                className="ilx-img-act"
+                onClick={(e) => { e.stopPropagation(); copyLink(); }}
+                title="Copiar link (C)"
+              >
+                <Icon d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1" strokeWidth={1.75} />
+              </button>
+            </div>
+
+            {/* Watermark */}
+            <div className="ilx-watermark">
+              <span>IMAGE STUDIO</span>
+              <span className="ai-chip">AI</span>
+            </div>
+
+            {/* Variation pills */}
+            {p.items.length > 1 && (
+              <div className="ilx-var-pills">
+                {p.items.map((_, i) => (
+                  <button
+                    key={i}
+                    className={`ilx-var-pill ${i === p.index ? "active" : ""}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (i < p.index) for (let k = p.index; k > i; k--) p.onPrev();
+                      else if (i > p.index) for (let k = p.index; k < i; k++) p.onNext();
+                    }}
+                  >
+                    {i + 1}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Bottom dock */}

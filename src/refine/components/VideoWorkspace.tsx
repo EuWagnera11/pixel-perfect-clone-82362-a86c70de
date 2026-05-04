@@ -20,6 +20,7 @@ import {
   VIDEO_MODELS,
   MODEL_LABEL_TO_ID,
   MODEL_ID_TO_LABEL,
+  getVideoModelModes,
   type AspectRatio,
   type VideoModel,
 } from "../lib/models";

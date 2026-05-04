@@ -1664,3 +1664,101 @@ img{display:block;max-width:100%}
 .img-ws-empty p{font-size:13px !important;color:var(--text-2) !important}
 .img-ws-empty > svg{width:48px !important;height:48px !important;color:var(--text-3) !important;opacity:1 !important}
 
+
+/* ===================================================================== */
+/* IMAGE WORKSPACE — COMPACT OVERRIDES (caber sem scroll)                 */
+/* Escopo restrito a .img-ws-controls — não afeta galeria ou outros motores */
+/* ===================================================================== */
+.img-ws-controls{
+  padding:12px 12px 12px !important;
+  gap:8px !important;
+  overflow:hidden !important;
+}
+
+/* Header compacto */
+.img-ws-controls .img-ws-sidebar-head{padding:2px 2px 8px !important;gap:4px !important;margin-bottom:0}
+.img-ws-controls .img-ws-sidebar-head h1{font-size:17px !important;line-height:1.15}
+.img-ws-controls .img-ws-sidebar-head p{font-size:11px !important;line-height:1.3}
+.img-ws-controls .img-ws-sidebar-head .eyebrow{font-size:9.5px !important;letter-spacing:.2em}
+
+/* Cards menores */
+.img-ws-controls .img-ws-panel{
+  padding:10px 12px !important;border-radius:14px !important;gap:7px !important;
+}
+.img-ws-controls .img-ws-panel-head{gap:6px !important}
+.img-ws-controls .img-ws-panel-title{font-size:9.5px !important;letter-spacing:.2em}
+.img-ws-controls .img-ws-panel-head span,
+.img-ws-controls .img-ws-panel-head .kbd-inline{font-size:10px !important;padding:2px 5px !important}
+
+/* Modelo trigger compacto */
+.img-ws-controls .mp-trigger{height:34px !important;padding:0 11px !important;font-size:12.5px !important;border-radius:10px !important}
+
+/* Referências */
+.img-ws-controls .img-ws-refs{gap:6px !important}
+.img-ws-controls .img-ws-ref-slot,
+.img-ws-controls .img-ws-ref{max-height:48px !important;border-radius:10px !important}
+.img-ws-controls .img-ws-ref-slot.primary svg{width:14px !important;height:14px !important}
+
+/* Prompt textarea */
+.img-ws-controls .img-ws-textarea{
+  min-height:54px !important;max-height:90px !important;
+  font-size:12.5px !important;line-height:1.4 !important;
+}
+.img-ws-controls .img-ws-style-row{padding-top:8px !important;margin-top:2px;gap:5px !important}
+.img-ws-controls .img-ws-chip{height:24px !important;padding:0 9px !important;font-size:10.5px !important}
+
+/* Saída — sub-seções compactas */
+.img-ws-controls .oc-section{padding:9px 0 !important;gap:7px !important}
+.img-ws-controls .oc-section:first-of-type{padding-top:0 !important}
+.img-ws-controls .oc-section:last-of-type{padding-bottom:0 !important}
+.img-ws-controls .oc-label,
+.img-ws-controls .oc-section-head .oc-label{font-size:9.5px !important;letter-spacing:.18em !important}
+.img-ws-controls .oc-meta,
+.img-ws-controls .oc-section-head .oc-meta{font-size:10px !important}
+
+/* Pills variações + qualidade */
+.img-ws-controls .oc-pills,
+.img-ws-controls .oc-segmented{border-radius:9px !important;padding:2px !important}
+.img-ws-controls .oc-pill{height:28px !important;font-size:12px !important;border-radius:7px !important}
+.img-ws-controls .oc-seg{height:28px !important;font-size:12px !important;border-radius:7px !important}
+.img-ws-controls .oc-seg-mult{font-size:8.5px !important}
+
+/* Aspect cards */
+.img-ws-controls .oc-aspects{gap:5px !important}
+.img-ws-controls .oc-aspect{
+  padding:5px 3px !important;gap:3px !important;border-radius:9px !important;
+  max-height:56px;
+}
+.img-ws-controls .oc-aspect-frame{width:22px !important;height:22px !important}
+.img-ws-controls .oc-aspect-label b{font-size:9.5px !important}
+.img-ws-controls .oc-aspect-label em{font-size:8px !important}
+
+/* Resumo */
+.img-ws-controls .oc-summary{
+  font-size:11px !important;padding:8px 0 !important;margin-top:0;
+}
+
+/* Botão Gerar */
+.img-ws-controls .img-ws-generate-wrap{margin-top:2px !important}
+.img-ws-controls .img-ws-generate{
+  height:44px !important;border-radius:13px !important;font-size:13px !important;gap:8px !important;
+}
+.img-ws-controls .img-ws-generate svg{width:14px;height:14px}
+.img-ws-controls .img-ws-generate .kbd{font-size:10px !important;padding:2px 6px !important}
+
+/* Ultra compacto para alturas menores */
+@media (max-height:800px){
+  .img-ws-controls{padding:10px !important;gap:7px !important}
+  .img-ws-controls .img-ws-sidebar-head h1{font-size:16px !important}
+  .img-ws-controls .img-ws-sidebar-head p{display:none}
+  .img-ws-controls .img-ws-textarea{min-height:44px !important;max-height:72px !important}
+  .img-ws-controls .oc-aspect{max-height:50px}
+  .img-ws-controls .oc-pill,.img-ws-controls .oc-seg{height:26px !important}
+  .img-ws-controls .img-ws-generate{height:40px !important}
+  .img-ws-controls .oc-section{padding:7px 0 !important}
+}
+@media (max-height:700px){
+  .img-ws-controls{gap:6px !important;padding:8px 10px !important}
+  .img-ws-controls .img-ws-panel{padding:8px 10px !important;gap:6px !important}
+  .img-ws-controls .oc-summary{padding:6px 0 !important;font-size:10.5px !important}
+}

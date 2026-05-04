@@ -33,17 +33,19 @@ img{display:block;max-width:100%}
 .sidebar-v2{
   position:relative; z-index:60; height:100%; min-height:0;
   width:var(--sidebar-w);
-  display:flex; flex-direction:column; gap:14px;
-  padding:14px 8px;
+  display:flex; flex-direction:column; gap:clamp(8px, 0.9vh, 14px);
+  padding:clamp(10px, 1.2vh, 14px) 8px;
   background:linear-gradient(180deg,rgba(255,255,255,.018),transparent 30%),rgba(8,8,10,.62);
   backdrop-filter:blur(20px) saturate(160%);
   border-right:1px solid var(--hairline);
   overflow:hidden;
   transition:width .35s var(--spring), padding .35s var(--spring), box-shadow .35s var(--spring);
 }
+.sb-header{flex:0 0 auto; display:flex; flex-direction:column; gap:10px}
+.sb-foot{flex:0 0 auto}
 .sidebar-v2:hover, .sidebar-v2.locked{
   width:var(--sidebar-w-expanded);
-  padding:14px 12px;
+  padding:clamp(10px, 1.2vh, 14px) 12px;
   box-shadow:12px 0 40px -12px rgba(0,0,0,.5);
 }
 .sidebar-v2:hover:not(.locked){
@@ -117,23 +119,22 @@ img{display:block;max-width:100%}
 .sidebar-v2:hover .sb-cta-arrow, .sidebar-v2.locked .sb-cta-arrow{opacity:1; transform:translateX(0)}
 .sb-cta:hover .sb-cta-arrow{transform:translateX(2px)}
 
-/* Nav */
-.sb-nav{flex:1; display:flex; flex-direction:column; gap:14px; overflow-y:auto; overflow-x:hidden; scrollbar-width:thin; scrollbar-color:var(--hairline-2) transparent}
-.sb-nav::-webkit-scrollbar{width:4px}
-.sb-nav::-webkit-scrollbar-thumb{background:var(--hairline-2); border-radius:2px}
-.sb-nav-section{display:flex; flex-direction:column; gap:1px}
+/* Nav — sem scroll, ocupa espaço sobrando */
+.sb-nav{flex:1 1 auto; min-height:0; display:flex; flex-direction:column; gap:clamp(6px, 0.9vh, 14px); overflow:hidden}
+.sb-nav-section{display:flex; flex-direction:column; gap:1px; min-height:0}
 .sb-nav-cap{
-  font-size:9.5px; letter-spacing:.22em; text-transform:uppercase; color:var(--text-3); font-weight:700;
-  padding:4px 8px 6px; white-space:nowrap;
+  font-size:clamp(8.5px, 0.9vh, 9.5px); letter-spacing:.22em; text-transform:uppercase; color:var(--text-3); font-weight:700;
+  padding:clamp(2px, 0.4vh, 4px) 8px clamp(3px, 0.5vh, 6px); white-space:nowrap;
   opacity:0; transition:opacity .25s var(--spring);
 }
+.sidebar-v2:not(:hover):not(.locked) .sb-nav-cap{display:none}
 .sidebar-v2:hover .sb-nav-cap, .sidebar-v2.locked .sb-nav-cap{opacity:1}
 
 .sb-nav-item{
-  display:flex; align-items:center; gap:10px; height:36px; padding:0 10px;
+  display:flex; align-items:center; gap:10px; height:clamp(28px, 3.4vh, 36px); padding:0 10px;
   border-radius:10px; background:transparent; border:0; color:var(--text-2);
   cursor:pointer; position:relative; white-space:nowrap; overflow:visible;
-  transition:.3s var(--spring); text-align:left;
+  transition:.3s var(--spring); text-align:left; flex-shrink:0;
 }
 .sb-nav-item:hover{background:rgba(255,255,255,.04); color:var(--text)}
 .sb-nav-item.active{background:linear-gradient(90deg,var(--accent-soft),transparent 80%); color:#fff}
@@ -173,7 +174,7 @@ img{display:block;max-width:100%}
 .sidebar-v2:not(:hover):not(.locked) .sb-nav-item:hover .sb-nav-tooltip{opacity:1}
 
 /* Footer */
-.sb-foot{flex-shrink:0; display:flex; flex-direction:column; gap:10px; padding-top:12px; border-top:1px solid var(--hairline)}
+.sb-foot{flex:0 0 auto; display:flex; flex-direction:column; gap:clamp(4px, 0.6vh, 8px); padding-top:clamp(6px, 0.8vh, 10px); border-top:1px solid var(--hairline)}
 .sb-credits{
   position:relative; overflow:hidden;
   opacity:0; max-height:0; padding:0; border:0;
@@ -181,8 +182,19 @@ img{display:block;max-width:100%}
   transition:opacity .25s var(--spring), max-height .35s var(--spring), padding .35s var(--spring);
 }
 .sidebar-v2:hover .sb-credits, .sidebar-v2.locked .sb-credits{
-  opacity:1; max-height:200px; padding:12px; border:1px solid var(--hairline);
+  opacity:1; max-height:clamp(110px, 14vh, 180px); padding:clamp(8px, 1vh, 12px); border:1px solid var(--hairline);
 }
+/* Mini credits (colapsado) */
+.sb-credits-mini{
+  position:relative; display:flex; align-items:center; justify-content:center;
+  height:32px; padding:0 6px; border-radius:8px;
+  background:rgba(255,255,255,.02); border:1px solid var(--hairline);
+  cursor:pointer; transition:.3s var(--spring); overflow:hidden;
+}
+.sb-credits-mini:hover{background:var(--accent-soft); border-color:rgba(255,106,26,.3)}
+.sb-credits-mini-text{font-family:ui-monospace,'SF Mono',Menlo,monospace; font-size:10px; color:var(--accent-2); font-weight:600}
+.sb-credits-mini-bar{position:absolute; bottom:0; left:0; height:2px; background:linear-gradient(90deg,var(--accent-3),var(--accent)); transition:width .5s var(--spring)}
+.sidebar-v2:hover .sb-credits-mini, .sidebar-v2.locked .sb-credits-mini{display:none}
 .sb-credits::after{content:'';position:absolute;top:0;right:0;width:60%;height:60%;background:radial-gradient(circle at top right,rgba(255,106,26,.18),transparent 70%);pointer-events:none}
 .sb-credits-head{display:flex; justify-content:space-between; margin-bottom:8px}
 .sb-credits-plan{font-size:11px; color:var(--text-2); letter-spacing:.02em}
@@ -2775,3 +2787,28 @@ img{display:block;max-width:100%}
 .style-pop-item:hover{background:rgba(255,255,255,.05); color:var(--text)}
 .style-pop-item.active{background:var(--accent-soft); color:var(--accent-2)}
 .style-pop-item .check{color:var(--accent); font-weight:700}
+
+/* Sidebar accordion "Mais ferramentas" */
+.sb-nav-more .sb-nav-chev{
+  width:14px; height:14px; flex-shrink:0; color:var(--text-3);
+  transition:transform .3s var(--spring), opacity .25s var(--spring);
+  opacity:0;
+}
+.sidebar-v2:hover .sb-nav-more .sb-nav-chev,
+.sidebar-v2.locked .sb-nav-more .sb-nav-chev{opacity:1}
+.sb-nav-more.open .sb-nav-chev{transform:rotate(180deg); color:var(--accent)}
+
+.sb-nav-submenu{
+  display:flex; flex-direction:column; gap:1px;
+  max-height:0; overflow:hidden;
+  transition:max-height .4s var(--spring);
+}
+.sb-nav-submenu.open{max-height:520px}
+/* Em colapsado, força fechar */
+.sidebar-v2:not(:hover):not(.locked) .sb-nav-submenu{max-height:0 !important}
+.sidebar-v2:not(:hover):not(.locked) .sb-nav-more .sb-nav-chev{transform:none}
+
+.sb-nav-item.is-sub{height:clamp(26px, 3.1vh, 32px)}
+.sidebar-v2:hover .sb-nav-item.is-sub,
+.sidebar-v2.locked .sb-nav-item.is-sub{padding-left:24px}
+.sb-nav-item.is-sub .sb-nav-icon{opacity:.85}

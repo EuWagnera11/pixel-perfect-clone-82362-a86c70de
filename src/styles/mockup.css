@@ -174,7 +174,7 @@ img{display:block;max-width:100%}
 .sidebar-v2:not(:hover):not(.locked) .sb-nav-item:hover .sb-nav-tooltip{opacity:1}
 
 /* Footer */
-.sb-foot{flex-shrink:0; display:flex; flex-direction:column; gap:10px; padding-top:12px; border-top:1px solid var(--hairline)}
+.sb-foot{flex:0 0 auto; display:flex; flex-direction:column; gap:clamp(4px, 0.6vh, 8px); padding-top:clamp(6px, 0.8vh, 10px); border-top:1px solid var(--hairline)}
 .sb-credits{
   position:relative; overflow:hidden;
   opacity:0; max-height:0; padding:0; border:0;
@@ -182,8 +182,19 @@ img{display:block;max-width:100%}
   transition:opacity .25s var(--spring), max-height .35s var(--spring), padding .35s var(--spring);
 }
 .sidebar-v2:hover .sb-credits, .sidebar-v2.locked .sb-credits{
-  opacity:1; max-height:200px; padding:12px; border:1px solid var(--hairline);
+  opacity:1; max-height:clamp(110px, 14vh, 180px); padding:clamp(8px, 1vh, 12px); border:1px solid var(--hairline);
 }
+/* Mini credits (colapsado) */
+.sb-credits-mini{
+  position:relative; display:flex; align-items:center; justify-content:center;
+  height:32px; padding:0 6px; border-radius:8px;
+  background:rgba(255,255,255,.02); border:1px solid var(--hairline);
+  cursor:pointer; transition:.3s var(--spring); overflow:hidden;
+}
+.sb-credits-mini:hover{background:var(--accent-soft); border-color:rgba(255,106,26,.3)}
+.sb-credits-mini-text{font-family:ui-monospace,'SF Mono',Menlo,monospace; font-size:10px; color:var(--accent-2); font-weight:600}
+.sb-credits-mini-bar{position:absolute; bottom:0; left:0; height:2px; background:linear-gradient(90deg,var(--accent-3),var(--accent)); transition:width .5s var(--spring)}
+.sidebar-v2:hover .sb-credits-mini, .sidebar-v2.locked .sb-credits-mini{display:none}
 .sb-credits::after{content:'';position:absolute;top:0;right:0;width:60%;height:60%;background:radial-gradient(circle at top right,rgba(255,106,26,.18),transparent 70%);pointer-events:none}
 .sb-credits-head{display:flex; justify-content:space-between; margin-bottom:8px}
 .sb-credits-plan{font-size:11px; color:var(--text-2); letter-spacing:.02em}

@@ -1988,8 +1988,10 @@ img{display:block;max-width:100%}
   .references-card{gap:8px; padding:8px}
   .references-grid{gap:5px}
   .ref-slot{max-height:50px}
-  .references-toolbar{padding-top:4px}
-  .ref-toolbar-btn{height:22px; font-size:9px}
+  .references-toolbar{padding-top:4px; gap:2px}
+  .ref-toolbar-btn{height:22px; font-size:9px; padding:0 3px; gap:3px; min-width:0; overflow:hidden}
+  .ref-toolbar-btn .kbd{display:none}
+  .ref-toolbar-btn .label{white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
   .img-ws-controls .img-ws-panel--prompt{
     min-height:120px !important;
     max-height:clamp(140px, 20vh, 190px) !important;
@@ -2043,8 +2045,9 @@ img{display:block;max-width:100%}
   .references-card{gap:8px; padding:10px}
   .references-grid{gap:5px}
   .ref-slot{max-height:54px}
-  .references-toolbar{padding-top:6px}
-  .ref-toolbar-btn{height:24px; font-size:9.5px}
+  .references-toolbar{padding-top:6px; gap:3px}
+  .ref-toolbar-btn{height:24px; font-size:9.5px; padding:0 4px; gap:3px; min-width:0}
+  .ref-toolbar-btn .kbd{display:none}
   .img-ws-controls .img-ws-panel--prompt .img-ws-style-row{
     flex-wrap:nowrap; overflow-x:auto; max-height:32px;
     padding-right:14px; margin-left:0; margin-right:0;

@@ -1762,3 +1762,25 @@ img{display:block;max-width:100%}
   .img-ws-controls .img-ws-panel{padding:8px 10px !important;gap:6px !important}
   .img-ws-controls .oc-summary{padding:6px 0 !important;font-size:10.5px !important}
 }
+
+/* Compactação adicional — caber em viewports ~900-970px */
+.img-ws-controls .img-ws-panel{padding:9px 11px !important;gap:6px !important}
+.img-ws-controls .img-ws-ref-slot,
+.img-ws-controls .img-ws-ref{max-height:42px !important}
+.img-ws-controls .img-ws-textarea{min-height:46px !important;max-height:70px !important}
+.img-ws-controls .img-ws-style-row{padding-top:6px !important;gap:4px !important}
+.img-ws-controls .img-ws-chip{height:22px !important;padding:0 8px !important;font-size:10px !important}
+.img-ws-controls .oc-section{padding:7px 0 !important;gap:6px !important}
+.img-ws-controls .oc-aspect{
+  aspect-ratio:auto !important;height:42px !important;max-height:42px !important;
+  flex-direction:row !important;gap:5px !important;padding:4px 6px !important;justify-content:flex-start !important;
+}
+.img-ws-controls .oc-aspect-frame{width:18px !important;height:18px !important;flex-shrink:0}
+.img-ws-controls .oc-aspect-label{flex-direction:row !important;gap:4px !important;align-items:baseline !important}
+.img-ws-controls .oc-aspect-label em{font-size:7.5px !important}
+.img-ws-controls .oc-pill,.img-ws-controls .oc-seg{height:26px !important}
+.img-ws-controls .oc-summary{padding:6px 0 !important;font-size:10.5px !important}
+.img-ws-controls .img-ws-generate{height:42px !important}
+.img-ws-controls .img-ws-sidebar-head{padding:0 0 6px !important}
+.img-ws-controls .img-ws-sidebar-head h1{font-size:15px !important}
+.img-ws-controls .img-ws-sidebar-head p{font-size:10.5px !important}

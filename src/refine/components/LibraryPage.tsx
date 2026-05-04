@@ -225,13 +225,13 @@ export function LibraryPage({
   if (!open) return null;
 
   const titleByCat: Record<Category, string> = {
-    estilo: "Estilos",
-    personagem: "Personagens",
-    elemento: "Elementos",
-    cor: "Cores",
-    efeitos: "Efeitos",
-    camera: "Câmera",
-    stock: "Histórico",
+    estilo: CATEGORY_CONFIG.estilo.title,
+    personagem: CATEGORY_CONFIG.personagem.title,
+    elemento: CATEGORY_CONFIG.elemento.title,
+    cor: CATEGORY_CONFIG.cor.title,
+    efeitos: CATEGORY_CONFIG.efeitos.title,
+    camera: CATEGORY_CONFIG.camera.title,
+    stock: CATEGORY_CONFIG.stock.title,
   };
 
   const handleApply = () => {

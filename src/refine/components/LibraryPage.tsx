@@ -211,12 +211,18 @@ export function LibraryPage({
         </div>
 
         <div className="lib-content-header">
-          <h2 className="lib-title">{titleByCat[category]}</h2>
+          <div className="lib-header-row">
+            <h2 className="lib-title">{titleByCat[category]}</h2>
+            <button className="lib-new-btn">
+              <Icon d="M12 5v14M5 12h14" />
+              Novo {category === "personagem" ? "personagem" : "estilo"}
+            </button>
+          </div>
           <div className="lib-tabs">
             {TABS.map((t) => (
               <button
                 key={t}
-                className={"lib-tab text-only" + (tab === t ? " active" : "")}
+                className={"lib-tab" + (tab === t ? " active" : "")}
                 onClick={() => setTab(t)}
               >
                 {t === "Em destaque" && <Icon d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z" />}
@@ -225,10 +231,6 @@ export function LibraryPage({
               </button>
             ))}
           </div>
-          <button className="lib-new-btn">
-            <Icon d="M12 5v14M5 12h14" />
-            Novo {category === "personagem" ? "personagem" : "estilo"}
-          </button>
         </div>
 
         <div className="lib-grid">

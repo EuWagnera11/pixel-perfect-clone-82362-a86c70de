@@ -11,6 +11,8 @@ import { Icon } from "./Icon";
 import { ModelPicker } from "./ModelPicker";
 import { OutputControls } from "./OutputControls";
 import { ReferencesPanel, getRefLimit, type RefItem } from "./ReferencesPanel";
+import { PromptInput, type PromptInputHandle, type MentionItem, type MentionType } from "./PromptInput";
+import { LibraryPage } from "./LibraryPage";
 import { useJobs, type Job } from "../lib/jobs";
 import { type Generation } from "../hooks/useGenerations";
 import {
@@ -82,6 +84,10 @@ export function ImageWorkspace({
   const [phIdx, setPhIdx] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
+  const promptRef = useRef<PromptInputHandle>(null);
+  const [libraryOpen, setLibraryOpen] = useState(false);
+  const [libraryCategory, setLibraryCategory] = useState<"estilo" | "personagem" | "elemento" | "cor" | "efeitos" | "camera" | "stock">("estilo");
+  const [libraryQuery, setLibraryQuery] = useState("");
 
   useEffect(() => {
     const t = setInterval(() => setPhIdx((i) => (i + 1) % PROMPT_PLACEHOLDERS.length), 4000);
@@ -132,6 +138,20 @@ export function ImageWorkspace({
     () => jobs.filter((j) => j.mediaType === "image" && j.status === "processing"),
     [jobs]
   );
+
+  // Items disponíveis para @ menção (refs como img1..N + style presets como mock)
+  const mentionItems = useMemo<MentionItem[]>(() => {
+    const fromRefs: MentionItem[] = refs.map((r, i) => ({
+      id: `ref-${i}`,
+      type: "image" as MentionType,
+      name: `img${i + 1}`,
+      avatarSrc: r.url,
+    }));
+    const fromStyles: MentionItem[] = STYLE_PRESETS
+      .filter((s) => s.id !== "none")
+      .map((s) => ({ id: s.id, type: "style" as MentionType, name: s.id }));
+    return [...fromRefs, ...fromStyles];
+  }, [refs]);
 
   const imageHistory = useMemo(
     () => history.filter((g) => (g.image_urls?.length || 0) > 0 && g.media_type !== "video"),
@@ -294,6 +314,7 @@ export function ImageWorkspace({
           modelId={MODEL_LABEL_TO_ID[modelLabel] || "nano-banana-pro"}
           modelLabel={modelLabel}
           showToast={showToast}
+          onOpenLibrary={() => { setLibraryCategory("estilo"); setLibraryQuery(""); setLibraryOpen(true); }}
         />
 
         {/* PROMPT */}
@@ -303,15 +324,32 @@ export function ImageWorkspace({
             <span className="kbd-inline">⌘↵</span>
           </div>
           <div className="img-ws-section">
-            <textarea
-              className="img-ws-textarea"
-              placeholder={PROMPT_PLACEHOLDERS[phIdx]}
+            <PromptInput
+              ref={promptRef}
               value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              onKeyDown={(e) => {
-                if ((e.metaKey || e.ctrlKey) && e.key === "Enter") { e.preventDefault(); handleGenerate(); }
+              placeholder={PROMPT_PLACEHOLDERS[phIdx]}
+              items={mentionItems}
+              onChangeText={setPrompt}
+              onSubmit={handleGenerate}
+              onMentionSelected={(item) => {
+                if (item.type === "image") return; // já está em refs
+                if (item.avatarSrc && !refs.some((r) => r.url === item.avatarSrc)) {
+                  const lim = getRefLimit(MODEL_LABEL_TO_ID[modelLabel] || "nano-banana-pro");
+                  if (refs.length < lim) {
+                    setRefs((p) => [...p, { url: item.avatarSrc!, source: "library", name: item.name, mention: item.name }]);
+                  }
+                }
               }}
-              rows={4}
+              onSeeAll={(cat, q) => {
+                const map: Record<string, typeof libraryCategory> = {
+                  image: "stock", character: "personagem", style: "estilo",
+                  product: "elemento", scene: "camera", logo: "elemento",
+                };
+                setLibraryCategory(map[cat] || "estilo");
+                setLibraryQuery(q);
+                setLibraryOpen(true);
+              }}
+              onCreateNew={() => { setLibraryOpen(true); }}
             />
             <div className="img-ws-style-row">
               {STYLE_PRESETS.filter(s => s.id !== "none").map((s) => (
@@ -734,6 +772,23 @@ export function ImageWorkspace({
           }}
         />
       )}
+
+      <LibraryPage
+        open={libraryOpen}
+        defaultCategory={libraryCategory}
+        initialQuery={libraryQuery}
+        items={mentionItems}
+        onClose={() => setLibraryOpen(false)}
+        onUploadFile={onUploadRef}
+        showToast={showToast}
+        onPick={(item) => {
+          const lim = getRefLimit(MODEL_LABEL_TO_ID[modelLabel] || "nano-banana-pro");
+          if (refs.length >= lim) { showToast(`Limite de ${lim} referências`); return; }
+          if (item.avatarSrc) {
+            setRefs((p) => [...p, { url: item.avatarSrc!, source: "library", name: item.name, mention: item.name }]);
+          }
+        }}
+      />
     </div>
   );
 }
@@ -1154,6 +1209,7 @@ function Lightbox(p: LightboxProps) {
           </section>
         </aside>
       )}
+
     </div>
   );
 }

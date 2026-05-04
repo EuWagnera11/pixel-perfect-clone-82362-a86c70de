@@ -17,10 +17,8 @@ export const API_URL =
 
 export async function ensureSession() {
   const { data } = await supabase.auth.getSession();
-  if (data.session) return data.session;
-  const { data: anon, error } = await supabase.auth.signInAnonymously();
-  if (error) throw error;
-  return anon.session!;
+  if (!data.session) throw new Error("Not authenticated");
+  return data.session;
 }
 
 export async function api<T = unknown>(

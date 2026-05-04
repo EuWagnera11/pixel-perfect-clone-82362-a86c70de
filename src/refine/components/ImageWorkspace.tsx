@@ -322,7 +322,6 @@ export function ImageWorkspace({
           <div className="img-ws-panel img-ws-panel--prompt">
             <div className="img-ws-panel-head">
               <div className="img-ws-panel-title">Prompt</div>
-              <span className="kbd-inline">⌘↵</span>
             </div>
             <div className="img-ws-section">
               <PromptInput

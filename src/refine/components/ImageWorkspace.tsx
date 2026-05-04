@@ -88,6 +88,7 @@ export function ImageWorkspace({
   const [libraryOpen, setLibraryOpen] = useState(false);
   const [libraryCategory, setLibraryCategory] = useState<"estilo" | "personagem" | "elemento" | "cor" | "efeitos" | "camera" | "stock">("estilo");
   const [libraryQuery, setLibraryQuery] = useState("");
+  const [stylePopoverOpen, setStylePopoverOpen] = useState(false);
 
   useEffect(() => {
     const t = setInterval(() => setPhIdx((i) => (i + 1) % PROMPT_PLACEHOLDERS.length), 4000);

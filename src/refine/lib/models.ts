@@ -31,7 +31,33 @@ export function getVideoModelModes(m: VideoModel): VideoMode[] {
   if (m.modes) return m.modes;
   if (m.id === "pixverse-v5-transition") return ["frames"];
   if (m.textToVideo) return ["text"];
-  return ["image"];
+  // Defaults por família (a maioria dos i2v modernos também aceita texto;
+  // alguns aceitam vídeo de referência / video-to-video).
+  switch (m.family) {
+    case "kling":
+      // Kling V3/V2 aceitam texto, imagem e frames inicial+final
+      return ["text", "image", "frames"];
+    case "veo":
+      return ["text", "image"];
+    case "hailuo":
+      return ["text", "image"];
+    case "seedance":
+      return ["text", "image"];
+    case "runway":
+      // Runway Gen-4 aceita texto, imagem e vídeo de referência
+      return ["text", "image", "video"];
+    case "pixverse":
+      return ["text", "image"];
+    case "wan":
+      return ["text", "image"];
+    case "ltx":
+      return ["text", "image"];
+    case "omnihuman":
+      // Audio→vídeo a partir de imagem
+      return ["image"];
+    default:
+      return ["image"];
+  }
 }
 
 export const IMAGE_MODELS: ImageModel[] = [

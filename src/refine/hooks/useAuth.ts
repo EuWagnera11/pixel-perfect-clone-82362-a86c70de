@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
-import { supabase, ensureSession, api } from "../lib/supabase";
+import { supabase, api } from "../lib/supabase";
+import { lovable } from "@/integrations/lovable";
 
 export type Profile = { tier: string; credits: number };
 

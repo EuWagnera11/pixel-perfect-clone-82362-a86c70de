@@ -300,6 +300,7 @@ export function ImageWorkspace({
           modelId={MODEL_LABEL_TO_ID[modelLabel] || "nano-banana-pro"}
           modelLabel={modelLabel}
           showToast={showToast}
+          onOpenLibrary={() => { setLibraryCategory("estilo"); setLibraryQuery(""); setLibraryOpen(true); }}
         />
 
         {/* PROMPT */}
@@ -309,15 +310,32 @@ export function ImageWorkspace({
             <span className="kbd-inline">⌘↵</span>
           </div>
           <div className="img-ws-section">
-            <textarea
-              className="img-ws-textarea"
-              placeholder={PROMPT_PLACEHOLDERS[phIdx]}
+            <PromptInput
+              ref={promptRef}
               value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              onKeyDown={(e) => {
-                if ((e.metaKey || e.ctrlKey) && e.key === "Enter") { e.preventDefault(); handleGenerate(); }
+              placeholder={PROMPT_PLACEHOLDERS[phIdx]}
+              items={mentionItems}
+              onChangeText={setPrompt}
+              onSubmit={handleGenerate}
+              onMentionSelected={(item) => {
+                if (item.type === "image") return; // já está em refs
+                if (item.avatarSrc && !refs.some((r) => r.url === item.avatarSrc)) {
+                  const lim = getRefLimit(MODEL_LABEL_TO_ID[modelLabel] || "nano-banana-pro");
+                  if (refs.length < lim) {
+                    setRefs((p) => [...p, { url: item.avatarSrc!, source: "library", name: item.name, mention: item.name }]);
+                  }
+                }
               }}
-              rows={4}
+              onSeeAll={(cat, q) => {
+                const map: Record<string, typeof libraryCategory> = {
+                  image: "stock", character: "personagem", style: "estilo",
+                  product: "elemento", scene: "camera", logo: "elemento",
+                };
+                setLibraryCategory(map[cat] || "estilo");
+                setLibraryQuery(q);
+                setLibraryOpen(true);
+              }}
+              onCreateNew={() => { setLibraryOpen(true); }}
             />
             <div className="img-ws-style-row">
               {STYLE_PRESETS.filter(s => s.id !== "none").map((s) => (

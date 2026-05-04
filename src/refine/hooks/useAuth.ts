@@ -57,20 +57,15 @@ export function useAuth() {
         if (mounted) setLoading(false);
       }
     })();
-    const sub = supabase.auth.onAuthStateChange(async (_e, s) => {
+    const sub = supabase.auth.onAuthStateChange((_e, s) => {
       if (!mounted) return;
       if (!s) {
         setSession(null);
         setProfile(null);
         return;
       }
-
-      const { data: userData, error: userErr } = await supabase.auth.getUser();
-      if (userErr || !userData?.user) {
-        await clearInvalidSession();
-        return;
-      }
-
+      // Confia na sessão emitida pelo SDK; não revalidar aqui
+      // (revalidar com getUser causa logout ap\u00f3s o redirect do OAuth).
       setSession(s);
     });
     return () => {

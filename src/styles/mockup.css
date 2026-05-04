@@ -1992,9 +1992,12 @@ img{display:block;max-width:100%}
     min-height:120px !important;
     max-height:clamp(140px, 20vh, 190px) !important;
   }
-  .img-ws-controls .img-ws-panel--prompt .img-ws-textarea{
+  .img-ws-controls .img-ws-panel--prompt .img-ws-textarea,
+  .img-ws-controls .img-ws-panel--prompt .prompt-input{
     min-height:34px !important;
+    max-height:90px !important;
     line-height:1.35 !important;
+    padding:2px 0 !important;
   }
   .img-ws-controls .img-ws-panel--prompt .img-ws-style-row{
     flex-wrap:nowrap;

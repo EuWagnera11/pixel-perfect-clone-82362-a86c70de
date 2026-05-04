@@ -353,48 +353,47 @@ export function ImageWorkspace({
                 onCreateNew={() => { setLibraryOpen(true); }}
               />
               <div className="prompt-toolbar">
-                {([
-                  { key: "estilo", label: "Estilo", icon: "M12 2l2.4 7.4H22l-6.2 4.5L18.2 22 12 17.5 5.8 22l2.4-8.1L2 9.4h7.6z" },
-                  { key: "personagem", label: "Personagem", icon: "M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm0 2c-4 0-8 2-8 6v2h16v-2c0-4-4-6-8-6z" },
-                  { key: "camera", label: "Câmera", icon: "M9 4l-2 3H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2-3H9zm3 5a5 5 0 1 1 0 10 5 5 0 0 1 0-10z" },
-                ] as const).map((c) => {
-                  const count = refs.filter((r) => (r as any).category === c.key).length;
-                  const has = count > 0;
+                {(() => {
+                  const active = STYLE_PRESETS.find(s => s.id === stylePreset && s.id !== "none");
                   return (
-                    <button
-                      key={c.key}
-                      className={"prompt-tool-btn" + (has ? " has-selection" : "")}
-                      onClick={() => {
-                        setLibraryCategory(c.key as any);
-                        setLibraryQuery("");
-                        setLibraryOpen(true);
-                      }}
-                      onContextMenu={(e) => {
-                        if (!has) return;
-                        e.preventDefault();
-                        setRefs((p) => p.filter((r) => (r as any).category !== c.key));
-                      }}
-                      title={has ? `${count} ${c.label.toLowerCase()} — clique direito p/ limpar` : `Adicionar ${c.label.toLowerCase()}`}
-                    >
-                      <svg className="tool-icon" viewBox="0 0 24 24"><path d={c.icon} /></svg>
-                      <span className="tool-label">{c.label}</span>
-                      {has && <span className="tool-count">{count}</span>}
-                    </button>
+                    <div className="prompt-style-wrap">
+                      <button
+                        className={"prompt-tool-btn" + (active ? " has-selection" : "")}
+                        onClick={() => setStylePopoverOpen((v) => !v)}
+                        title={active ? `Estilo: ${active.label}` : "Escolher estilo"}
+                      >
+                        <svg className="tool-icon" viewBox="0 0 24 24"><path d="M12 2l2.4 7.4H22l-6.2 4.5L18.2 22 12 17.5 5.8 22l2.4-8.1L2 9.4h7.6z" /></svg>
+                        <span className="tool-label">{active ? active.label : "Estilo"}</span>
+                        {active && (
+                          <span
+                            className="tool-clear"
+                            role="button"
+                            onClick={(e) => { e.stopPropagation(); setStylePreset("none"); }}
+                          >✕</span>
+                        )}
+                      </button>
+                      {stylePopoverOpen && (
+                        <>
+                          <div className="prompt-style-backdrop" onClick={() => setStylePopoverOpen(false)} />
+                          <div className="prompt-style-popover" role="menu">
+                            {STYLE_PRESETS.map((s) => (
+                              <button
+                                key={s.id}
+                                className={"style-pop-item" + (s.id === stylePreset ? " active" : "")}
+                                onClick={() => { setStylePreset(s.id); setStylePopoverOpen(false); }}
+                              >
+                                {s.label}
+                                {s.id === stylePreset && <span className="check">✓</span>}
+                              </button>
+                            ))}
+                          </div>
+                        </>
+                      )}
+                    </div>
                   );
-                })}
-                <button
-                  className="prompt-tool-btn more"
-                  onClick={() => {
-                    setLibraryCategory("stock");
-                    setLibraryQuery("");
-                    setLibraryOpen(true);
-                  }}
-                  title="Abrir biblioteca completa"
-                >
-                  <svg className="tool-icon" viewBox="0 0 24 24"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z" /></svg>
-                  <span className="tool-label">Mais</span>
-                </button>
+                })()}
               </div>
+
 
             </div>
           </div>

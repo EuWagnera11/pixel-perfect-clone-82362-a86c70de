@@ -119,12 +119,13 @@ export function ImageWorkspace({
   }, [prompt, modelLabel, ratio, quality, variations, refs, enqueue, showToast, stylePreset]);
 
   const handleAttach = useCallback(async (file: File) => {
-    if (refs.length >= 8) { showToast("Máximo 8 referências"); return; }
+    const lim = getRefLimit(MODEL_LABEL_TO_ID[modelLabel] || "nano-banana-pro");
+    if (refs.length >= lim) { showToast(`Máximo ${lim} referências`); return; }
     setUploading(true);
     const url = await onUploadRef(file);
     setUploading(false);
-    if (url) setRefs((p) => [...p, url]);
-  }, [refs.length, onUploadRef, showToast]);
+    if (url) setRefs((p) => [...p, { url, source: "upload", name: file.name }]);
+  }, [refs.length, onUploadRef, showToast, modelLabel]);
 
   // ===== feed: jobs ativos + history (realtime) =====
   const activeImageJobs = useMemo(

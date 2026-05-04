@@ -33,17 +33,19 @@ img{display:block;max-width:100%}
 .sidebar-v2{
   position:relative; z-index:60; height:100%; min-height:0;
   width:var(--sidebar-w);
-  display:flex; flex-direction:column; gap:14px;
-  padding:14px 8px;
+  display:flex; flex-direction:column; gap:clamp(8px, 0.9vh, 14px);
+  padding:clamp(10px, 1.2vh, 14px) 8px;
   background:linear-gradient(180deg,rgba(255,255,255,.018),transparent 30%),rgba(8,8,10,.62);
   backdrop-filter:blur(20px) saturate(160%);
   border-right:1px solid var(--hairline);
   overflow:hidden;
   transition:width .35s var(--spring), padding .35s var(--spring), box-shadow .35s var(--spring);
 }
+.sb-header{flex:0 0 auto; display:flex; flex-direction:column; gap:10px}
+.sb-foot{flex:0 0 auto}
 .sidebar-v2:hover, .sidebar-v2.locked{
   width:var(--sidebar-w-expanded);
-  padding:14px 12px;
+  padding:clamp(10px, 1.2vh, 14px) 12px;
   box-shadow:12px 0 40px -12px rgba(0,0,0,.5);
 }
 .sidebar-v2:hover:not(.locked){

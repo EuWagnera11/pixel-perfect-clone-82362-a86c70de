@@ -1,6 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
+type InvokeOptions = {
+  method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+  body?: unknown;
+  headers?: Record<string, string>;
+};
+
 export type Generation = {
   id: string;
   status: "queued" | "processing" | "completed" | "failed";
@@ -16,8 +22,8 @@ export type Generation = {
   completed_at?: string | null;
 };
 
-async function invokeFn<T>(name: string, init: { method?: string; body?: unknown } = {}): Promise<T> {
-  const { data, error } = await supabase.functions.invoke<T>(name, init as any);
+async function invokeFn<T>(name: string, init: InvokeOptions = {}): Promise<T> {
+  const { data, error } = await supabase.functions.invoke<T>(name, init);
   if (error) throw error;
   return data as T;
 }
@@ -28,6 +34,12 @@ export function useGenerations() {
 
   const refresh = useCallback(async () => {
     try {
+      const { data: userData, error: userErr } = await supabase.auth.getUser();
+      if (userErr || !userData?.user) {
+        setHistory([]);
+        return;
+      }
+
       const list = await invokeFn<Generation[]>("generations?limit=30", { method: "GET" });
       setHistory(
         (list || []).filter(

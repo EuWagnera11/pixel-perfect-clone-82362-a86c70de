@@ -65,8 +65,15 @@ export function ImageWorkspace({
   const [uploading, setUploading] = useState(false);
   const [stylePreset, setStylePreset] = useState<string>("none");
   const [filterAspect, setFilterAspect] = useState<string>("all");
+  const [filterModel, setFilterModel] = useState<string>("all");
+  const [filterDate, setFilterDate] = useState<string>("all");
   const [filterFav, setFilterFav] = useState<boolean>(false);
+  const [search, setSearch] = useState<string>("");
+  const [selectMode, setSelectMode] = useState<boolean>(false);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
 
   const [lightbox, setLightbox] = useState<{
     items: { url: string; genId: string; prompt: string; meta?: any; isFav?: boolean }[];
@@ -123,13 +130,37 @@ export function ImageWorkspace({
     return Array.from(set);
   }, [imageHistory]);
 
+  const usedModels = useMemo(() => {
+    const set = new Set<string>();
+    imageHistory.forEach((g) => { if (g.model) set.add(g.model); });
+    return Array.from(set);
+  }, [imageHistory]);
+
   const filteredHistory = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    const now = Date.now();
+    const inDate = (iso?: string) => {
+      if (filterDate === "all" || !iso) return true;
+      const t = new Date(iso).getTime();
+      const d = (now - t) / 86400000;
+      if (filterDate === "today") return d < 1;
+      if (filterDate === "yesterday") return d >= 1 && d < 2;
+      if (filterDate === "week") return d < 7;
+      if (filterDate === "month") return d < 31;
+      return true;
+    };
     return imageHistory.filter((g) => {
       if (filterAspect !== "all" && (g as any).aspect_ratio !== filterAspect) return false;
+      if (filterModel !== "all" && g.model !== filterModel) return false;
       if (filterFav && !(g as any).metadata?.favorite) return false;
+      if (!inDate(g.created_at)) return false;
+      if (q && !(g.prompt || "").toLowerCase().includes(q)) return false;
       return true;
     });
-  }, [imageHistory, filterAspect, filterFav]);
+  }, [imageHistory, filterAspect, filterModel, filterDate, filterFav, search]);
+
+  const hasActiveFilters = filterAspect !== "all" || filterModel !== "all" || filterDate !== "all" || filterFav || !!search.trim();
+  const clearFilters = () => { setFilterAspect("all"); setFilterModel("all"); setFilterDate("all"); setFilterFav(false); setSearch(""); };
 
   // Agrupar gerações com mesmo prompt+modelo+aspecto em janela de 90s
   const groupedHistory = useMemo(() => {

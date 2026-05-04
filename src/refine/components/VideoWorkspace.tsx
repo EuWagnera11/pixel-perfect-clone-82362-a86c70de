@@ -237,7 +237,9 @@ export function VideoWorkspace({
                     onClick={() => ok && setMode(m.id)}
                     type="button"
                     disabled={!ok}
+                    aria-disabled={!ok}
                     title={ok ? m.label : `${currentModel.label} não suporta ${m.label}`}
+                    style={!ok ? { opacity: 0.35, cursor: "not-allowed", pointerEvents: "none" } : undefined}
                   >
                     <Icon d={m.icon} strokeWidth={1.6} />
                     <span>{m.label}</span>

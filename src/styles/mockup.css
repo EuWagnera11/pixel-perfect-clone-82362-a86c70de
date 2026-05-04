@@ -1228,19 +1228,31 @@ img{display:block;max-width:100%}
 .mp-item:hover{background:rgba(255,255,255,.04)}
 .mp-item.active{background:rgba(249,115,22,.06)}
 .mp-avatar{
-  width:28px;height:28px;border-radius:7px;display:grid;place-items:center;
-  font-size:12px;font-weight:600;border:1px solid;flex-shrink:0;
+  width:32px;height:32px;border-radius:9px;display:grid;place-items:center;
+  font-size:13px;font-weight:700;flex-shrink:0;border:1px solid var(--hairline);
+  background:rgba(255,255,255,.05);color:var(--text-2);
+}
+.mp-avatar.mp-avatar--premium{
+  background:radial-gradient(120% 120% at 30% 30%,#ffae6e,transparent 60%),linear-gradient(135deg,#ff7a2e,#ff3d00);
+  color:#fff;border:0;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.35),inset 0 -6px 10px rgba(0,0,0,.2),0 4px 12px -4px var(--accent-glow);
+}
+.mp-avatar.mp-avatar--fast{
+  background:var(--accent-medium);color:var(--accent-2);border:1px solid rgba(255,106,26,.3);
+}
+.mp-avatar.mp-avatar--edit{
+  background:var(--accent-soft);color:var(--accent-2);border:1px solid rgba(255,106,26,.25);
 }
 .mp-item-text{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
 .mp-item-name{font-size:13px;font-weight:500;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .mp-item-desc{font-size:11px;color:rgba(255,255,255,.55);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .mp-badge{
-  padding:2px 7px;border-radius:5px;font-size:10px;font-weight:600;letter-spacing:.01em;flex-shrink:0;
+  padding:3px 8px;border-radius:6px;font-size:10px;font-weight:600;letter-spacing:.02em;flex-shrink:0;
 }
-.mp-badge--premium{background:rgba(249,115,22,.12);color:#f97316}
-.mp-badge--fast{background:rgba(255,106,26,.12);color:#34d399}
-.mp-badge--edit{background:rgba(96,165,250,.14);color:#60a5fa}
-.mp-check{width:14px;height:14px;color:#f97316;flex-shrink:0}
+.mp-badge--premium{background:var(--accent-soft);color:var(--accent-2);border:1px solid rgba(255,106,26,.25)}
+.mp-badge--fast{background:transparent;color:var(--accent-2);border:1px solid rgba(255,106,26,.4)}
+.mp-badge--edit{background:var(--accent-medium);color:var(--accent-2);border:1px solid rgba(255,106,26,.3)}
+.mp-check{width:14px;height:14px;color:var(--accent);flex-shrink:0}
 .mp-empty{padding:24px;text-align:center;font-size:12px;color:rgba(255,255,255,.55)}
 
 /* ===== OutputControls ===== */

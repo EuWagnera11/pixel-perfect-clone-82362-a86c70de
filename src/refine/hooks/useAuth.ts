@@ -5,6 +5,10 @@ import { lovable } from "@/integrations/lovable";
 
 export type Profile = { tier: string; credits: number };
 
+function getErrorMessage(error: unknown, fallback: string) {
+  return error instanceof Error ? error.message : fallback;
+}
+
 export function useAuth() {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -14,9 +18,12 @@ export function useAuth() {
   const clearInvalidSession = async () => {
     try {
       await supabase.auth.signOut({ scope: "local" });
-    } catch {}
-    setSession(null);
-    setProfile(null);
+    } catch {
+      return;
+    } finally {
+      setSession(null);
+      setProfile(null);
+    }
   };
 
   useEffect(() => {
@@ -38,12 +45,14 @@ export function useAuth() {
             const me = await api<{ tier: string; credits: number }>("/billing/me");
             if (!mounted) return;
             setProfile({ tier: me.tier, credits: me.credits });
-          } catch {}
+          } catch {
+            setProfile(null);
+          }
         } else {
           setSession(null);
         }
-      } catch (e: any) {
-        if (mounted) setError(e?.message || "Auth failed");
+      } catch (error: unknown) {
+        if (mounted) setError(getErrorMessage(error, "Auth failed"));
       } finally {
         if (mounted) setLoading(false);
       }
@@ -74,7 +83,9 @@ export function useAuth() {
     try {
       const me = await api<{ tier: string; credits: number }>("/billing/me");
       setProfile({ tier: me.tier, credits: me.credits });
-    } catch {}
+    } catch {
+      setProfile(null);
+    }
   };
 
   const upgradeTo = async (tier: string = "starter_monthly") => {
@@ -84,9 +95,9 @@ export function useAuth() {
         body: { tier },
       });
       if (r.url) window.location.href = r.url;
-    } catch (e: any) {
-      console.error("[refine] upgrade failed:", e);
-      alert("Erro: " + (e?.message || "checkout falhou"));
+    } catch (error: unknown) {
+      console.error("[refine] upgrade failed:", error);
+      alert("Erro: " + getErrorMessage(error, "checkout falhou"));
     }
   };
 
@@ -98,8 +109,8 @@ export function useAuth() {
       if (result.error) {
         alert("Erro: " + (result.error.message || "OAuth falhou"));
       }
-    } catch (e: any) {
-      alert("Erro: " + (e?.message || "OAuth falhou"));
+    } catch (error: unknown) {
+      alert("Erro: " + getErrorMessage(error, "OAuth falhou"));
     }
   };
 

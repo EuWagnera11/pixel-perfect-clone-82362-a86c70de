@@ -1898,9 +1898,11 @@ img{display:block;max-width:100%}
 .img-ws-controls .img-ws-panel--prompt .img-ws-style-row{
   order:2; flex:0 0 auto !important;
   display:flex; flex-wrap:wrap; gap:5px;
-  padding-top:8px !important; margin-top:6px;
+  padding-top:8px !important; padding-left:2px; padding-right:14px;
+  margin-top:6px; margin-left:0; margin-right:0;
   border-top:1px dashed var(--hairline);
-  max-height:64px; overflow:hidden;
+  max-height:64px; overflow:hidden; box-sizing:border-box;
+  scroll-padding-inline:2px 14px;
 }
 .img-ws-controls .img-ws-chip{
   padding:3px 8px !important; font-size:var(--fs-mono) !important;
@@ -2006,10 +2008,16 @@ img{display:block;max-width:100%}
     min-height:34px;
     max-height:40px;
     padding-top:6px !important;
+    padding-left:2px;
+    padding-right:14px;
     padding-bottom:2px !important;
     margin-top:4px;
+    margin-left:0;
+    margin-right:0;
     scrollbar-width:none;
     align-items:center;
+    box-sizing:border-box;
+    scroll-padding-inline:2px 14px;
   }
   .img-ws-controls .img-ws-panel--prompt .img-ws-style-row::-webkit-scrollbar{display:none}
   .img-ws-controls .img-ws-panel--prompt .img-ws-chip{
@@ -2039,7 +2047,9 @@ img{display:block;max-width:100%}
   .ref-toolbar-btn{height:24px; font-size:9.5px}
   .img-ws-controls .img-ws-panel--prompt .img-ws-style-row{
     flex-wrap:nowrap; overflow-x:auto; max-height:32px;
+    padding-right:14px; margin-left:0; margin-right:0;
     scrollbar-width:none;
+    box-sizing:border-box; scroll-padding-inline-end:14px;
   }
   .img-ws-controls .img-ws-panel--prompt .img-ws-style-row::-webkit-scrollbar{display:none}
 }

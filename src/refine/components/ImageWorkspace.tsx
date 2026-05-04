@@ -395,6 +395,7 @@ export function ImageWorkspace({
         <header className="img-ws-gallery-head">
           <div className="img-ws-gh-row">
             <div className="img-ws-gallery-title">
+              <span className="eyebrow">GALERIA · CRIAÇÕES</span>
               <h2>Suas criações</h2>
               <p>{totalImages} {totalImages === 1 ? "imagem" : "imagens"} em {filteredHistory.length} {filteredHistory.length === 1 ? "geração" : "gerações"}</p>
             </div>

@@ -110,7 +110,7 @@ export function OutputControls({
               className={"oc-seg" + (quality === q.id ? " active" : "")}
               onClick={() => onQuality(q.id)}
             >
-              {q.label}
+              <span className="oc-seg-num">{q.label}</span>
               <span className="oc-seg-mult">{q.mult}×</span>
             </button>
           ))}

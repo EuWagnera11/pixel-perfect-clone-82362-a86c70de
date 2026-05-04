@@ -1829,6 +1829,7 @@ img{display:block;max-width:100%}
 .img-ws-controls{
   height:100vh !important; max-height:100vh !important; min-height:0 !important;
   padding:var(--pad-card) !important;
+  padding-bottom:calc(var(--pad-card) + var(--h-button) + 22px) !important;
   gap:var(--gap-stack) !important;
   overflow-x:hidden !important;
   overflow-y:auto !important;
@@ -1944,6 +1945,11 @@ img{display:block;max-width:100%}
 /* Container queries — adapt as panel shrinks */
 @container panel (height < 760px){
   .img-ws-controls .img-ws-sidebar-head p{display:none}
+  .references-card{gap:8px; padding:10px}
+  .references-grid{gap:5px}
+  .ref-slot{max-height:54px}
+  .references-toolbar{padding-top:6px}
+  .ref-toolbar-btn{height:24px; font-size:9.5px}
   .img-ws-controls .img-ws-panel--prompt .img-ws-style-row{
     flex-wrap:nowrap; overflow-x:auto; max-height:32px;
     scrollbar-width:none;
@@ -1954,6 +1960,12 @@ img{display:block;max-width:100%}
   .img-ws-controls .img-ws-sidebar-head h1{font-size:13px !important}
   .img-ws-controls .oc-section-head .oc-meta{display:none}
   .img-ws-controls .oc-summary{font-size:10px !important; padding:4px 0 !important}
+  .references-hint{display:none}
+  .ref-toolbar-btn .label{display:none}
+  .ref-toolbar-btn{gap:0}
+  .img-ws-controls .oc-aspect{max-height:46px; padding:4px 2px !important}
+  .img-ws-controls .oc-aspect-frame{width:18px !important; height:18px !important}
+  .oc-aspect-label em{font-size:7px !important}
 }
 
 /* Width responsive */

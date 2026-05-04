@@ -35,6 +35,10 @@ const VALID_TABS = new Set([
 ]);
 
 async function uploadFile(file: File): Promise<string> {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.access_token) {
+    throw new Error("Faça login para enviar arquivos");
+  }
   const fd = new FormData();
   fd.append("file", file);
   const { data, error } = await supabase.functions.invoke<{ url: string }>("uploads-file", {

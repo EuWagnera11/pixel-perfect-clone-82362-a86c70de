@@ -352,15 +352,23 @@ export function ImageWorkspace({
                 onCreateNew={() => { setLibraryOpen(true); }}
               />
               <div className="img-ws-style-row">
-                {STYLE_PRESETS.filter(s => s.id !== "none").map((s) => (
-                  <button
-                    key={s.id}
-                    className={"img-ws-chip" + (s.id === stylePreset ? " active" : "")}
-                    onClick={() => setStylePreset(s.id === stylePreset ? "none" : s.id)}
-                  >
-                    + {s.label}
-                  </button>
-                ))}
+                {(() => {
+                  const active = STYLE_PRESETS.find(s => s.id === stylePreset && s.id !== "none");
+                  return (
+                    <button
+                      className={"img-ws-chip" + (active ? " active" : "")}
+                      onClick={() => {
+                        if (active) { setStylePreset("none"); return; }
+                        setLibraryCategory("estilo");
+                        setLibraryQuery("");
+                        setLibraryOpen(true);
+                      }}
+                      title={active ? `Remover estilo: ${active.label}` : "Escolher estilo"}
+                    >
+                      {active ? `# ${active.label} ✕` : "+ Estilo"}
+                    </button>
+                  );
+                })()}
               </div>
             </div>
           </div>

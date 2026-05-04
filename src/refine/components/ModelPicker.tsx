@@ -12,15 +12,39 @@ type Props = {
   onChange: (label: string) => void;
 };
 
-const FAMILY_META: Record<ImageModel["family"], { name: string; color: string; initial: string }> = {
-  "nano-banana": { name: "Nano Banana", color: "#facc15", initial: "N" },
-  imagen:        { name: "Imagen",      color: "#60a5fa", initial: "I" },
-  flux:          { name: "Flux",        color: "#a78bfa", initial: "F" },
-  seedream:      { name: "Seedream",    color: "#34d399", initial: "S" },
-  mystic:        { name: "Mystic",      color: "#f472b6", initial: "M" },
-  hyperflux:     { name: "Hyperflux",   color: "#fb7185", initial: "H" },
-  "z-image":     { name: "Z-Image",     color: "#22d3ee", initial: "Z" },
-  runway:        { name: "RunWay",      color: "#94a3b8", initial: "R" },
+const FAMILY_META: Record<ImageModel["family"], { name: string; initial: string }> = {
+  "nano-banana": { name: "Nano Banana", initial: "N" },
+  imagen:        { name: "Imagen",      initial: "I" },
+  flux:          { name: "Flux",        initial: "F" },
+  seedream:      { name: "Seedream",    initial: "S" },
+  mystic:        { name: "Mystic",      initial: "M" },
+  hyperflux:     { name: "Hyperflux",   initial: "H" },
+  "z-image":     { name: "Z-Image",     initial: "Z" },
+  runway:        { name: "RunWay",      initial: "R" },
+};
+
+// Tone do avatar por modelo (paleta restrita: laranja + cinza)
+const AVATAR_TONE: Record<string, "premium" | "fast" | "edit" | "standard"> = {
+  "nano-banana-pro": "premium",
+  "nano-banana-pro-flash": "fast",
+  "imagen4-ultra": "premium",
+  "imagen4-fast": "fast",
+  "flux-pro-1-1": "standard",
+  "flux-kontext-pro": "edit",
+  "flux-2-klein": "standard",
+  "flux-2-pro": "premium",
+  "flux-2-turbo": "fast",
+  "flux-dev": "standard",
+  "seedream-v4": "standard",
+  "seedream-v4-edit": "edit",
+  "seedream-v4-5": "standard",
+  "seedream-v4-5-edit": "edit",
+  "seedream-v5-lite": "fast",
+  "seedream-v5-lite-edit": "edit",
+  mystic: "premium",
+  hyperflux: "premium",
+  "z-image": "fast",
+  "runway-t2i": "standard",
 };
 
 const DESCRIPTIONS: Record<string, string> = {
@@ -119,7 +143,7 @@ export function ModelPicker({ value, onChange }: Props) {
         onClick={() => select(m.label)}
         title={`${m.label} · ${DESCRIPTIONS[m.id] || meta.name}`}
       >
-        <span className="mp-avatar" style={{ background: `${meta.color}22`, color: meta.color, borderColor: `${meta.color}44` }}>
+        <span className={"mp-avatar mp-avatar--" + (AVATAR_TONE[m.id] || "standard")}>
           {meta.initial}
         </span>
         <span className="mp-item-text">

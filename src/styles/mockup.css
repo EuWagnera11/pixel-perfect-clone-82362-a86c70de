@@ -2833,18 +2833,13 @@ img{display:block;max-width:100%}
   :root{--sidebar-w:clamp(320px, 13vw, 420px); --rail-w:clamp(380px, 16vw, 500px)}
 }
 
-/* ---------- Library full-screen escala ---------- */
+/* ---------- Library modal escala ---------- */
 @media (min-width:1920px){
-  .library-page{grid-template-columns:clamp(240px,14vw,300px) 1fr clamp(320px,18vw,420px)}
   .lib-grid{grid-template-columns:repeat(auto-fill, minmax(clamp(140px,10vw,200px),1fr))}
 }
 @media (min-width:3840px){
-  .library-page{grid-template-columns:clamp(300px,12vw,380px) 1fr clamp(380px,14vw,480px)}
   .lib-grid{grid-template-columns:repeat(auto-fill, minmax(clamp(180px,9vw,260px),1fr))}
   .lib-title{font-size:var(--fs-h1)}
-}
-@media (min-width:6144px){
-  .library-main{max-width:6800px;margin:0 auto;padding:var(--space-12) var(--space-16)}
 }
 
 /* ---------- Modal preview / lightbox ---------- */

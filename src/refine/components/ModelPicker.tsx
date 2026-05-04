@@ -205,7 +205,7 @@ export function ModelPicker({ value, onChange }: Props) {
           {recentItems.length > 0 && filter === "all" && !query && (
             <div className="mp-recent">
               <div className="mp-group-head">Recentes</div>
-              {recentItems.map(renderItem)}
+              {recentItems.map((m) => renderItem(m, { showActive: false }))}
             </div>
           )}
           {grouped.map((g) => (
@@ -214,7 +214,7 @@ export function ModelPicker({ value, onChange }: Props) {
                 {FAMILY_META[g.fam].name}
                 <span className="mp-group-count">{g.items.length}</span>
               </div>
-              {g.items.map(renderItem)}
+              {g.items.map((m) => renderItem(m))}
             </div>
           ))}
           {filtered.length === 0 && (

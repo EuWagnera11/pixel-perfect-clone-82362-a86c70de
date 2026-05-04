@@ -318,21 +318,24 @@ export function LibraryPage({
 
         <div className="lib-content-header">
           <div className="lib-header-row">
-            <h2 className="lib-title">{titleByCat[category]}</h2>
-            <button className="lib-new-btn">
+            <h2 className="lib-title">{cfg.title}</h2>
+            <button
+              className="lib-new-btn"
+              onClick={() => showToast(`${cfg.newLabel} — em breve`)}
+            >
               <Icon d="M12 5v14M5 12h14" />
-              Novo {category === "personagem" ? "personagem" : "estilo"}
+              {cfg.newLabel}
             </button>
           </div>
           <div className="lib-tabs">
-            {TABS.map((t) => (
+            {cfg.tabs.map((t, i) => (
               <button
                 key={t}
                 className={"lib-tab" + (tab === t ? " active" : "")}
                 onClick={() => setTab(t)}
               >
-                {t === "Em destaque" && <Icon d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z" />}
-                {t === "Meus estilos" && <Icon d="M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0z M4 20a8 8 0 0 1 16 0" />}
+                {i === 0 && <Icon d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z" />}
+                {i === 1 && <Icon d="M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0z M4 20a8 8 0 0 1 16 0" />}
                 {t}
               </button>
             ))}

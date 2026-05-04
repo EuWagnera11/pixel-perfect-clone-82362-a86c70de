@@ -145,7 +145,7 @@ export function ReferencesPanel({ refs, onChange, onUploadFile, modelId, modelLa
 
   const removeAt = (i: number) => onChange(refs.filter((_, j) => j !== i));
 
-  const slotCount = Math.max(4, Math.min(max || 4, 8));
+  const slotCount = Math.min(4, max || 4);
   const emptySlots = Math.max(0, slotCount - refs.length);
 
   const sourceIconPath = (s: RefSource) => {

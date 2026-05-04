@@ -2571,7 +2571,7 @@ img{display:block;max-width:100%}
 .lib-upload-btn svg{width:11px;height:11px}
 
 /* ============ PROMPT INPUT (contenteditable) + @ mentions ============ */
-.prompt-input{width:100%;min-height:72px;max-height:200px;background:transparent;border:0;outline:0;color:var(--text);font-family:inherit;font-size:13px;line-height:1.65;padding:6px 0;white-space:pre-wrap;word-break:break-word;overflow-y:auto;caret-color:var(--accent)}
+.prompt-input{width:100%;min-height:72px;max-height:200px;background:transparent;border:0;outline:0;color:var(--text);font-family:inherit;font-size:13px;line-height:1.65;padding:6px 0;white-space:pre-wrap;word-break:break-word;overflow-wrap:anywhere;overflow-x:hidden;overflow-y:auto;caret-color:var(--accent)}
 .prompt-input:empty::before{content:attr(data-placeholder);color:var(--text-3);pointer-events:none}
 .prompt-input:focus{outline:none}
 

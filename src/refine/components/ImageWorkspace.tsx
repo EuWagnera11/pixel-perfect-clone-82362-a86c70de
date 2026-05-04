@@ -344,7 +344,7 @@ export function ImageWorkspace({
           <div className="img-ws-section">
             <textarea
               className="img-ws-textarea"
-              placeholder="Ex: retrato editorial de uma mulher ruiva com luz quente lateral, fundo desfocado…"
+              placeholder={PROMPT_PLACEHOLDERS[phIdx]}
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               onKeyDown={(e) => {

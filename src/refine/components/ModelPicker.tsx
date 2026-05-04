@@ -202,20 +202,30 @@ export function ModelPicker({ value, onChange }: Props) {
         </div>
         <div className="mp-list">
           {recentItems.length > 0 && filter === "all" && !query && (
-            <>
+            <div className="mp-recent">
               <div className="mp-group-head">Recentes</div>
               {recentItems.map(renderItem)}
-            </>
+            </div>
           )}
           {grouped.map((g) => (
             <div key={g.fam}>
-              <div className="mp-group-head">{FAMILY_META[g.fam].name} · {g.items.length}</div>
+              <div className="mp-group-head">
+                {FAMILY_META[g.fam].name}
+                <span className="mp-group-count">{g.items.length}</span>
+              </div>
               {g.items.map(renderItem)}
             </div>
           ))}
           {filtered.length === 0 && (
             <div className="mp-empty">Nenhum modelo encontrado</div>
           )}
+        </div>
+        <div className="mp-footer">
+          <div className="mp-shortcuts">
+            <span><span className="mp-kbd">↑↓</span>Navegar</span>
+            <span><span className="mp-kbd">↵</span>Selecionar</span>
+            <span><span className="mp-kbd">Esc</span>Fechar</span>
+          </div>
         </div>
       </PopoverContent>
     </Popover>

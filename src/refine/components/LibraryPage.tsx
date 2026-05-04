@@ -211,12 +211,18 @@ export function LibraryPage({
         </div>
 
         <div className="lib-content-header">
-          <h2 className="lib-title">{titleByCat[category]}</h2>
+          <div className="lib-header-row">
+            <h2 className="lib-title">{titleByCat[category]}</h2>
+            <button className="lib-new-btn">
+              <Icon d="M12 5v14M5 12h14" />
+              Novo {category === "personagem" ? "personagem" : "estilo"}
+            </button>
+          </div>
           <div className="lib-tabs">
             {TABS.map((t) => (
               <button
                 key={t}
-                className={"lib-tab text-only" + (tab === t ? " active" : "")}
+                className={"lib-tab" + (tab === t ? " active" : "")}
                 onClick={() => setTab(t)}
               >
                 {t === "Em destaque" && <Icon d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z" />}
@@ -225,10 +231,6 @@ export function LibraryPage({
               </button>
             ))}
           </div>
-          <button className="lib-new-btn">
-            <Icon d="M12 5v14M5 12h14" />
-            Novo {category === "personagem" ? "personagem" : "estilo"}
-          </button>
         </div>
 
         <div className="lib-grid">
@@ -247,8 +249,10 @@ export function LibraryPage({
             </div>
           )}
 
-          {filtered.map((it) => {
+          {filtered.map((it, idx) => {
             const isSel = selected && selected.type === it.type && selected.id === it.id;
+            const styleIdx = (it.name.charCodeAt(0) + idx) % 6;
+            const letter = (it.name || "?").trim().charAt(0).toUpperCase();
             return (
               <button
                 key={`${it.type}:${it.id}`}
@@ -256,13 +260,11 @@ export function LibraryPage({
                 onClick={() => setSelected(it)}
                 onDoubleClick={() => { onPick(it); onClose(); }}
               >
-                <div className="card-thumb">
+                <div className="card-thumb" data-style={String(styleIdx)}>
                   {it.avatarSrc ? (
                     <img src={it.avatarSrc} alt={it.name} />
                   ) : (
-                    <div style={{ display: "grid", placeItems: "center", height: "100%" }}>
-                      <Icon d="M4 4h16v16H4z M4 16l4-4 4 4 4-4 4 4" />
-                    </div>
+                    <span className="card-letter">{letter}</span>
                   )}
                 </div>
                 <span className="card-name">#{it.name}</span>
@@ -276,7 +278,6 @@ export function LibraryPage({
       <aside className="library-rightpanel modal-rightpanel">
         {!selected ? (
           <div
-            className={"rightpanel-empty" + (dragOver ? " dragover" : "")}
             onDragEnter={(e) => { e.preventDefault(); setDragOver(true); }}
             onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
             onDragLeave={() => setDragOver(false)}
@@ -286,17 +287,81 @@ export function LibraryPage({
               const files = Array.from(e.dataTransfer.files);
               if (files.length) handleFiles(files);
             }}
+            style={{ display: "flex", flexDirection: "column", gap: 0 }}
           >
-            <Icon d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14" />
-            <p>Arraste uma imagem ou<br />carregue sua própria mídia</p>
-            <div className="rightpanel-actions">
-              <button className="btn-secondary" onClick={() => fileInputRef.current?.click()} disabled={uploading}>
-                <Icon d="M12 5v14M5 12h14" />
-                {uploading ? "Enviando…" : "Carregar mídia"}
+            {/* EM ALTA */}
+            <div className="rp-block">
+              <div className="rp-block-header">
+                <div className="rp-block-title">
+                  <Icon d="M3 17l6-6 4 4 8-8 M14 7h7v7" />
+                  Em alta
+                </div>
+                <span className="rp-period">7 dias</span>
+              </div>
+              {(filtered.slice(0, 3)).map((it, i) => {
+                const styleIdx = (it.name.charCodeAt(0) + i) % 6;
+                return (
+                  <button key={`tr-${it.id}`} className="trending-item" onClick={() => setSelected(it)}>
+                    <span className="trending-rank">{String(i + 1).padStart(2, "0")}</span>
+                    <span className="trending-thumb" data-style={String(styleIdx)} />
+                    <span className="trending-info">
+                      <span className="trending-name">#{it.name}</span>
+                      <span className="trending-uses">+{(1200 - i * 240)} usos</span>
+                    </span>
+                    <span className="trending-trend">+{24 - i * 6}%</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* PRA VOCÊ */}
+            <div className="rp-block">
+              <div className="rp-block-header">
+                <div className="rp-block-title">
+                  <Icon d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z" />
+                  Pra você
+                </div>
+                <span className="rp-tag">IA</span>
+              </div>
+              <div className="rp-block-sub">Baseado nas últimas gerações</div>
+              <div className="rec-grid">
+                {(filtered.slice(3, 7)).map((it, i) => {
+                  const styleIdx = (it.name.charCodeAt(0) + i + 2) % 6;
+                  return (
+                    <button key={`rec-${it.id}`} className="rec-card" onClick={() => setSelected(it)}>
+                      <span className="rec-thumb" data-style={String(styleIdx)} />
+                      <span className="rec-name">#{it.name}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* ATALHOS */}
+            <div className="rp-block">
+              <div className="rp-block-header">
+                <div className="rp-block-title">
+                  <Icon d="M13 2L3 14h7l-1 8 10-12h-7z" />
+                  Atalhos
+                </div>
+              </div>
+              <button className="shortcut-item" onClick={() => fileInputRef.current?.click()} disabled={uploading}>
+                <span className="shortcut-icon"><Icon d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14" /></span>
+                <span className="shortcut-label">{uploading ? "Enviando…" : "Upload do PC"}</span>
+                <span className="kbd">⌘U</span>
               </button>
-              <button className="btn-secondary" onClick={() => showToast("Câmera ainda não disponível")}>
-                <Icon d="M3 7h4l2-3h6l2 3h4v12H3z M12 17a4 4 0 1 1 0-8 4 4 0 0 1 0 8z" />
-                Tirar foto
+              <button className="shortcut-item" onClick={() => showToast("Câmera ainda não disponível")}>
+                <span className="shortcut-icon"><Icon d="M3 7h4l2-3h6l2 3h4v12H3z M12 17a4 4 0 1 1 0-8 4 4 0 0 1 0 8z" /></span>
+                <span className="shortcut-label">Tirar foto</span>
+              </button>
+              <button className="shortcut-item" onClick={() => showToast("URL externa em breve")}>
+                <span className="shortcut-icon"><Icon d="M10 14a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1 M14 10a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1" /></span>
+                <span className="shortcut-label">URL externa</span>
+              </button>
+              <button className="shortcut-item" onClick={() => showToast("Criação com IA em breve")}>
+                <span className="shortcut-icon"><Icon d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z" /></span>
+                <span className="shortcut-label">Criar com IA</span>
+                <span className="badge-new">NOVO</span>
               </button>
             </div>
           </div>

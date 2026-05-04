@@ -182,9 +182,17 @@ export function LibraryPage({
   }, [open, onClose]);
 
   const filtered = useMemo(() => {
-    const t = CATEGORY_TO_TYPE[category];
+    const t = CATEGORY_CONFIG[category].type;
     let pool = items;
     if (t !== "all") pool = pool.filter((i) => i.type === t);
+    // injetar seeds da categoria se vazio
+    if (pool.length === 0) {
+      pool = CATEGORY_CONFIG[category].seeds.map((s, i) => ({
+        id: `seed-${category}-${i}`,
+        type: t === "all" ? "style" : t,
+        name: s.name,
+      })) as MentionItem[];
+    }
     const q = search.trim().toLowerCase();
     if (q) pool = pool.filter((i) => i.name.toLowerCase().includes(q));
     return pool;

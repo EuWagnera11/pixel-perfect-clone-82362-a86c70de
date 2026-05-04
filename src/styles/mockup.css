@@ -1422,8 +1422,8 @@ img{display:block;max-width:100%}
   border-radius:12px;padding:3px;
 }
 .oc-pill{
-  flex:1;height:34px;border-radius:9px;background:transparent !important;border:0 !important;
-  color:var(--text-2);font-size:13px;font-weight:500;cursor:pointer;
+  flex:1;height:28px;border-radius:7px;background:transparent !important;border:0 !important;
+  color:var(--text-2);font-size:12px;font-weight:500;cursor:pointer;
   transition:color .35s var(--spring),font-weight .35s;position:relative;z-index:2;
 }
 .oc-pill.active{
@@ -1434,26 +1434,26 @@ img{display:block;max-width:100%}
 .oc-pill:not(.active):hover{color:var(--text)}
 
 /* Aspect cards */
-.oc-aspects{display:grid;grid-template-columns:repeat(4,1fr);gap:8px !important}
+.oc-aspects{display:grid;grid-template-columns:repeat(4,1fr);gap:6px !important}
 .oc-aspect{
-  aspect-ratio:1;border-radius:12px !important;border:1px solid var(--hairline) !important;
+  border-radius:9px !important;border:1px solid var(--hairline) !important;
   background:rgba(255,255,255,.02) !important;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
-  padding:10px 6px !important;transition:.4s var(--spring) !important;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  padding:6px 4px !important;transition:border-color .25s var(--spring),background .25s var(--spring) !important;
 }
 .oc-aspect:hover{
   border-color:var(--hairline-2) !important;background:rgba(255,255,255,.04) !important;
-  transform:translateY(-2px);
 }
 .oc-aspect.active{
   border-color:var(--accent) !important;background:var(--accent-soft) !important;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 8px 18px -8px var(--accent-glow);
 }
-.oc-aspect-rect{background:rgba(255,255,255,.18) !important;border-radius:3px}
+.oc-aspect-frame{width:20px !important;height:20px !important}
+.oc-aspect-rect{background:rgba(255,255,255,.18) !important;border-radius:2px;max-width:18px;max-height:18px}
 .oc-aspect.active .oc-aspect-rect{background:var(--accent) !important}
-.oc-aspect-label b{font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:10.5px !important;font-weight:600 !important;color:var(--text)}
+.oc-aspect-label b{font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:9.5px !important;font-weight:600 !important;color:var(--text)}
 .oc-aspect.active .oc-aspect-label b{color:var(--accent-2)}
-.oc-aspect-label em{font-size:9.5px !important;color:var(--text-3) !important;letter-spacing:.04em}
+.oc-aspect-label em{font-size:8px !important;color:var(--text-3) !important;letter-spacing:.04em}
 .oc-aspect.active .oc-aspect-label em{color:var(--accent-2);opacity:.8}
 
 /* Quality as same sliding pills */
@@ -1462,9 +1462,9 @@ img{display:block;max-width:100%}
   border:1px solid var(--hairline) !important;border-radius:12px !important;padding:3px !important;gap:0 !important;
 }
 .oc-seg{
-  flex:1;height:34px;border-radius:9px;background:transparent !important;
-  color:var(--text-2) !important;font-size:13px !important;font-weight:500;
-  flex-direction:column !important;gap:0;padding:0 !important;
+  flex:1;height:28px;border-radius:7px;background:transparent !important;
+  color:var(--text-2) !important;font-size:12px !important;font-weight:500;
+  flex-direction:row !important;gap:4px;padding:0 !important;
   transition:color .35s var(--spring);position:relative;z-index:2;
 }
 .oc-seg.active{

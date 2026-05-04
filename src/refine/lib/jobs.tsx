@@ -40,7 +40,12 @@ const JobsCtx = createContext<Ctx | null>(null);
 
 export function JobsProvider({ children, onCompleted }: { children: ReactNode; onCompleted?: (job: Job) => void }) {
   const [jobs, setJobs] = useState<Job[]>(() => {
-    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"); } catch { return []; }
+    try {
+      const raw: Job[] = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+      // Descarta jobs "processing" antigos (>10min) — ficaram órfãos
+      const cutoff = Date.now() - 10 * 60_000;
+      return raw.filter((j) => j.status !== "processing" || j.startedAt > cutoff);
+    } catch { return []; }
   });
   const polling = useRef<Set<string>>(new Set());
   const onCompletedRef = useRef(onCompleted);

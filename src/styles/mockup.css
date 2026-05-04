@@ -131,8 +131,8 @@ img{display:block;max-width:100%}
 .sidebar-v2:hover .sb-nav-cap, .sidebar-v2.locked .sb-nav-cap{opacity:1}
 
 .sb-nav-item{
-  display:flex; align-items:center; gap:10px; height:clamp(28px, 3.4vh, 36px); padding:0 10px;
-  border-radius:10px; background:transparent; border:0; color:var(--text-2);
+  display:flex; align-items:center; gap:10px; height:clamp(24px, 2.9vh, 32px); padding:0 10px;
+  border-radius:9px; background:transparent; border:0; color:var(--text-2);
   cursor:pointer; position:relative; white-space:nowrap; overflow:visible;
   transition:.3s var(--spring); text-align:left; flex-shrink:0;
 }

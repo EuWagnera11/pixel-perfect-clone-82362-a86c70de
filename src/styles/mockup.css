@@ -1944,22 +1944,24 @@ img{display:block;max-width:100%}
   display:flex !important; flex-direction:column !important;
   align-items:center !important; justify-content:center !important;
   gap:0 !important; padding:0 !important; border-radius:7px !important;
-  background:transparent !important; color:var(--text-2) !important;
-  font-size:var(--fs-pill) !important; line-height:1; transition:all .25s var(--spring);
+  background:transparent !important; color:#fff !important;
+  font-size:12px !important; line-height:1; transition:all .25s var(--spring);
 }
 .img-ws-controls .oc-seg.active{
   background:linear-gradient(180deg,var(--accent-2),var(--accent-3)) !important;
-  color:#0a0a0b !important; font-weight:600;
+  color:#0a0a0b !important; font-weight:700;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 6px 14px -4px var(--accent-glow);
 }
 .img-ws-controls .oc-seg-num{
-  display:block; font-size:var(--fs-pill) !important;
-  font-weight:600; line-height:1;
+  display:block; font-size:12px !important;
+  font-weight:700; line-height:1; color:inherit;
 }
 .img-ws-controls .oc-seg-mult{
   display:block; font-size:9px !important; line-height:1;
-  margin-top:2px; opacity:.7; font-family:ui-monospace,monospace;
+  margin-top:2px; opacity:.75; font-family:ui-monospace,monospace; color:inherit;
 }
+.img-ws-controls .oc-seg:not(.active){color:rgba(255,255,255,.85) !important}
+.img-ws-controls .oc-seg:not(.active):hover{background:rgba(255,255,255,.05) !important}
 .img-ws-controls .oc-seg.active .oc-seg-mult{opacity:.85; color:rgba(0,0,0,.7)}
 
 /* Generate button fluid */

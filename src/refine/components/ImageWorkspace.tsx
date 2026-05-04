@@ -68,7 +68,7 @@ export function ImageWorkspace({
   const [ratio, setRatio] = useState<AspectRatio>("16:9");
   const [quality, setQuality] = useState<string>("2K");
   const [variations, setVariations] = useState<number>(4);
-  const [refs, setRefs] = useState<string[]>([]);
+  const [refs, setRefs] = useState<RefItem[]>([]);
   const [uploading, setUploading] = useState(false);
   const [stylePreset, setStylePreset] = useState<string>("none");
   const [filterAspect, setFilterAspect] = useState<string>("all");

@@ -294,8 +294,9 @@ function Workspace() {
         />
 
         <section className="workspace">
-          {currentTab === "image" || currentTab === "video" ? (
-            (currentTab === "image" ? ImageWorkspace : VideoWorkspace)({
+          {(() => {
+            if (currentTab !== "image" && currentTab !== "video") return null;
+            const wsProps = {
               history,
               onUploadRef: async (file: File) => {
                 try {
@@ -334,8 +335,12 @@ function Workspace() {
                 if (error) { showToast("Erro: " + error.message); return; }
                 setHistory((p) => p.map((g: any) => g.id === id ? { ...g, metadata: md } : g));
               },
-            } as any)
-          ) : (
+            };
+            return currentTab === "image"
+              ? <ImageWorkspace {...wsProps} />
+              : <VideoWorkspace {...wsProps} />;
+          })()}
+          {currentTab !== "image" && currentTab !== "video" && (
             <>
               <div className={"canvas" + (noDock ? " no-dock" : "")}>
                 <div ref={viewRef} dangerouslySetInnerHTML={{ __html: viewHtml }} />

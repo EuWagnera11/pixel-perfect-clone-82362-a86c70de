@@ -49,6 +49,12 @@ const PROMPT_EXAMPLES = [
   "Paisagem alpina ao amanhecer, neblina, luz dourada, ultra detalhada",
 ];
 
+const PROMPT_PLACEHOLDERS = [
+  "Ex: retrato editorial de uma mulher ruiva com luz quente lateral, fundo desfocado…",
+  "Ex: cena cinematográfica anos 70, grão de filme, Kodak Portra…",
+  "Ex: produto premium em cenário minimalista, luz suave de janela…",
+];
+
 export function ImageWorkspace({
   history, onUploadRef, showToast, refreshHistory,
   onDeleteGeneration, onToggleFavorite,

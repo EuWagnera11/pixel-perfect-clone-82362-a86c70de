@@ -152,7 +152,6 @@ export function LibraryPage({
   // Reset tab quando trocar categoria
   useEffect(() => {
     setTab(CATEGORY_CONFIG[category].tabs[0]);
-    setSelected(null);
   }, [category]);
 
   useEffect(() => {

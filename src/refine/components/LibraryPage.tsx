@@ -40,16 +40,94 @@ const SIDE_GROUPS: { eyebrow: string; items: { id: Category; label: string; icon
   },
 ];
 
-const TABS = ["Em destaque", "Meus estilos", "Tudo", "Foto", "Ilustração", "3D", "Design"];
+type CategoryConfig = {
+  title: string;
+  newLabel: string;
+  tabs: string[];
+  type: MentionType | "all";
+  seeds: { name: string; meta?: string }[];
+  emptyHint: string;
+};
 
-const CATEGORY_TO_TYPE: Record<Category, MentionType | "all"> = {
-  estilo: "style",
-  personagem: "character",
-  elemento: "product",
-  cor: "style",
-  efeitos: "style",
-  camera: "scene",
-  stock: "all",
+const CATEGORY_CONFIG: Record<Category, CategoryConfig> = {
+  stock: {
+    title: "Histórico",
+    newLabel: "Novo estilo",
+    tabs: ["Em destaque", "Meus estilos", "Tudo", "Foto", "Ilustração", "3D", "Design"],
+    type: "all",
+    seeds: [
+      { name: "cinematic" }, { name: "editorial" }, { name: "product" },
+      { name: "anime" }, { name: "3d" }, { name: "noir" },
+    ],
+    emptyHint: "Faça upload no painel à direita ou crie uma nova referência.",
+  },
+  estilo: {
+    title: "Estilos",
+    newLabel: "Novo estilo",
+    tabs: ["Em destaque", "Meus estilos", "Foto", "Ilustração", "3D", "Pintura", "Design"],
+    type: "style",
+    seeds: [
+      { name: "cinematic" }, { name: "editorial" }, { name: "anime" },
+      { name: "3d-render" }, { name: "watercolor" }, { name: "noir" },
+      { name: "pop-art" }, { name: "vaporwave" },
+    ],
+    emptyHint: "Crie um estilo a partir de uma imagem ou descrição.",
+  },
+  personagem: {
+    title: "Personagens",
+    newLabel: "Novo personagem",
+    tabs: ["Em destaque", "Meus personagens", "Realista", "Cartoon", "3D", "Anime"],
+    type: "character",
+    seeds: [
+      { name: "alex" }, { name: "maya" }, { name: "kenji" },
+      { name: "luna" }, { name: "rio" }, { name: "ada" },
+    ],
+    emptyHint: "Adicione fotos de referência para treinar um novo personagem.",
+  },
+  elemento: {
+    title: "Elementos",
+    newLabel: "Novo elemento",
+    tabs: ["Em destaque", "Meus elementos", "Produtos", "Logos", "Objetos", "Texturas"],
+    type: "product",
+    seeds: [
+      { name: "garrafa" }, { name: "tenis" }, { name: "logo-marca" },
+      { name: "smartwatch" }, { name: "cadeira" }, { name: "perfume" },
+    ],
+    emptyHint: "Faça upload de um produto ou objeto isolado.",
+  },
+  cor: {
+    title: "Cores",
+    newLabel: "Nova paleta",
+    tabs: ["Em destaque", "Minhas paletas", "Quente", "Fria", "Pastel", "Neon", "Monocromático"],
+    type: "style",
+    seeds: [
+      { name: "sunset" }, { name: "midnight" }, { name: "pastel-spring" },
+      { name: "neon-tokyo" }, { name: "earth-tones" }, { name: "mono-noir" },
+    ],
+    emptyHint: "Extraia uma paleta de uma imagem ou crie do zero.",
+  },
+  efeitos: {
+    title: "Efeitos",
+    newLabel: "Novo efeito",
+    tabs: ["Em destaque", "Meus efeitos", "Luz", "Textura", "Filme", "Glitch", "Bokeh"],
+    type: "style",
+    seeds: [
+      { name: "film-grain" }, { name: "bokeh" }, { name: "lens-flare" },
+      { name: "glitch" }, { name: "long-exposure" }, { name: "vhs" },
+    ],
+    emptyHint: "Combine efeitos para dar acabamento à imagem.",
+  },
+  camera: {
+    title: "Câmera",
+    newLabel: "Novo preset",
+    tabs: ["Em destaque", "Meus presets", "Lente", "Ângulo", "Movimento", "Profundidade"],
+    type: "scene",
+    seeds: [
+      { name: "35mm" }, { name: "85mm-portrait" }, { name: "wide-16mm" },
+      { name: "low-angle" }, { name: "drone-top" }, { name: "dolly-in" },
+    ],
+    emptyHint: "Defina lente, ângulo e movimento de câmera.",
+  },
 };
 
 export function LibraryPage({

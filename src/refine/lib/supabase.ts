@@ -1,16 +1,6 @@
-import { createClient } from "@supabase/supabase-js";
+import { supabase } from "@/integrations/supabase/client";
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL ?? "https://obxbwawlvtbfbxocnxzl.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY =
-  import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ?? "sb_publishable_NY_ToQeIZmjraQkAdso2_w_5t8AnW7T";
-
-export const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
-  auth: {
-    storage: typeof window !== "undefined" ? localStorage : undefined,
-    persistSession: true,
-    autoRefreshToken: true,
-  },
-});
+export { supabase };
 
 export const API_URL =
   import.meta.env.VITE_API_URL ?? "https://refine-saas-cubo-api.ewp1z9.easypanel.host";

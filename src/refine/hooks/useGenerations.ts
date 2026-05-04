@@ -28,6 +28,12 @@ export function useGenerations() {
 
   const refresh = useCallback(async () => {
     try {
+      const { data: userData, error: userErr } = await supabase.auth.getUser();
+      if (userErr || !userData?.user) {
+        setHistory([]);
+        return;
+      }
+
       const list = await invokeFn<Generation[]>("generations?limit=30", { method: "GET" });
       setHistory(
         (list || []).filter(

@@ -466,7 +466,8 @@ export const PromptInput = forwardRef<PromptInputHandle, Props>(function PromptI
               <span className="kbd">Esc</span>Fechar
             </span>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );

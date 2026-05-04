@@ -554,7 +554,7 @@ img{display:block;max-width:100%}
 .img-ws-controls .img-ws-textarea{min-height:96px;max-height:none;font-size:13px;line-height:1.45;flex:1}
 .img-ws-controls .img-ws-panel--prompt{flex:0 0 auto;min-height:0}
 .img-ws-controls .img-ws-panel--prompt .img-ws-section{flex:0 0 auto;min-height:0}
-.img-ws-controls{overflow-y:auto}
+.img-ws-controls{overflow:hidden}
 .img-ws-controls .img-ws-generate{padding:10px 12px}
 .img-ws-controls .img-ws-generate-wrap{padding:0;margin-top:0}
 .img-ws-controls .oc{gap:0}

@@ -199,15 +199,59 @@ export function ImageWorkspace({
 
   // ===== global keys =====
   useEffect(() => {
-    if (!lightbox) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setLightbox(null);
-      else if (e.key === "ArrowRight") setLightbox((l) => l && { ...l, index: Math.min(l.items.length - 1, l.index + 1) });
-      else if (e.key === "ArrowLeft") setLightbox((l) => l && { ...l, index: Math.max(0, l.index - 1) });
+      const tag = (e.target as HTMLElement)?.tagName;
+      const inField = tag === "INPUT" || tag === "TEXTAREA";
+      // Lightbox-only
+      if (lightbox) {
+        if (e.key === "Escape") setLightbox(null);
+        else if (e.key === "ArrowRight") setLightbox((l) => l && { ...l, index: Math.min(l.items.length - 1, l.index + 1) });
+        else if (e.key === "ArrowLeft") setLightbox((l) => l && { ...l, index: Math.max(0, l.index - 1) });
+        return;
+      }
+      // Cmd/Ctrl+K → focus search
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault(); searchRef.current?.focus(); return;
+      }
+      if (inField) return;
+      if (e.key === "Escape") {
+        if (selectMode) { setSelectMode(false); setSelected(new Set()); }
+        else if (search) setSearch("");
+      } else if (e.key.toLowerCase() === "f") {
+        setFilterFav((v) => !v);
+      } else if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "a" && selectMode) {
+        e.preventDefault();
+        const all = new Set<string>();
+        filteredHistory.forEach((g) => (g.image_urls || []).forEach((u, i) => all.add(`${g.id}:${i}`)));
+        setSelected(all);
+      }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [lightbox]);
+  }, [lightbox, selectMode, search, filteredHistory]);
+
+  // helpers
+  const dateLabel = (iso?: string) => {
+    if (!iso) return "";
+    const d = new Date(iso);
+    const now = new Date();
+    const start = (x: Date) => new Date(x.getFullYear(), x.getMonth(), x.getDate()).getTime();
+    const diff = (start(now) - start(d)) / 86400000;
+    if (diff === 0) return "Hoje";
+    if (diff === 1) return "Ontem";
+    if (diff < 7) return d.toLocaleDateString("pt-BR", { weekday: "long" });
+    if (diff < 31) return "Este mês";
+    return d.toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
+  };
+
+  const toggleSelect = (key: string) => {
+    setSelected((s) => {
+      const n = new Set(s);
+      if (n.has(key)) n.delete(key); else n.add(key);
+      return n;
+    });
+  };
+
 
   return (
     <div className="img-ws">

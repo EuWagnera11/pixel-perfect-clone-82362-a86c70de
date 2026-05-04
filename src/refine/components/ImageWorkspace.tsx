@@ -567,10 +567,7 @@ export function ImageWorkspace({
                       </button>
                     </div>
                   </div>
-                  <div
-                    className="img-ws-gen-grid"
-                    style={{ gridTemplateColumns: `repeat(${colCount}, 1fr)` }}
-                  >
+                  <div className="img-ws-gen-grid">
                     {tiles.map(({ url, gen: g }, i) => {
                       const key = `${g.id}:${i}`;
                       const isSel = selected.has(key);

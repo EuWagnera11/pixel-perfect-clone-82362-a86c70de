@@ -105,9 +105,9 @@ export function ImageWorkspace({
         tab: "image",
         prompt: finalPrompt,
         aspect: ratio,
-        sourceUrl: refs[0] || null,
+        sourceUrl: refs[0]?.url || null,
         model: modelId,
-        thumb: refs[0] || undefined,
+        thumb: refs[0]?.url || undefined,
         quality,
         numVariations: 1,
       })

@@ -373,12 +373,12 @@ function Workspace() {
           )}
         </section>
 
-        {!noRail && currentTab !== "image" && (
+        {!noRail && currentTab !== "image" && currentTab !== "video" && (
           <Rail generations={history} onItemClick={handleHistoryClick} />
         )}
       </div>
 
-      {currentTab !== "image" && <JobsPanel onOpenResult={handleJobOpen} />}
+      {currentTab !== "image" && currentTab !== "video" && <JobsPanel onOpenResult={handleJobOpen} />}
       <Toast msg={msg} show={show} />
     </>
   );

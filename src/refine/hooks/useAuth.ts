@@ -17,11 +17,22 @@ export function useAuth() {
       try {
         const { data } = await supabase.auth.getSession();
         if (!mounted) return;
-        setSession(data.session);
         if (data.session) {
-          const me = await api<{ tier: string; credits: number }>("/billing/me");
-          if (!mounted) return;
-          setProfile({ tier: me.tier, credits: me.credits });
+          // Validate session is still valid on the server
+          const { data: userData, error: userErr } = await supabase.auth.getUser();
+          if (userErr || !userData?.user) {
+            await supabase.auth.signOut();
+            if (mounted) setSession(null);
+            return;
+          }
+          setSession(data.session);
+          try {
+            const me = await api<{ tier: string; credits: number }>("/billing/me");
+            if (!mounted) return;
+            setProfile({ tier: me.tier, credits: me.credits });
+          } catch {}
+        } else {
+          setSession(null);
         }
       } catch (e: any) {
         if (mounted) setError(e?.message || "Auth failed");

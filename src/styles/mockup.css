@@ -775,7 +775,7 @@ img{display:block;max-width:100%}
 
 /* feed */
 .img-ws-feed{
-  flex:1;min-height:0;overflow-y:auto;padding:8px 24px 80px;display:flex;flex-direction:column;gap:0;
+  flex:1;min-height:0;overflow-y:auto;padding:8px clamp(12px,1.5vw,40px) 80px;display:flex;flex-direction:column;gap:0;
   scrollbar-width:none;-ms-overflow-style:none;
 }
 .img-ws-feed::-webkit-scrollbar{display:none}
@@ -842,9 +842,11 @@ img{display:block;max-width:100%}
 .img-ws-gen-menu-pop button.danger{color:#ef4444}
 .img-ws-gen-menu-pop button.danger:hover{background:rgba(239,68,68,.1)}
 
-/* tile grid: 4 cols, no stretch */
+/* tile grid: fluid auto-fill — escala de 1024px a 8K continuamente */
 .img-ws-gen-grid{
-  display:grid;grid-template-columns:repeat(4,1fr);gap:8px;
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(clamp(180px, 14vw, 360px),1fr));
+  gap:clamp(6px,.6vw,16px);
   grid-auto-rows:minmax(0,auto);
 }
 .img-ws-tile{
@@ -2319,24 +2321,11 @@ img{display:block;max-width:100%}
   .img-ws-controls{padding:18px 16px 16px;gap:14px}
 }
 
-/* ---------- /image — galeria escalando colunas ---------- */
-@media (min-width:1920px){
-  .img-ws-gen-grid{grid-template-columns:repeat(5,1fr);gap:10px}
-}
-@media (min-width:2560px){
-  .img-ws-gen-grid{grid-template-columns:repeat(6,1fr);gap:12px}
-}
-@media (min-width:3840px){
-  .img-ws-gen-grid{grid-template-columns:repeat(7,1fr);gap:14px}
-}
-@media (min-width:5120px){
-  .img-ws-gen-grid{grid-template-columns:repeat(8,1fr);gap:16px}
-}
-/* 8K: cap de largura para evitar tiles minúsculos ou linhas gigantes */
+/* ---------- /image — galeria fluida (auto-fill cuida do resto) ---------- */
+/* 8K: cap de largura para evitar tiles minúsculos */
 @media (min-width:6144px){
   .img-ws-gen-grid{
-    grid-template-columns:repeat(auto-fill,minmax(360px,1fr));
-    max-width:7000px;margin-left:auto;margin-right:auto;gap:18px;
+    max-width:7000px;margin-left:auto;margin-right:auto;
   }
 }
 

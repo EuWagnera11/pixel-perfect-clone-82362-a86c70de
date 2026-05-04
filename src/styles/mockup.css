@@ -1672,3 +1672,156 @@ img{display:block;max-width:100%}
 .img-ws-empty p{font-size:13px !important;color:var(--text-2) !important}
 .img-ws-empty > svg{width:48px !important;height:48px !important;color:var(--text-3) !important;opacity:1 !important}
 
+
+/* =====================================================================
+   ImageWorkspace — Responsive Desktop Pass (720p → 1200p+)
+   Fluid distribution: prompt grows, all other panels are fixed.
+   ===================================================================== */
+.img-ws{
+  --fs-title: clamp(15px, 1.9vh, 20px);
+  --fs-eyebrow: clamp(9px, 1vh, 10.5px);
+  --fs-label: clamp(9px, 1vh, 10.5px);
+  --fs-body: clamp(11.5px, 1.35vh, 13px);
+  --fs-pill: clamp(10.5px, 1.25vh, 12.5px);
+  --fs-mono: clamp(8.5px, 1vh, 10px);
+  --pad-card: clamp(8px, 1.1vh, 12px);
+  --gap-stack: clamp(5px, 0.85vh, 9px);
+  --gap-grid: clamp(4px, 0.55vh, 6px);
+  --h-pill: clamp(28px, 3.4vh, 36px);
+  --h-trigger: clamp(32px, 4vh, 40px);
+  --h-button: clamp(40px, 5.2vh, 50px);
+  --h-aspect: clamp(46px, 6vh, 58px);
+  --h-ref-slot: clamp(40px, 5vh, 52px);
+}
+
+.img-ws-controls{
+  height:100vh !important; max-height:100vh !important; min-height:0 !important;
+  padding:var(--pad-card) !important;
+  gap:var(--gap-stack) !important;
+  overflow:hidden !important;
+  container-type:size; container-name:panel;
+}
+
+/* Fixed cards: never grow */
+.img-ws-controls .img-ws-sidebar-head,
+.img-ws-controls .img-ws-panel--tight,
+.img-ws-controls .img-ws-panel:not(.img-ws-panel--prompt),
+.img-ws-controls .img-ws-generate-wrap{
+  flex:0 0 auto !important;
+}
+
+/* Prompt: the only flexible card */
+.img-ws-controls .img-ws-panel--prompt{
+  flex:1 1 auto !important;
+  min-height:110px !important; max-height:300px !important;
+  overflow:hidden !important;
+  display:flex; flex-direction:column;
+}
+.img-ws-controls .img-ws-panel--prompt .img-ws-section{
+  flex:1 1 auto !important; min-height:0 !important;
+  display:flex; flex-direction:column; overflow:hidden;
+}
+.img-ws-controls .img-ws-panel--prompt .img-ws-textarea{
+  order:1; flex:1 1 auto !important;
+  min-height:48px !important; max-height:none !important;
+  width:100%; box-sizing:border-box;
+  font-size:var(--fs-body) !important; line-height:1.5;
+}
+/* Chips contained INSIDE the prompt card, below textarea */
+.img-ws-controls .img-ws-panel--prompt .img-ws-style-row{
+  order:2; flex:0 0 auto !important;
+  display:flex; flex-wrap:wrap; gap:5px;
+  padding-top:8px !important; margin-top:6px;
+  border-top:1px dashed var(--hairline);
+  max-height:64px; overflow:hidden;
+}
+.img-ws-controls .img-ws-chip{
+  padding:3px 8px !important; font-size:var(--fs-mono) !important;
+  white-space:nowrap;
+}
+
+/* Card paddings & gaps fluid */
+.img-ws-controls .img-ws-panel{
+  padding:var(--pad-card) !important; gap:var(--gap-stack) !important;
+}
+.img-ws-controls .img-ws-panel-title{font-size:var(--fs-label) !important; text-transform:uppercase; letter-spacing:.04em}
+.img-ws-controls .img-ws-panel-head span{font-size:var(--fs-mono) !important}
+.img-ws-controls .img-ws-sidebar-head h1{font-size:var(--fs-title) !important}
+.img-ws-controls .img-ws-sidebar-head p{font-size:var(--fs-mono) !important}
+
+/* Refs grid */
+.img-ws-refs{gap:var(--gap-grid) !important}
+.img-ws-ref-slot{max-height:var(--h-ref-slot)}
+
+/* Output / OC fluid */
+.img-ws-controls .oc{gap:0}
+.img-ws-controls .oc-section{gap:6px !important; padding:8px 0 !important}
+.img-ws-controls .oc-section:first-of-type{padding-top:0 !important}
+.img-ws-controls .oc-section:last-of-type{padding-bottom:0 !important}
+.img-ws-controls .oc-section-head .oc-label{font-size:var(--fs-label) !important}
+.img-ws-controls .oc-section-head .oc-meta{font-size:var(--fs-mono) !important}
+.img-ws-controls .oc-pill{height:var(--h-pill); font-size:var(--fs-pill) !important}
+.img-ws-controls .oc-aspects{gap:var(--gap-grid) !important}
+.img-ws-controls .oc-aspect{padding:5px 3px !important; max-height:var(--h-aspect)}
+.img-ws-controls .oc-summary{font-size:var(--fs-mono) !important; padding:8px 0 !important}
+
+/* Quality: segmented sliding pills (restored) — number + multiplier in 2 lines */
+.img-ws-controls .oc-segmented{
+  display:flex !important; height:var(--h-pill);
+  background:rgba(255,255,255,.025) !important;
+  border:1px solid var(--hairline) !important; border-radius:10px !important;
+  padding:3px !important; gap:2px !important;
+}
+.img-ws-controls .oc-seg{
+  flex:1 1 0 !important; height:100%;
+  display:flex !important; flex-direction:column !important;
+  align-items:center !important; justify-content:center !important;
+  gap:0 !important; padding:0 !important; border-radius:7px !important;
+  background:transparent !important; color:var(--text-2) !important;
+  font-size:var(--fs-pill) !important; line-height:1; transition:all .25s var(--spring);
+}
+.img-ws-controls .oc-seg.active{
+  background:linear-gradient(180deg,var(--accent-2),var(--accent-3)) !important;
+  color:#0a0a0b !important; font-weight:600;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 6px 14px -4px var(--accent-glow);
+}
+.img-ws-controls .oc-seg-num{
+  display:block; font-size:var(--fs-pill) !important;
+  font-weight:600; line-height:1;
+}
+.img-ws-controls .oc-seg-mult{
+  display:block; font-size:9px !important; line-height:1;
+  margin-top:2px; opacity:.7; font-family:ui-monospace,monospace;
+}
+.img-ws-controls .oc-seg.active .oc-seg-mult{opacity:.85; color:rgba(0,0,0,.7)}
+
+/* Generate button fluid */
+.img-ws-controls .img-ws-generate{
+  height:var(--h-button) !important; font-size:var(--fs-body) !important;
+}
+.img-ws-controls .img-ws-generate-wrap{padding:0 !important; margin-top:0 !important}
+
+/* Container queries — adapt as panel shrinks */
+@container panel (height < 760px){
+  .img-ws-controls .img-ws-sidebar-head p{display:none}
+  .img-ws-controls .img-ws-panel--prompt .img-ws-style-row{
+    flex-wrap:nowrap; overflow-x:auto; max-height:32px;
+    scrollbar-width:none;
+  }
+  .img-ws-controls .img-ws-panel--prompt .img-ws-style-row::-webkit-scrollbar{display:none}
+}
+@container panel (height < 640px){
+  .img-ws-controls .img-ws-sidebar-head h1{font-size:13px !important}
+  .img-ws-controls .oc-section-head .oc-meta{display:none}
+  .img-ws-controls .oc-summary{font-size:10px !important; padding:4px 0 !important}
+}
+
+/* Width responsive */
+@media (max-width:1280px){
+  .img-ws{grid-template-columns:280px 1fr !important}
+}
+@media (max-width:1100px){
+  .img-ws{grid-template-columns:260px 1fr !important}
+  .img-ws-controls .oc-aspects{gap:4px !important}
+  .img-ws-controls .oc-aspect{max-height:50px}
+}

@@ -772,6 +772,23 @@ export function ImageWorkspace({
           }}
         />
       )}
+
+      <LibraryPage
+        open={libraryOpen}
+        defaultCategory={libraryCategory}
+        initialQuery={libraryQuery}
+        items={mentionItems}
+        onClose={() => setLibraryOpen(false)}
+        onUploadFile={onUploadRef}
+        showToast={showToast}
+        onPick={(item) => {
+          const lim = getRefLimit(MODEL_LABEL_TO_ID[modelLabel] || "nano-banana-pro");
+          if (refs.length >= lim) { showToast(`Limite de ${lim} referências`); return; }
+          if (item.avatarSrc) {
+            setRefs((p) => [...p, { url: item.avatarSrc!, source: "library", name: item.name, mention: item.name }]);
+          }
+        }}
+      />
     </div>
   );
 }
@@ -1193,22 +1210,6 @@ function Lightbox(p: LightboxProps) {
         </aside>
       )}
 
-      <LibraryPage
-        open={libraryOpen}
-        defaultCategory={libraryCategory}
-        initialQuery={libraryQuery}
-        items={mentionItems}
-        onClose={() => setLibraryOpen(false)}
-        onUploadFile={onUploadRef}
-        showToast={showToast}
-        onPick={(item) => {
-          const lim = getRefLimit(MODEL_LABEL_TO_ID[modelLabel] || "nano-banana-pro");
-          if (refs.length >= lim) { showToast(`Limite de ${lim} referências`); return; }
-          if (item.avatarSrc) {
-            setRefs((p) => [...p, { url: item.avatarSrc!, source: "library", name: item.name, mention: item.name }]);
-          }
-        }}
-      />
     </div>
   );
 }

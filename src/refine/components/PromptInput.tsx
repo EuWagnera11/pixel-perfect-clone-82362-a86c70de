@@ -308,13 +308,15 @@ export const PromptInput = forwardRef<PromptInputHandle, Props>(function PromptI
   useLayoutEffect(() => {
     if (!open) return;
     const f = () => positionDropdown();
+    // Reposiciona após o dropdown ter dimensões reais
+    requestAnimationFrame(f);
     window.addEventListener("scroll", f, true);
     window.addEventListener("resize", f);
     return () => {
       window.removeEventListener("scroll", f, true);
       window.removeEventListener("resize", f);
     };
-  }, [open, positionDropdown]);
+  }, [open, filtered.length, positionDropdown]);
 
   // Expose API
   useImperativeHandle(

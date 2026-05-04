@@ -2748,3 +2748,30 @@ img{display:block;max-width:100%}
   background:var(--accent); color:#000; font-size:9.5px; font-weight:700;
   font-family:ui-monospace,'SF Mono',Menlo,monospace; margin-left:2px;
 }
+
+/* Estilo popover (flutuante) */
+.prompt-style-wrap{position:relative; display:inline-block}
+.prompt-tool-btn .tool-clear{
+  display:inline-grid; place-items:center; width:14px; height:14px; border-radius:4px;
+  background:rgba(0,0,0,.25); color:#fff; font-size:9px; margin-left:2px; cursor:pointer;
+}
+.prompt-tool-btn .tool-clear:hover{background:#000}
+.prompt-style-backdrop{position:fixed; inset:0; z-index:90}
+.prompt-style-popover{
+  position:absolute; top:calc(100% + 6px); left:0; z-index:91;
+  min-width:180px; padding:6px; border-radius:12px;
+  background:rgba(20,20,24,.98); backdrop-filter:blur(20px);
+  border:1px solid var(--hairline-2);
+  box-shadow:0 18px 40px -12px rgba(0,0,0,.6);
+  display:flex; flex-direction:column; gap:2px;
+  animation:fade-in .15s var(--spring);
+}
+.style-pop-item{
+  display:flex; align-items:center; justify-content:space-between;
+  height:32px; padding:0 10px; border-radius:8px; border:0;
+  background:transparent; color:var(--text-2); font-size:12px; font-weight:500;
+  cursor:pointer; text-align:left; transition:.2s var(--spring);
+}
+.style-pop-item:hover{background:rgba(255,255,255,.05); color:var(--text)}
+.style-pop-item.active{background:var(--accent-soft); color:var(--accent-2)}
+.style-pop-item .check{color:var(--accent); font-weight:700}

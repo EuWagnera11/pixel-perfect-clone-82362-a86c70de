@@ -65,8 +65,15 @@ export function ImageWorkspace({
   const [uploading, setUploading] = useState(false);
   const [stylePreset, setStylePreset] = useState<string>("none");
   const [filterAspect, setFilterAspect] = useState<string>("all");
+  const [filterModel, setFilterModel] = useState<string>("all");
+  const [filterDate, setFilterDate] = useState<string>("all");
   const [filterFav, setFilterFav] = useState<boolean>(false);
+  const [search, setSearch] = useState<string>("");
+  const [selectMode, setSelectMode] = useState<boolean>(false);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
 
   const [lightbox, setLightbox] = useState<{
     items: { url: string; genId: string; prompt: string; meta?: any; isFav?: boolean }[];

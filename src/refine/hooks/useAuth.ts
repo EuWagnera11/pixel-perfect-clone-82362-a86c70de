@@ -11,6 +11,14 @@ export function useAuth() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const clearInvalidSession = async () => {
+    try {
+      await supabase.auth.signOut({ scope: "local" });
+    } catch {}
+    setSession(null);
+    setProfile(null);
+  };
+
   useEffect(() => {
     let mounted = true;
     (async () => {
@@ -18,11 +26,11 @@ export function useAuth() {
         const { data } = await supabase.auth.getSession();
         if (!mounted) return;
         if (data.session) {
-          // Validate session is still valid on the server
           const { data: userData, error: userErr } = await supabase.auth.getUser();
           if (userErr || !userData?.user) {
-            await supabase.auth.signOut();
-            if (mounted) setSession(null);
+            if (mounted) {
+              await clearInvalidSession();
+            }
             return;
           }
           setSession(data.session);
@@ -40,7 +48,22 @@ export function useAuth() {
         if (mounted) setLoading(false);
       }
     })();
-    const sub = supabase.auth.onAuthStateChange((_e, s) => setSession(s));
+    const sub = supabase.auth.onAuthStateChange(async (_e, s) => {
+      if (!mounted) return;
+      if (!s) {
+        setSession(null);
+        setProfile(null);
+        return;
+      }
+
+      const { data: userData, error: userErr } = await supabase.auth.getUser();
+      if (userErr || !userData?.user) {
+        await clearInvalidSession();
+        return;
+      }
+
+      setSession(s);
+    });
     return () => {
       mounted = false;
       sub.data.subscription.unsubscribe();

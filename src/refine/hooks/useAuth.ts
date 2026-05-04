@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
-import { supabase, ensureSession, api } from "../lib/supabase";
+import { supabase, api } from "../lib/supabase";
+import { lovable } from "@/integrations/lovable";
 
 export type Profile = { tier: string; credits: number };
 
@@ -14,12 +15,14 @@ export function useAuth() {
     let mounted = true;
     (async () => {
       try {
-        const s = await ensureSession();
+        const { data } = await supabase.auth.getSession();
         if (!mounted) return;
-        setSession(s);
-        const me = await api<{ tier: string; credits: number }>("/billing/me");
-        if (!mounted) return;
-        setProfile({ tier: me.tier, credits: me.credits });
+        setSession(data.session);
+        if (data.session) {
+          const me = await api<{ tier: string; credits: number }>("/billing/me");
+          if (!mounted) return;
+          setProfile({ tier: me.tier, credits: me.credits });
+        }
       } catch (e: any) {
         if (mounted) setError(e?.message || "Auth failed");
       } finally {
@@ -55,10 +58,12 @@ export function useAuth() {
 
   const signInWithGoogle = async () => {
     try {
-      await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: { redirectTo: window.location.origin },
+      const result = await lovable.auth.signInWithOAuth("google", {
+        redirect_uri: window.location.origin,
       });
+      if (result.error) {
+        alert("Erro: " + (result.error.message || "OAuth falhou"));
+      }
     } catch (e: any) {
       alert("Erro: " + (e?.message || "OAuth falhou"));
     }

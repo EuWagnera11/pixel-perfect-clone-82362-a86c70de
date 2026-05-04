@@ -30,7 +30,6 @@ export function Sidebar({
     if (typeof window === "undefined") return false;
     return localStorage.getItem(LS_KEY) === "true";
   });
-  const [moreOpen, setMoreOpen] = useState(false);
 
   useEffect(() => {
     localStorage.setItem(LS_KEY, String(locked));
@@ -53,35 +52,6 @@ export function Sidebar({
   const pct = Math.min(100, (credits / capacity) * 100);
   const initial = (email || tier)[0]?.toUpperCase() ?? "U";
   const userName = email?.split("@")[0] || "Anônimo";
-
-  // Separa "Studio" em primary / extras
-  const sections = useMemo(() => {
-    return NAV.map((g) => {
-      if (g.cap?.trim().toLowerCase() === "studio" && g.items) {
-        const primary = g.items.filter((i) => STUDIO_PRIMARY.has(i.key));
-        const extras = g.items.filter((i) => !STUDIO_PRIMARY.has(i.key));
-        return { ...g, items: primary, extras };
-      }
-      return { ...g, extras: [] as NavItem[] };
-    });
-  }, []);
-
-  const renderItem = (it: NavItem, isSub = false) => {
-    const ItemIcon = it.IconComp;
-    const active = it.key === currentTab;
-    return (
-      <button
-        key={it.key}
-        className={"sb-nav-item" + (active ? " active" : "") + (isSub ? " is-sub" : "")}
-        onClick={() => onTabChange(it.key)}
-      >
-        <span className="sb-nav-icon"><ItemIcon size={18} weight="fill" /></span>
-        <span className="sb-nav-label">{it.label}</span>
-        {it.pill && <span className={"sb-nav-pill " + (it.pillCls || "")}>{it.pill}</span>}
-        <span className="sb-nav-tooltip">{it.label}</span>
-      </button>
-    );
-  };
 
   return (
     <aside className={"sidebar-v2" + (locked ? " locked" : "")}>
@@ -110,27 +80,25 @@ export function Sidebar({
       </div>
 
       <nav className="sb-nav">
-        {sections.map((g, gi) => (
+        {NAV.map((g, gi) => (
           <div className="sb-nav-section" key={gi}>
             {g.cap && g.cap.trim() && <div className="sb-nav-cap">{g.cap}</div>}
-            {g.items?.map((it) => renderItem(it))}
-            {g.extras && g.extras.length > 0 && (
-              <>
+            {g.items?.map((it) => {
+              const ItemIcon = it.IconComp;
+              const active = it.key === currentTab;
+              return (
                 <button
-                  className={"sb-nav-item sb-nav-more" + (moreOpen ? " open" : "")}
-                  onClick={() => setMoreOpen((v) => !v)}
-                  title="Mais ferramentas"
+                  key={it.key}
+                  className={"sb-nav-item" + (active ? " active" : "")}
+                  onClick={() => onTabChange(it.key)}
                 >
-                  <span className="sb-nav-icon"><DotsThreeOutline size={18} weight="fill" /></span>
-                  <span className="sb-nav-label">Mais ferramentas</span>
-                  <span className="sb-nav-chev"><CaretDown size={12} weight="bold" /></span>
-                  <span className="sb-nav-tooltip">Mais ferramentas</span>
+                  <span className="sb-nav-icon"><ItemIcon size={18} weight="fill" /></span>
+                  <span className="sb-nav-label">{it.label}</span>
+                  {it.pill && <span className={"sb-nav-pill " + (it.pillCls || "")}>{it.pill}</span>}
+                  <span className="sb-nav-tooltip">{it.label}</span>
                 </button>
-                <div className={"sb-nav-submenu" + (moreOpen ? " open" : "")}>
-                  {g.extras.map((it) => renderItem(it, true))}
-                </div>
-              </>
-            )}
+              );
+            })}
           </div>
         ))}
       </nav>

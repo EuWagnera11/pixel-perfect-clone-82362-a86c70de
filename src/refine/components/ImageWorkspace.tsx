@@ -291,93 +291,95 @@ export function ImageWorkspace({
     <div className="img-ws">
       {/* ===== LEFT CONTROLS ===== */}
       <aside className="img-ws-controls">
-        <div className="img-ws-sidebar-head">
-          <h1>Criar imagens</h1>
-          <p>Prompt, referências e saídas</p>
-        </div>
+        <div className="img-ws-controls-scroll">
+          <div className="img-ws-sidebar-head">
+            <h1>Criar imagens</h1>
+            <p>Prompt, referências e saídas</p>
+          </div>
 
-        {/* MODELO */}
-        <div className="img-ws-panel img-ws-panel--tight">
-          <div className="img-ws-panel-head">
-            <div className="img-ws-panel-title">
-              <span className="img-ws-dot-orange" />
-              Modelo
+          {/* MODELO */}
+          <div className="img-ws-panel img-ws-panel--tight">
+            <div className="img-ws-panel-head">
+              <div className="img-ws-panel-title">
+                <span className="img-ws-dot-orange" />
+                Modelo
+              </div>
             </div>
+            <ModelPicker value={modelLabel} onChange={setModelLabel} />
           </div>
-          <ModelPicker value={modelLabel} onChange={setModelLabel} />
-        </div>
 
-        <ReferencesPanel
-          refs={refs}
-          onChange={setRefs}
-          onUploadFile={onUploadRef}
-          modelId={MODEL_LABEL_TO_ID[modelLabel] || "nano-banana-pro"}
-          modelLabel={modelLabel}
-          showToast={showToast}
-          onOpenLibrary={() => { setLibraryCategory("estilo"); setLibraryQuery(""); setLibraryOpen(true); }}
-        />
-
-        {/* PROMPT */}
-        <div className="img-ws-panel img-ws-panel--prompt">
-          <div className="img-ws-panel-head">
-            <div className="img-ws-panel-title">Prompt</div>
-            <span className="kbd-inline">⌘↵</span>
-          </div>
-          <div className="img-ws-section">
-            <PromptInput
-              ref={promptRef}
-              value={prompt}
-              placeholder={PROMPT_PLACEHOLDERS[phIdx]}
-              items={mentionItems}
-              onChangeText={setPrompt}
-              onSubmit={handleGenerate}
-              onMentionSelected={(item) => {
-                if (item.type === "image") return; // já está em refs
-                if (item.avatarSrc && !refs.some((r) => r.url === item.avatarSrc)) {
-                  const lim = getRefLimit(MODEL_LABEL_TO_ID[modelLabel] || "nano-banana-pro");
-                  if (refs.length < lim) {
-                    setRefs((p) => [...p, { url: item.avatarSrc!, source: "library", name: item.name, mention: item.name }]);
-                  }
-                }
-              }}
-              onSeeAll={(cat, q) => {
-                const map: Record<string, typeof libraryCategory> = {
-                  image: "stock", character: "personagem", style: "estilo",
-                  product: "elemento", scene: "camera", logo: "elemento",
-                };
-                setLibraryCategory(map[cat] || "estilo");
-                setLibraryQuery(q);
-                setLibraryOpen(true);
-              }}
-              onCreateNew={() => { setLibraryOpen(true); }}
-            />
-            <div className="img-ws-style-row">
-              {STYLE_PRESETS.filter(s => s.id !== "none").map((s) => (
-                <button
-                  key={s.id}
-                  className={"img-ws-chip" + (s.id === stylePreset ? " active" : "")}
-                  onClick={() => setStylePreset(s.id === stylePreset ? "none" : s.id)}
-                >
-                  + {s.label}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* SAÍDA */}
-        <div className="img-ws-panel">
-          <div className="img-ws-panel-head">
-            <div className="img-ws-panel-title">Saída</div>
-          </div>
-          <OutputControls
-            variations={variations}
-            onVariations={setVariations}
-            ratio={ratio}
-            onRatio={setRatio}
-            quality={quality}
-            onQuality={setQuality}
+          <ReferencesPanel
+            refs={refs}
+            onChange={setRefs}
+            onUploadFile={onUploadRef}
+            modelId={MODEL_LABEL_TO_ID[modelLabel] || "nano-banana-pro"}
+            modelLabel={modelLabel}
+            showToast={showToast}
+            onOpenLibrary={() => { setLibraryCategory("estilo"); setLibraryQuery(""); setLibraryOpen(true); }}
           />
+
+          {/* PROMPT */}
+          <div className="img-ws-panel img-ws-panel--prompt">
+            <div className="img-ws-panel-head">
+              <div className="img-ws-panel-title">Prompt</div>
+              <span className="kbd-inline">⌘↵</span>
+            </div>
+            <div className="img-ws-section">
+              <PromptInput
+                ref={promptRef}
+                value={prompt}
+                placeholder={PROMPT_PLACEHOLDERS[phIdx]}
+                items={mentionItems}
+                onChangeText={setPrompt}
+                onSubmit={handleGenerate}
+                onMentionSelected={(item) => {
+                  if (item.type === "image") return; // já está em refs
+                  if (item.avatarSrc && !refs.some((r) => r.url === item.avatarSrc)) {
+                    const lim = getRefLimit(MODEL_LABEL_TO_ID[modelLabel] || "nano-banana-pro");
+                    if (refs.length < lim) {
+                      setRefs((p) => [...p, { url: item.avatarSrc!, source: "library", name: item.name, mention: item.name }]);
+                    }
+                  }
+                }}
+                onSeeAll={(cat, q) => {
+                  const map: Record<string, typeof libraryCategory> = {
+                    image: "stock", character: "personagem", style: "estilo",
+                    product: "elemento", scene: "camera", logo: "elemento",
+                  };
+                  setLibraryCategory(map[cat] || "estilo");
+                  setLibraryQuery(q);
+                  setLibraryOpen(true);
+                }}
+                onCreateNew={() => { setLibraryOpen(true); }}
+              />
+              <div className="img-ws-style-row">
+                {STYLE_PRESETS.filter(s => s.id !== "none").map((s) => (
+                  <button
+                    key={s.id}
+                    className={"img-ws-chip" + (s.id === stylePreset ? " active" : "")}
+                    onClick={() => setStylePreset(s.id === stylePreset ? "none" : s.id)}
+                  >
+                    + {s.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* SAÍDA */}
+          <div className="img-ws-panel">
+            <div className="img-ws-panel-head">
+              <div className="img-ws-panel-title">Saída</div>
+            </div>
+            <OutputControls
+              variations={variations}
+              onVariations={setVariations}
+              ratio={ratio}
+              onRatio={setRatio}
+              quality={quality}
+              onQuality={setQuality}
+            />
+          </div>
         </div>
 
         <div className="img-ws-generate-wrap">

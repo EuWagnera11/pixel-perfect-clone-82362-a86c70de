@@ -527,8 +527,16 @@ img{display:block;max-width:100%}
    ImageWorkspace — novo layout para /image
    ===================================================================== */
 .img-ws{
-  position:absolute;inset:0;display:grid;grid-template-columns:300px 1fr;
+  position:absolute;inset:0;display:grid;
+  grid-template-columns:clamp(264px,22vw,320px) 1fr;
   background:#0a0a0a;color:#fff;overflow:hidden;
+}
+@media (max-width:880px){
+  .img-ws{grid-template-columns:240px 1fr}
+}
+@media (max-width:680px){
+  .img-ws{grid-template-columns:1fr;grid-template-rows:auto 1fr}
+  .img-ws-controls{border-right:0;border-bottom:1px solid rgba(255,255,255,.06);max-height:55vh}
 }
 .img-ws-controls{
   border-right:1px solid rgba(255,255,255,.06);

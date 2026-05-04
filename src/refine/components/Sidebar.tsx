@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
-import { Plus, ArrowRight, Lock, CaretDown, DotsThreeOutline } from "@phosphor-icons/react";
-import { NAV, type NavItem } from "../lib/nav";
+import { useEffect, useState } from "react";
+import { Plus, ArrowRight, Lock } from "@phosphor-icons/react";
+import { NAV } from "../lib/nav";
 import type { Profile } from "../hooks/useAuth";
 
 type SidebarProps = {

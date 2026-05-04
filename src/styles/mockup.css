@@ -1597,13 +1597,16 @@ img{display:block;max-width:100%}
 .oc-pill:not(.active):hover{color:var(--text)}
 
 /* Aspect cards */
-.oc-aspects{display:grid;grid-template-columns:repeat(auto-fit,minmax(58px,1fr));gap:6px !important}
+.oc-aspects{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px !important}
 .oc-aspect{
   border-radius:9px !important;border:1px solid var(--hairline) !important;
   background:rgba(255,255,255,.02) !important;
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
   padding:6px 4px !important;transition:border-color .25s var(--spring),background .25s var(--spring) !important;
+  min-width:0; overflow:hidden;
 }
+.oc-aspect-label{min-width:0; max-width:100%}
+.oc-aspect-label b, .oc-aspect-label em{max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:block; text-align:center}
 .oc-aspect:hover{
   border-color:var(--hairline-2) !important;background:rgba(255,255,255,.04) !important;
 }

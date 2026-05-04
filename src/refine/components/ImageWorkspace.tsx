@@ -72,8 +72,14 @@ export function ImageWorkspace({
   const [selectMode, setSelectMode] = useState<boolean>(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const [phIdx, setPhIdx] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const t = setInterval(() => setPhIdx((i) => (i + 1) % PROMPT_PLACEHOLDERS.length), 4000);
+    return () => clearInterval(t);
+  }, []);
 
   const [lightbox, setLightbox] = useState<{
     items: { url: string; genId: string; prompt: string; meta?: any; isFav?: boolean }[];

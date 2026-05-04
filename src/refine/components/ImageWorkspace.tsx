@@ -127,7 +127,7 @@ export function ImageWorkspace({
 
   // ===== feed: jobs ativos + history (realtime) =====
   const activeImageJobs = useMemo(
-    () => jobs.filter((j) => j.mediaType === "image" && j.status !== "completed"),
+    () => jobs.filter((j) => j.mediaType === "image" && j.status === "processing"),
     [jobs]
   );
 

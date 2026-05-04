@@ -249,8 +249,10 @@ export function LibraryPage({
             </div>
           )}
 
-          {filtered.map((it) => {
+          {filtered.map((it, idx) => {
             const isSel = selected && selected.type === it.type && selected.id === it.id;
+            const styleIdx = (it.name.charCodeAt(0) + idx) % 6;
+            const letter = (it.name || "?").trim().charAt(0).toUpperCase();
             return (
               <button
                 key={`${it.type}:${it.id}`}
@@ -258,13 +260,11 @@ export function LibraryPage({
                 onClick={() => setSelected(it)}
                 onDoubleClick={() => { onPick(it); onClose(); }}
               >
-                <div className="card-thumb">
+                <div className="card-thumb" data-style={String(styleIdx)}>
                   {it.avatarSrc ? (
                     <img src={it.avatarSrc} alt={it.name} />
                   ) : (
-                    <div style={{ display: "grid", placeItems: "center", height: "100%" }}>
-                      <Icon d="M4 4h16v16H4z M4 16l4-4 4 4 4-4 4 4" />
-                    </div>
+                    <span className="card-letter">{letter}</span>
                   )}
                 </div>
                 <span className="card-name">#{it.name}</span>

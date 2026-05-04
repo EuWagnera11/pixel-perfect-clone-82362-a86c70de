@@ -2879,10 +2879,10 @@ img{display:block;max-width:100%}
 
 /* ---------- Library modal escala ---------- */
 @media (min-width:1920px){
-  .lib-grid{grid-template-columns:repeat(auto-fill, minmax(clamp(140px,10vw,200px),1fr))}
+.style-modal .lib-grid{grid-template-columns:repeat(auto-fit,minmax(96px,1fr))}
 }
 @media (min-width:3840px){
-  .lib-grid{grid-template-columns:repeat(auto-fill, minmax(clamp(180px,9vw,260px),1fr))}
+.style-modal .lib-grid{grid-template-columns:repeat(auto-fit,minmax(120px,1fr))}
   .lib-title{font-size:var(--fs-h1)}
 }
 

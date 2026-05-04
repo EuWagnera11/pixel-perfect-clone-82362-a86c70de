@@ -1,6 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
-import type { FunctionInvokeOptions } from "@supabase/functions-js";
 import { supabase } from "@/integrations/supabase/client";
+
+type InvokeOptions = {
+  method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+  body?: unknown;
+  headers?: Record<string, string>;
+};
 
 export type Generation = {
   id: string;
@@ -17,7 +22,7 @@ export type Generation = {
   completed_at?: string | null;
 };
 
-async function invokeFn<T>(name: string, init: FunctionInvokeOptions = {}): Promise<T> {
+async function invokeFn<T>(name: string, init: InvokeOptions = {}): Promise<T> {
   const { data, error } = await supabase.functions.invoke<T>(name, init);
   if (error) throw error;
   return data as T;

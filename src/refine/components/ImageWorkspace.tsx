@@ -84,6 +84,10 @@ export function ImageWorkspace({
   const [phIdx, setPhIdx] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
+  const promptRef = useRef<PromptInputHandle>(null);
+  const [libraryOpen, setLibraryOpen] = useState(false);
+  const [libraryCategory, setLibraryCategory] = useState<"estilo" | "personagem" | "elemento" | "cor" | "efeitos" | "camera" | "stock">("estilo");
+  const [libraryQuery, setLibraryQuery] = useState("");
 
   useEffect(() => {
     const t = setInterval(() => setPhIdx((i) => (i + 1) % PROMPT_PLACEHOLDERS.length), 4000);

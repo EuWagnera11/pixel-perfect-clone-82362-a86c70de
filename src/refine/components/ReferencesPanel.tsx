@@ -200,14 +200,14 @@ export function ReferencesPanel({ refs, onChange, onUploadFile, modelId, modelLa
               disabled={uploading || isFull}
               aria-label="Adicionar referência"
             >
-              <Icon d="M12 5v14M5 12h14" className="ref-add-icon" />
+              <Icon d="M12 5v14M5 12h14" />
             </button>
           ))}
         </div>
 
         {dragOver && (
           <div className="dropzone-overlay">
-            <Icon d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14" className="dropzone-icon" />
+            <Icon d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14" />
             <div className="dropzone-text">
               <strong>Solte para adicionar</strong>
               <span>JPG · PNG · WebP até 10MB</span>
@@ -334,7 +334,7 @@ function LibraryPopover({ onClose, onPick }: { onClose: () => void; onPick: (i: 
     <div className="ref-modal-backdrop" onClick={onClose}>
       <div className="library-popover" onClick={(e) => e.stopPropagation()}>
         <div className="library-search">
-          <Icon d="M11 4a7 7 0 1 1 0 14 7 7 0 0 1 0-14z M21 21l-4.3-4.3" className="search-icon" />
+          <Icon d="M11 4a7 7 0 1 1 0 14 7 7 0 0 1 0-14z M21 21l-4.3-4.3" />
           <input autoFocus placeholder="Buscar referências…" value={q} onChange={(e) => setQ(e.target.value)} />
           <span className="kbd">⌘K</span>
         </div>

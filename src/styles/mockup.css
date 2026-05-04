@@ -842,9 +842,11 @@ img{display:block;max-width:100%}
 .img-ws-gen-menu-pop button.danger{color:#ef4444}
 .img-ws-gen-menu-pop button.danger:hover{background:rgba(239,68,68,.1)}
 
-/* tile grid: 4 cols, no stretch */
+/* tile grid: fluid auto-fill — escala de 1024px a 8K continuamente */
 .img-ws-gen-grid{
-  display:grid;grid-template-columns:repeat(4,1fr);gap:8px;
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(clamp(180px, 14vw, 360px),1fr));
+  gap:clamp(6px,.6vw,16px);
   grid-auto-rows:minmax(0,auto);
 }
 .img-ws-tile{

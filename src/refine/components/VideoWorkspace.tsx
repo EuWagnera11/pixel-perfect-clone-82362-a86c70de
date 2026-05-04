@@ -621,13 +621,15 @@ export function VideoWorkspace({
  * VideoModelPicker — popover simples com modelos de vídeo
  * ========================================================= */
 function VideoModelPicker({
-  value, onChange, open, setOpen,
-}: { value: string; onChange: (v: string) => void; open: boolean; setOpen: (b: boolean) => void }) {
+  value, onChange, open, setOpen, mode,
+}: { value: string; onChange: (v: string) => void; open: boolean; setOpen: (b: boolean) => void; mode: Mode }) {
   const [q, setQ] = useState("");
   const filtered = useMemo(() => {
     const qq = q.trim().toLowerCase();
-    return VIDEO_MODELS.filter((m) => !qq || m.label.toLowerCase().includes(qq));
-  }, [q]);
+    return VIDEO_MODELS
+      .filter((m) => mode === "text" ? m.textToVideo : true)
+      .filter((m) => !qq || m.label.toLowerCase().includes(qq));
+  }, [q, mode]);
   const grouped = useMemo(() => {
     const order: VideoModel["family"][] = ["kling", "veo", "hailuo", "runway", "seedance", "pixverse", "ltx", "wan", "omnihuman"];
     return order.map((fam) => ({ fam, items: filtered.filter((m) => m.family === fam) })).filter((g) => g.items.length > 0);

@@ -12,6 +12,8 @@ export type ImageModel = {
   costHint?: "Premium" | "Rápido" | "Padrão";
 };
 
+export type VideoMode = "text" | "image" | "frames" | "video";
+
 export type VideoModel = {
   label: string;
   id: string;
@@ -21,7 +23,16 @@ export type VideoModel = {
   costHint?: "Premium" | "Rápido" | "Padrão";
   /** Se for true, usa text-to-video (não precisa de imagem inicial). */
   textToVideo?: boolean;
+  /** Modos suportados (default: ["image"] para i2v; ["text"] para t2v) */
+  modes?: VideoMode[];
 };
+
+export function getVideoModelModes(m: VideoModel): VideoMode[] {
+  if (m.modes) return m.modes;
+  if (m.id === "pixverse-v5-transition") return ["frames"];
+  if (m.textToVideo) return ["text"];
+  return ["image"];
+}
 
 export const IMAGE_MODELS: ImageModel[] = [
   // Nano Banana (Gemini 2.5)

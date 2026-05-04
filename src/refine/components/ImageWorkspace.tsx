@@ -416,9 +416,7 @@ export function ImageWorkspace({
 
         <div className="img-ws-generate-wrap">
           <button className="img-ws-generate" onClick={handleGenerate}>
-            <Icon d="m12 3 2.4 6.6L21 12l-6.6 2.4L12 21l-2.4-6.6L3 12l6.6-2.4z" strokeWidth={2} />
             <span className="img-ws-generate-label">Gerar {variations > 1 ? `${variations} imagens` : "imagem"}</span>
-            <span className="kbd">⌘↵</span>
           </button>
         </div>
       </aside>

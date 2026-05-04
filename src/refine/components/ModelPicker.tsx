@@ -150,12 +150,16 @@ export function ModelPicker({ value, onChange }: Props) {
           <span className="mp-item-name">{m.label}</span>
           <span className="mp-item-desc">{DESCRIPTIONS[m.id] || meta.name}</span>
         </span>
-        {b && <span className={"mp-badge mp-badge--" + b.tone}>{b.label}</span>}
-        {active && (
-          <svg className="mp-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4}>
-            <polyline points="20 6 9 17 4 12" />
-          </svg>
-        )}
+        <span className="mp-trail">
+          {b && <span className={"mp-badge mp-badge--" + b.tone}>{b.label}</span>}
+          {active && (
+            <span className="mp-check">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            </span>
+          )}
+        </span>
       </button>
     );
   };

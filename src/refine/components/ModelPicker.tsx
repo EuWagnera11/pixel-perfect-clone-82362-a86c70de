@@ -150,12 +150,16 @@ export function ModelPicker({ value, onChange }: Props) {
           <span className="mp-item-name">{m.label}</span>
           <span className="mp-item-desc">{DESCRIPTIONS[m.id] || meta.name}</span>
         </span>
-        {b && <span className={"mp-badge mp-badge--" + b.tone}>{b.label}</span>}
-        {active && (
-          <svg className="mp-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4}>
-            <polyline points="20 6 9 17 4 12" />
-          </svg>
-        )}
+        <span className="mp-trail">
+          {b && <span className={"mp-badge mp-badge--" + b.tone}>{b.label}</span>}
+          {active && (
+            <span className="mp-check">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            </span>
+          )}
+        </span>
       </button>
     );
   };
@@ -198,20 +202,30 @@ export function ModelPicker({ value, onChange }: Props) {
         </div>
         <div className="mp-list">
           {recentItems.length > 0 && filter === "all" && !query && (
-            <>
+            <div className="mp-recent">
               <div className="mp-group-head">Recentes</div>
               {recentItems.map(renderItem)}
-            </>
+            </div>
           )}
           {grouped.map((g) => (
             <div key={g.fam}>
-              <div className="mp-group-head">{FAMILY_META[g.fam].name} · {g.items.length}</div>
+              <div className="mp-group-head">
+                {FAMILY_META[g.fam].name}
+                <span className="mp-group-count">{g.items.length}</span>
+              </div>
               {g.items.map(renderItem)}
             </div>
           ))}
           {filtered.length === 0 && (
             <div className="mp-empty">Nenhum modelo encontrado</div>
           )}
+        </div>
+        <div className="mp-footer">
+          <div className="mp-shortcuts">
+            <span><span className="mp-kbd">↑↓</span>Navegar</span>
+            <span><span className="mp-kbd">↵</span>Selecionar</span>
+            <span><span className="mp-kbd">Esc</span>Fechar</span>
+          </div>
         </div>
       </PopoverContent>
     </Popover>

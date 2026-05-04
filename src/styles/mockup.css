@@ -1558,8 +1558,10 @@ img{display:block;max-width:100%}
 /* ===== ModelPicker (Popover) ===== */
 .mp-trigger{
   width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;
-  padding:9px 11px;border-radius:8px;background:#0a0a0a;border:1px solid rgba(255,255,255,.06);
-  color:#fff;font:inherit;font-size:13px;font-weight:500;cursor:pointer;transition:border-color .14s ease;
+  padding:9px 11px;border-radius:8px;
+  background:linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,.012));
+  border:1px solid var(--hairline);
+  color:#fff;font:inherit;font-size:13px;font-weight:500;cursor:pointer;transition:border-color .14s ease,background .2s ease;
 }
 .mp-trigger:hover{border-color:rgba(255,255,255,.12)}
 .mp-trigger[data-state="open"]{border-color:rgba(249,115,22,.4);box-shadow:0 0 0 3px rgba(249,115,22,.1)}

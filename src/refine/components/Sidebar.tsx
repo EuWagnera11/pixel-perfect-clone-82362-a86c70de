@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
-import { Plus, ArrowRight, Lock } from "@phosphor-icons/react";
-import { NAV } from "../lib/nav";
+import { useEffect, useMemo, useState } from "react";
+import { Plus, ArrowRight, Lock, CaretDown, DotsThreeOutline } from "@phosphor-icons/react";
+import { NAV, type NavItem } from "../lib/nav";
 import type { Profile } from "../hooks/useAuth";
 
 type SidebarProps = {
@@ -15,6 +15,8 @@ type SidebarProps = {
 };
 
 const LS_KEY = "sidebar-locked";
+// Itens "Studio" que ficam visíveis sempre (top). Resto vai pro accordion "Mais".
+const STUDIO_PRIMARY = new Set(["image", "video", "cinema", "edit", "upscale"]);
 
 export function Sidebar({
   currentTab,
@@ -30,12 +32,12 @@ export function Sidebar({
     if (typeof window === "undefined") return false;
     return localStorage.getItem(LS_KEY) === "true";
   });
+  const [moreOpen, setMoreOpen] = useState(false);
 
   useEffect(() => {
     localStorage.setItem(LS_KEY, String(locked));
   }, [locked]);
 
-  // Atalho Cmd/Ctrl+B
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "b") {
@@ -54,50 +56,83 @@ export function Sidebar({
   const initial = (email || tier)[0]?.toUpperCase() ?? "U";
   const userName = email?.split("@")[0] || "Anônimo";
 
+  // Separa "Studio" em primary / extras
+  const sections = useMemo(() => {
+    return NAV.map((g) => {
+      if (g.cap?.trim().toLowerCase() === "studio" && g.items) {
+        const primary = g.items.filter((i) => STUDIO_PRIMARY.has(i.key));
+        const extras = g.items.filter((i) => !STUDIO_PRIMARY.has(i.key));
+        return { ...g, items: primary, extras };
+      }
+      return { ...g, extras: [] as NavItem[] };
+    });
+  }, []);
+
+  const renderItem = (it: NavItem, isSub = false) => {
+    const ItemIcon = it.IconComp;
+    const active = it.key === currentTab;
+    return (
+      <button
+        key={it.key}
+        className={"sb-nav-item" + (active ? " active" : "") + (isSub ? " is-sub" : "")}
+        onClick={() => onTabChange(it.key)}
+      >
+        <span className="sb-nav-icon"><ItemIcon size={18} weight="fill" /></span>
+        <span className="sb-nav-label">{it.label}</span>
+        {it.pill && <span className={"sb-nav-pill " + (it.pillCls || "")}>{it.pill}</span>}
+        <span className="sb-nav-tooltip">{it.label}</span>
+      </button>
+    );
+  };
+
   return (
     <aside className={"sidebar-v2" + (locked ? " locked" : "")}>
-      <button
-        className="sb-brand"
-        onClick={() => setLocked((v) => !v)}
-        title={locked ? "Destravar sidebar (Cmd/Ctrl+B)" : "Travar sidebar (Cmd/Ctrl+B)"}
-        aria-label="Toggle sidebar"
-      >
-        <span className="sb-brand-mark">
-          R
-          <span className="sb-brand-lock"><Lock size={10} weight="fill" /></span>
-        </span>
-        <span className="sb-brand-info">
-          <span className="sb-brand-name">refine<span className="sb-brand-dot">.</span></span>
-          <span className="sb-brand-status"><span className="sb-status-dot" />online</span>
-        </span>
-      </button>
+      <div className="sb-header">
+        <button
+          className="sb-brand"
+          onClick={() => setLocked((v) => !v)}
+          title={locked ? "Destravar (Cmd/Ctrl+B)" : "Travar (Cmd/Ctrl+B)"}
+          aria-label="Toggle sidebar"
+        >
+          <span className="sb-brand-mark">
+            R
+            <span className="sb-brand-lock"><Lock size={10} weight="fill" /></span>
+          </span>
+          <span className="sb-brand-info">
+            <span className="sb-brand-name">refine<span className="sb-brand-dot">.</span></span>
+            <span className="sb-brand-status"><span className="sb-status-dot" />online</span>
+          </span>
+        </button>
 
-      <button className="sb-cta" onClick={() => onTabChange("home")}>
-        <span className="sb-cta-icon"><Plus size={14} weight="bold" /></span>
-        <span className="sb-cta-label">Nova criação</span>
-        <span className="sb-cta-arrow"><ArrowRight size={12} weight="bold" /></span>
-      </button>
+        <button className="sb-cta" onClick={() => onTabChange("home")}>
+          <span className="sb-cta-icon"><Plus size={14} weight="bold" /></span>
+          <span className="sb-cta-label">Nova criação</span>
+          <span className="sb-cta-arrow"><ArrowRight size={12} weight="bold" /></span>
+        </button>
+      </div>
 
       <nav className="sb-nav">
-        {NAV.map((g, gi) => (
+        {sections.map((g, gi) => (
           <div className="sb-nav-section" key={gi}>
             {g.cap && g.cap.trim() && <div className="sb-nav-cap">{g.cap}</div>}
-            {g.items?.map((it) => {
-              const ItemIcon = it.IconComp;
-              const active = it.key === currentTab;
-              return (
+            {g.items?.map((it) => renderItem(it))}
+            {g.extras && g.extras.length > 0 && (
+              <>
                 <button
-                  key={it.key}
-                  className={"sb-nav-item" + (active ? " active" : "")}
-                  onClick={() => onTabChange(it.key)}
+                  className={"sb-nav-item sb-nav-more" + (moreOpen ? " open" : "")}
+                  onClick={() => setMoreOpen((v) => !v)}
+                  title="Mais ferramentas"
                 >
-                  <span className="sb-nav-icon"><ItemIcon size={18} weight="fill" /></span>
-                  <span className="sb-nav-label">{it.label}</span>
-                  {it.pill && <span className={"sb-nav-pill " + (it.pillCls || "")}>{it.pill}</span>}
-                  <span className="sb-nav-tooltip">{it.label}</span>
+                  <span className="sb-nav-icon"><DotsThreeOutline size={18} weight="fill" /></span>
+                  <span className="sb-nav-label">Mais ferramentas</span>
+                  <span className="sb-nav-chev"><CaretDown size={12} weight="bold" /></span>
+                  <span className="sb-nav-tooltip">Mais ferramentas</span>
                 </button>
-              );
-            })}
+                <div className={"sb-nav-submenu" + (moreOpen ? " open" : "")}>
+                  {g.extras.map((it) => renderItem(it, true))}
+                </div>
+              </>
+            )}
           </div>
         ))}
       </nav>
@@ -116,6 +151,11 @@ export function Sidebar({
           <span className="sb-credits-renewal">Renova em 30 dias</span>
           <button className="sb-upgrade" onClick={onUpgrade}>Upgrade Pro</button>
         </div>
+
+        <button className="sb-credits-mini" onClick={onUpgrade} title={`Créditos: ${credits}/${capacity}`}>
+          <span className="sb-credits-mini-text">{Math.round(pct)}%</span>
+          <span className="sb-credits-mini-bar" style={{ width: `${pct}%` }} />
+        </button>
 
         {isAnonymous ? (
           <button className="sb-google" onClick={onSignInGoogle}>

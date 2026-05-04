@@ -141,12 +141,19 @@ export function LibraryPage({
   showToast,
 }: Props) {
   const [category, setCategory] = useState<Category>(defaultCategory);
-  const [tab, setTab] = useState<string>("Em destaque");
+  const cfg = CATEGORY_CONFIG[category];
+  const [tab, setTab] = useState<string>(cfg.tabs[0]);
   const [search, setSearch] = useState(initialQuery);
   const [dragOver, setDragOver] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [compactViewport, setCompactViewport] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Reset tab quando trocar categoria
+  useEffect(() => {
+    setTab(CATEGORY_CONFIG[category].tabs[0]);
+    setSelectedState(null);
+  }, [category]);
 
   useEffect(() => {
     if (open) {

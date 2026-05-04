@@ -2784,6 +2784,30 @@ img{display:block;max-width:100%}
   .style-modal .library-rightpanel{display:none}
 }
 
+@media (max-height:760px), (max-width:1240px){
+  .style-modal{width:min(1140px,calc(100vw - 40px));height:min(700px,calc(100vh - 40px));grid-template-columns:196px minmax(0,1fr) 248px;grid-template-rows:48px minmax(0,1fr)}
+  .style-modal.compact .library-sidebar{padding:12px 8px}
+  .style-modal.compact .lib-search-bar{margin:12px 14px 0;height:38px}
+  .style-modal.compact .lib-content-header{padding:12px 14px 8px;gap:8px}
+  .style-modal.compact .lib-grid{padding:2px 14px 14px;gap:8px}
+  .style-modal.compact .library-rightpanel{padding:12px 12px 10px}
+  .style-modal.compact .lib-side-section{margin-bottom:12px}
+  .style-modal.compact .lib-side-item{height:29px;font-size:11.5px}
+  .style-modal.compact .lib-title{font-size:17px}
+  .style-modal.compact .lib-tab{height:26px;padding:0 9px;font-size:10.5px}
+  .style-modal.compact .lib-new-btn{height:28px;padding:0 10px;font-size:11px}
+  .style-modal.compact .card-letter{font-size:28px}
+  .style-modal.compact .card-name{font-size:11px}
+  .style-modal.compact .rp-block{gap:6px}
+  .style-modal.compact .rp-block + .rp-block{margin-top:12px;padding-top:12px}
+  .style-modal.compact .rp-block-sub{font-size:10px}
+  .style-modal.compact .trending-item{padding:4px 5px}
+  .style-modal.compact .trending-thumb{width:24px;height:24px}
+  .style-modal.compact .trending-name{font-size:10.5px}
+  .style-modal.compact .trending-uses,.style-modal.compact .trending-trend,.style-modal.compact .shortcut-item,.style-modal.compact .rec-name{font-size:9.5px}
+  .style-modal.compact .shortcut-item{height:29px}
+}
+
 /* =====================================================================
    RESPONSIVIDADE DESKTOP TOTAL — 1024px → 8K
    Camada aditiva: tokens fluidos + breakpoints discretos do /image
@@ -2880,10 +2904,10 @@ img{display:block;max-width:100%}
 
 /* ---------- Library modal escala ---------- */
 @media (min-width:1920px){
-.style-modal .lib-grid{grid-template-columns:repeat(auto-fit,minmax(96px,1fr))}
+.style-modal .lib-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
 }
 @media (min-width:3840px){
-.style-modal .lib-grid{grid-template-columns:repeat(auto-fit,minmax(120px,1fr))}
+.style-modal .lib-grid{grid-template-columns:repeat(5,minmax(0,1fr))}
   .lib-title{font-size:var(--fs-h1)}
 }
 

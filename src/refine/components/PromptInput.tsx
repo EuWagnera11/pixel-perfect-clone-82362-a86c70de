@@ -117,22 +117,39 @@ export const PromptInput = forwardRef<PromptInputHandle, Props>(function PromptI
     setActiveIdx(0);
   }, [query, open]);
 
-  /** Reposiciona o dropdown próximo ao cursor. */
+  /** Reposiciona o dropdown próximo ao cursor, com clamp/flip à viewport. */
   const positionDropdown = useCallback(() => {
     const sel = window.getSelection();
     if (!sel || !sel.rangeCount) return;
     const range = sel.getRangeAt(0).cloneRange();
     const rect = range.getBoundingClientRect();
-    const W = 280;
-    const H = 360;
-    const pad = 12;
-    let top = rect.bottom + 6;
+    const pad = 16;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    // Largura: usa medida real se já montado, senão default 280
+    const el = dropdownRef.current;
+    const measuredW = el?.offsetWidth || 280;
+    const measuredH = el?.offsetHeight || 360;
+    const W = Math.min(measuredW, vw - pad * 2);
+    const H = Math.min(measuredH, vh - pad * 2);
+
+    // Horizontal: tenta alinhar à esquerda do cursor; se vazar, alinha à direita; se ainda vaza, clampa.
     let left = rect.left;
+    if (left + W > vw - pad) left = rect.right - W;
+    if (left < pad) left = pad;
+    if (left + W > vw - pad) left = vw - W - pad;
+
+    // Vertical: abaixo, senão acima, senão clampa.
+    let top = rect.bottom + 6;
     let placement: "below" | "above" = "below";
-    if (left + W > window.innerWidth - pad) left = Math.max(pad, window.innerWidth - W - pad);
-    if (top + H > window.innerHeight - pad) {
-      top = rect.top - H - 6;
-      placement = "above";
+    if (top + H > vh - pad) {
+      const above = rect.top - H - 6;
+      if (above >= pad) {
+        top = above;
+        placement = "above";
+      } else {
+        top = Math.max(pad, vh - H - pad);
+      }
     }
     setPos({ top, left, placement });
   }, []);

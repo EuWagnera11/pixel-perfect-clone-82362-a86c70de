@@ -2321,24 +2321,11 @@ img{display:block;max-width:100%}
   .img-ws-controls{padding:18px 16px 16px;gap:14px}
 }
 
-/* ---------- /image — galeria escalando colunas ---------- */
-@media (min-width:1920px){
-  .img-ws-gen-grid{grid-template-columns:repeat(5,1fr);gap:10px}
-}
-@media (min-width:2560px){
-  .img-ws-gen-grid{grid-template-columns:repeat(6,1fr);gap:12px}
-}
-@media (min-width:3840px){
-  .img-ws-gen-grid{grid-template-columns:repeat(7,1fr);gap:14px}
-}
-@media (min-width:5120px){
-  .img-ws-gen-grid{grid-template-columns:repeat(8,1fr);gap:16px}
-}
-/* 8K: cap de largura para evitar tiles minúsculos ou linhas gigantes */
+/* ---------- /image — galeria fluida (auto-fill cuida do resto) ---------- */
+/* 8K: cap de largura para evitar tiles minúsculos */
 @media (min-width:6144px){
   .img-ws-gen-grid{
-    grid-template-columns:repeat(auto-fill,minmax(360px,1fr));
-    max-width:7000px;margin-left:auto;margin-right:auto;gap:18px;
+    max-width:7000px;margin-left:auto;margin-right:auto;
   }
 }
 

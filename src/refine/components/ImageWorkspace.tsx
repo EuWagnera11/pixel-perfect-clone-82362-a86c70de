@@ -874,35 +874,36 @@ function Lightbox(p: LightboxProps) {
     setShareOpen(false);
   }
 
+  const [moreOpen, setMoreOpen] = useState(false);
+  const [exportSub, setExportSub] = useState(false);
+  const [shareSub, setShareSub] = useState(false);
+  const [genSub, setGenSub] = useState(false);
+
   return (
     <div className="ilx" onClick={p.onClose} data-panel={showPanel ? "open" : "closed"}>
       {/* Top bar */}
       <div className="ilx-topbar" onClick={(e) => e.stopPropagation()}>
-        <div className="ilx-top-left">
-          <button className="ilx-icbtn" onClick={p.onClose} title="Voltar (Esc)">
-            <Icon d="M15 6l-6 6 6 6" strokeWidth={2} />
+        <div className="ilx-glass-group">
+          <button className="ilx-glass-btn" onClick={p.onClose} title="Voltar (Esc)">
+            <Icon d="M15 6l-6 6 6 6" strokeWidth={1.75} />
             <span>Voltar</span>
           </button>
-          <span className="ilx-sep" />
-          <span className="ilx-counter">Imagem {p.index + 1} de {p.items.length}</span>
+          <span className="ilx-vsep" />
+          <span className="ilx-counter">{p.index + 1} de {p.items.length}</span>
         </div>
-        <div className="ilx-top-center">
-          <button className="ilx-icbtn round" disabled={p.index === 0} onClick={p.onPrev} title="Anterior (←)">
-            <Icon d="M15 6l-6 6 6 6" strokeWidth={2} />
+
+        <div className="ilx-glass-group">
+          <button className="ilx-glass-btn round" disabled={p.index === 0} onClick={p.onPrev} title="Anterior (←)">
+            <Icon d="M15 6l-6 6 6 6" strokeWidth={1.75} />
           </button>
-          <button className="ilx-icbtn round" disabled={p.index === p.items.length - 1} onClick={p.onNext} title="Próxima (→)">
-            <Icon d="M9 6l6 6-6 6" strokeWidth={2} />
-          </button>
-        </div>
-        <div className="ilx-top-right">
-          <button className={`ilx-icbtn ${showPanel ? "active" : ""}`} onClick={() => setShowPanel((s) => !s)} title="Detalhes (I)">
-            <Icon d="M12 8v.01M11 12h1v4h1" strokeWidth={2} />
-            <span>Detalhes</span>
-          </button>
-          <button className="ilx-icbtn round" onClick={p.onClose} title="Fechar (Esc)">
-            <Icon d="M6 6l12 12M6 18L18 6" strokeWidth={2} />
+          <button className="ilx-glass-btn round" disabled={p.index === p.items.length - 1} onClick={p.onNext} title="Próxima (→)">
+            <Icon d="M9 6l6 6-6 6" strokeWidth={1.75} />
           </button>
         </div>
+
+        <button className="ilx-glass-btn round solo" onClick={p.onClose} title="Fechar (Esc)">
+          <Icon d="M6 6l12 12M6 18L18 6" strokeWidth={1.75} />
+        </button>
       </div>
 
       {/* Stage */}
@@ -917,41 +918,89 @@ function Lightbox(p: LightboxProps) {
 
       {/* Bottom dock */}
       <div className="ilx-dock" onClick={(e) => e.stopPropagation()}>
-        <button className="ilx-pill primary" onClick={() => p.onVariations(item)} title="Variações (V)">
-          <Icon d="M4 4h7v7H4z M13 4h7v7h-7z M4 13h7v7H4z M13 13h7v7h-7z" />
+        <button className="ilx-dock-primary" onClick={() => p.onVariations(item)} title="Variações (V)">
+          <Icon d="m12 3 2.4 6.6L21 12l-6.6 2.4L12 21l-2.4-6.6L3 12l6.6-2.4z" strokeWidth={1.75} />
           <span>Variações</span>
         </button>
-        <button className="ilx-pill" onClick={() => p.onSendToEdit(item.url)} title="Editar (E)">
-          <Icon d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4z" />
+
+        <span className="ilx-vsep" />
+
+        <button className="ilx-dock-btn" onClick={() => p.onRegenerate(item)} title="Recriar (R)">
+          <Icon d="M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5" strokeWidth={1.75} />
+          <span>Recriar</span>
+        </button>
+        <button className="ilx-dock-btn" onClick={() => p.onSendToUpscale(item.url)} title="Upscale (U)">
+          <Icon d="M3 16V8a2 2 0 0 1 2-2h14M21 8v8a2 2 0 0 1-2 2H5M8 12l4-4 4 4M12 8v9" strokeWidth={1.75} />
+          <span>Upscale</span>
+        </button>
+        <button className="ilx-dock-btn" onClick={() => p.onSendToEdit(item.url)} title="Editar (E)">
+          <Icon d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4z" strokeWidth={1.75} />
           <span>Editar</span>
         </button>
-        <button className="ilx-pill" onClick={() => p.onCopyPrompt(item.prompt)} title="Reusar prompt (R)">
-          <Icon d="M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5" />
-          <span>Reusar prompt</span>
+
+        <span className="ilx-vsep" />
+
+        <button
+          className={`ilx-dock-btn ${showPanel ? "active" : ""}`}
+          onClick={() => setShowPanel((s) => !s)}
+          title="Detalhes (I)"
+        >
+          <Icon d="M12 8v.01M11 12h1v4h1" strokeWidth={1.75} />
+          <span>Detalhes</span>
         </button>
+
         <div className="ilx-pill-wrap">
-          <button className="ilx-pill" onClick={() => setExportOpen((o) => !o)} title="Exportar (D)">
-            <Icon d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14" />
-            <span>Exportar</span>
+          <button className="ilx-glass-btn round" onClick={() => setMoreOpen((o) => !o)} title="Mais ações">
+            <Icon d="M12 5v.01M12 12v.01M12 19v.01" strokeWidth={2.5} />
           </button>
-          {exportOpen && (
-            <div className="ilx-menu" onMouseLeave={() => setExportOpen(false)}>
-              <button onClick={() => download("png")}>PNG</button>
-              <button onClick={() => download("jpg")}>JPG</button>
-              <button onClick={() => download("webp")}>WebP</button>
-              <button onClick={copyImage}>Copiar imagem</button>
-            </div>
-          )}
-        </div>
-        <div className="ilx-pill-wrap">
-          <button className="ilx-pill" onClick={() => setShareOpen((o) => !o)} title="Compartilhar (C)">
-            <Icon d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7M16 6l-4-4-4 4M12 2v14" />
-            <span>Compartilhar</span>
-          </button>
-          {shareOpen && (
-            <div className="ilx-menu" onMouseLeave={() => setShareOpen(false)}>
-              <button onClick={copyLink}>Copiar link</button>
-              <button onClick={() => download("png")}>Baixar imagem</button>
+          {moreOpen && (
+            <div className="ilx-menu wide" onMouseLeave={() => { setMoreOpen(false); setExportSub(false); setShareSub(false); }}>
+              <button onMouseEnter={() => { setExportSub(true); setShareSub(false); }} className="has-sub">
+                <Icon d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14" strokeWidth={1.75} />
+                <span>Exportar</span>
+                <Icon d="M9 6l6 6-6 6" strokeWidth={1.75} />
+                {exportSub && (
+                  <div className="ilx-submenu">
+                    <button onClick={() => download("png")}>PNG</button>
+                    <button onClick={() => download("jpg")}>JPG</button>
+                    <button onClick={() => download("webp")}>WebP</button>
+                    <button onClick={copyImage}>Copiar imagem</button>
+                  </div>
+                )}
+              </button>
+              <button onMouseEnter={() => { setShareSub(true); setExportSub(false); }} className="has-sub">
+                <Icon d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7M16 6l-4-4-4 4M12 2v14" strokeWidth={1.75} />
+                <span>Compartilhar</span>
+                <Icon d="M9 6l6 6-6 6" strokeWidth={1.75} />
+                {shareSub && (
+                  <div className="ilx-submenu">
+                    <button onClick={copyLink}>Copiar link</button>
+                    <button onClick={() => p.showToast("Em breve")}>Enviar por email</button>
+                  </div>
+                )}
+              </button>
+              <button onMouseEnter={() => { setExportSub(false); setShareSub(false); }} onClick={() => { p.onCopyPrompt(item.prompt); setMoreOpen(false); }}>
+                <Icon d="M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5" strokeWidth={1.75} />
+                <span>Reusar prompt</span>
+              </button>
+              <button onMouseEnter={() => { setExportSub(false); setShareSub(false); }} onClick={() => { p.onToggleFavorite(item); setMoreOpen(false); }}>
+                <Icon d="M12 2 14 9h7l-6 4 2 7-7-4-7 4 2-7-6-4h7z" strokeWidth={1.75} />
+                <span>{item.isFav ? "Remover dos favoritos" : "Favoritar"}</span>
+              </button>
+              <div className="ilx-menu-sep" />
+              <button onMouseEnter={() => { setExportSub(false); setShareSub(false); }} onClick={() => { p.showToast("Em breve"); setMoreOpen(false); }}>
+                <Icon d="M3 7h6l2 2h10v10H3z" strokeWidth={1.75} />
+                <span>Mover para coleção</span>
+              </button>
+              <button onMouseEnter={() => { setExportSub(false); setShareSub(false); }} onClick={() => { p.showToast("Em breve"); setMoreOpen(false); }}>
+                <Icon d="M20 13l-8 8-8-8 8-11h6z M9 9h.01" strokeWidth={1.75} />
+                <span>Adicionar tags</span>
+              </button>
+              <div className="ilx-menu-sep" />
+              <button className="danger" onMouseEnter={() => { setExportSub(false); setShareSub(false); }} onClick={() => { p.onDelete(item); setMoreOpen(false); }}>
+                <Icon d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14" strokeWidth={1.75} />
+                <span>Excluir</span>
+              </button>
             </div>
           )}
         </div>
@@ -960,64 +1009,82 @@ function Lightbox(p: LightboxProps) {
       {/* Side panel */}
       {showPanel && (
         <aside className="ilx-side" onClick={(e) => e.stopPropagation()}>
-          <div className="ilx-side-head">
-            <span className="ilx-side-title">Detalhes</span>
-            <button className="ilx-icbtn round sm" onClick={() => setShowPanel(false)} title="Fechar painel">
-              <Icon d="M6 6l12 12M6 18L18 6" strokeWidth={2} />
-            </button>
-          </div>
-
           <section className="ilx-sec">
-            <div className="ilx-sec-label">Prompt</div>
+            <div className="ilx-sec-label">PROMPT</div>
             <div className="ilx-prompt-card">
               <button className="ilx-prompt-copy" onClick={() => p.onCopyPrompt(item.prompt)} title="Copiar">
-                <Icon d="M8 4h10v14M4 8h10v12H4z" />
+                <Icon d="M8 4h10v14M4 8h10v12H4z" strokeWidth={1.75} />
               </button>
               <p>{item.prompt || "(sem prompt)"}</p>
             </div>
           </section>
 
           <section className="ilx-sec">
-            <div className="ilx-sec-label">Informações</div>
+            <div className="ilx-sec-label">INFORMAÇÕES</div>
             <div className="ilx-meta-grid">
-              <div><span>Modelo</span><b>{MODEL_ID_TO_LABEL[meta.model] || meta.model || "—"}</b></div>
-              <div><span>Aspecto</span><b>{meta.ratio || "—"}</b></div>
-              <div><span>Qualidade</span><b>{meta.quality || "—"}</b></div>
-              <div><span>Tamanho</span><b>{sizeLabel}</b></div>
-              {meta.seed && <div><span>Seed</span><b>{meta.seed}</b></div>}
+              {(MODEL_ID_TO_LABEL[meta.model] || meta.model) && (
+                <div><span>Modelo</span><b>{MODEL_ID_TO_LABEL[meta.model] || meta.model}</b></div>
+              )}
+              {meta.ratio && <div><span>Aspecto</span><b>{meta.ratio}</b></div>}
+              {meta.quality && <div><span>Qualidade</span><b>{meta.quality}</b></div>}
+              {sizeLabel !== "—" && <div><span>Resolução</span><b>{sizeLabel}</b></div>}
+              {meta.seed && <div><span>Sementes</span><b>{meta.seed}</b></div>}
+              {meta.cost && <div><span>Custo</span><b>{meta.cost} créditos</b></div>}
             </div>
           </section>
 
           <section className="ilx-sec">
-            <div className="ilx-sec-label">Reutilizar</div>
-            <div className="ilx-row-actions">
-              <button onClick={() => p.onUseAsRef(item.url)}>Como referência</button>
-              <button onClick={() => p.onUseAsStyle(item.url)}>Como estilo</button>
+            <div className="ilx-sec-label">CRIAR VARIAÇÕES</div>
+            <div className="ilx-cards-grid">
+              <button className="ilx-card" onClick={() => p.onVariations(item)}>
+                <Icon d="m12 3 2.4 6.6L21 12l-6.6 2.4L12 21l-2.4-6.6L3 12l6.6-2.4z" strokeWidth={1.75} />
+                <div><b>Variações</b><em>Mesmo prompt, 4 versões</em></div>
+              </button>
+              <button className="ilx-card" onClick={() => p.onRegenerate(item)}>
+                <Icon d="M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5" strokeWidth={1.75} />
+                <div><b>Recriar</b><em>Nova seed, mesmo prompt</em></div>
+              </button>
+              <button className="ilx-card" onClick={() => p.onSendToUpscale(item.url)}>
+                <Icon d="M12 4v16M4 12h16M8 8l4-4 4 4M8 16l4 4 4-4" strokeWidth={1.75} />
+                <div><b>Upscale</b><em>2x resolução com IA</em></div>
+              </button>
+              <button className="ilx-card" onClick={() => p.onSendToEdit(item.url)}>
+                <Icon d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4z" strokeWidth={1.75} />
+                <div><b>Editar</b><em>Inpaint, máscaras, refine</em></div>
+              </button>
+              <button className="ilx-card" onClick={() => p.onSendToVideo(item.url)}>
+                <Icon d="M4 6h12v12H4z M16 9l5-3v12l-5-3" strokeWidth={1.75} />
+                <div><b>Gerar vídeo</b><em>Animar com Veo / Sora</em></div>
+              </button>
+              <button className="ilx-card" onClick={() => p.onChangeCamera(item)}>
+                <Icon d="M3 7h4l2-3h6l2 3h4v12H3z M12 17a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" strokeWidth={1.75} />
+                <div><b>Mudar câmera</b><em>Novo ângulo, mesmo cenário</em></div>
+              </button>
             </div>
           </section>
 
           <section className="ilx-sec">
-            <div className="ilx-sec-label">Gerar a partir desta</div>
-            <div className="ilx-row-actions wrap">
-              <button onClick={() => p.onRegenerate(item)}>Recriar</button>
-              <button onClick={() => p.onChangeCamera(item)}>Câmera</button>
-              <button onClick={() => p.onSendToUpscale(item.url)}>Upscale</button>
-              <button onClick={() => p.onSendToSkinEnhancer(item.url)}>Pele</button>
-              <button onClick={() => p.onSendTo3D(item.url)}>Modelo 3D</button>
-              <button onClick={() => p.onSendTo3DScene(item.url)}>Cena 3D</button>
-              <button onClick={() => p.onSendToVideo(item.url)}>Vídeo</button>
-            </div>
-          </section>
-
-          <section className="ilx-sec">
-            <div className="ilx-sec-label">Ações</div>
+            <div className="ilx-sec-label">AÇÕES</div>
             <ul className="ilx-actions-list">
               <li><button onClick={() => p.onToggleFavorite(item)}>
-                <Icon d="M12 2 14 9h7l-6 4 2 7-7-4-7 4 2-7-6-4h7z" />
+                <Icon d="M12 2 14 9h7l-6 4 2 7-7-4-7 4 2-7-6-4h7z" strokeWidth={1.75} />
                 {item.isFav ? "Remover dos favoritos" : "Adicionar aos favoritos"}
               </button></li>
+              <li><button onClick={() => p.showToast("Em breve")}>
+                <Icon d="M3 7h6l2 2h10v10H3z" strokeWidth={1.75} />
+                Mover para coleção
+              </button></li>
+              <li><button onClick={() => p.showToast("Em breve")}>
+                <Icon d="M20 13l-8 8-8-8 8-11h6z" strokeWidth={1.75} />
+                Adicionar tags
+              </button></li>
+              <li><button onClick={copyLink}>
+                <Icon d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1" strokeWidth={1.75} />
+                Copiar link público
+              </button></li>
+              <li className="ilx-actions-sep" />
               <li><button onClick={() => p.onDelete(item)} className="danger">
-                <Icon d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14" />
+                <Icon d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14" strokeWidth={1.75} />
                 Excluir
               </button></li>
             </ul>

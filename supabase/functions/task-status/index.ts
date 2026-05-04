@@ -63,6 +63,36 @@ Deno.serve(async (req) => {
   const status = normalizeStatus(fp.body);
   const urls = extractUrls(fp.body);
 
+  // Tenta persistir 1 URL no storage permanente. NUNCA salva URL do CDN expirável.
+  async function persistOne(u: string, i: number, ext: string, ct: string): Promise<string | null> {
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        const r = await fetch(u);
+        if (!r.ok) {
+          await new Promise((res) => setTimeout(res, 400 * (attempt + 1)));
+          continue;
+        }
+        const bytes = new Uint8Array(await r.arrayBuffer());
+        if (bytes.byteLength === 0) {
+          await new Promise((res) => setTimeout(res, 400 * (attempt + 1)));
+          continue;
+        }
+        const objPath = `${auth.userId}/generations/${generationId}/${i}.${ext}`;
+        const up = await auth.admin.storage.from("uploads")
+          .upload(objPath, bytes, { contentType: ct, upsert: true });
+        if (up.error) {
+          await new Promise((res) => setTimeout(res, 400 * (attempt + 1)));
+          continue;
+        }
+        const { data: pub } = auth.admin.storage.from("uploads").getPublicUrl(objPath);
+        return pub.publicUrl;
+      } catch {
+        await new Promise((res) => setTimeout(res, 400 * (attempt + 1)));
+      }
+    }
+    return null;
+  }
+
   const update: Record<string, unknown> = { status };
   if (status === "completed") {
     update.completed_at = new Date().toISOString();
@@ -70,25 +100,24 @@ Deno.serve(async (req) => {
     const isAudio = gen.media_type === "audio";
     const ext = isVideo ? "mp4" : isAudio ? "mp3" : "png";
     const contentType = isVideo ? "video/mp4" : isAudio ? "audio/mpeg" : "image/png";
+
     const persisted: string[] = [];
+    let failedAt: number | null = null;
     for (let i = 0; i < urls.length; i++) {
-      const u = urls[i];
-      try {
-        const r = await fetch(u);
-        if (!r.ok) { persisted.push(u); continue; }
-        const bytes = new Uint8Array(await r.arrayBuffer());
-        const objPath = `${auth.userId}/generations/${generationId}/${i}.${ext}`;
-        const up = await auth.admin.storage.from("uploads")
-          .upload(objPath, bytes, { contentType, upsert: true });
-        if (up.error) { persisted.push(u); continue; }
-        const { data: pub } = auth.admin.storage.from("uploads").getPublicUrl(objPath);
-        persisted.push(pub.publicUrl);
-      } catch {
-        persisted.push(u);
-      }
+      const out = await persistOne(urls[i], i, ext, contentType);
+      if (!out) { failedAt = i; break; }
+      persisted.push(out);
     }
-    if (isVideo || isAudio) update.video_urls = persisted;
-    else update.image_urls = persisted;
+
+    if (failedAt !== null) {
+      // Garantia de durabilidade: jamais expor URL expirável.
+      update.status = "failed";
+      update.error_message = `Falha ao persistir mídia ${failedAt + 1}/${urls.length} no storage permanente.`;
+    } else if (isVideo || isAudio) {
+      update.video_urls = persisted;
+    } else {
+      update.image_urls = persisted;
+    }
   }
   if (status === "failed") {
     const d = fp.body?.data ?? {};

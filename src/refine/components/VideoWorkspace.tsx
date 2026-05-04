@@ -228,17 +228,22 @@ export function VideoWorkspace({
               <div className="vid-panel-title"><span className="vid-dot" /> Modo</div>
             </div>
             <div className="mode-segmented">
-              {MODES.map((m) => (
-                <button
-                  key={m.id}
-                  className={"mode-tab" + (mode === m.id ? " active" : "")}
-                  onClick={() => setMode(m.id)}
-                  type="button"
-                >
-                  <Icon d={m.icon} strokeWidth={1.6} />
-                  <span>{m.label}</span>
-                </button>
-              ))}
+              {MODES.map((m) => {
+                const ok = supportedModes.includes(m.id);
+                return (
+                  <button
+                    key={m.id}
+                    className={"mode-tab" + (mode === m.id ? " active" : "") + (ok ? "" : " disabled")}
+                    onClick={() => ok && setMode(m.id)}
+                    type="button"
+                    disabled={!ok}
+                    title={ok ? m.label : `${currentModel.label} não suporta ${m.label}`}
+                  >
+                    <Icon d={m.icon} strokeWidth={1.6} />
+                    <span>{m.label}</span>
+                  </button>
+                );
+              })}
             </div>
             <p className="mode-description">{MODES.find((m) => m.id === mode)!.desc}</p>
           </div>

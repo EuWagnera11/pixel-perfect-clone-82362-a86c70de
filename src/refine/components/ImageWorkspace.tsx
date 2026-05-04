@@ -287,53 +287,14 @@ export function ImageWorkspace({
           <ModelPicker value={modelLabel} onChange={setModelLabel} />
         </div>
 
-        {/* REFERÊNCIAS */}
-        <div className="img-ws-panel">
-          <div className="img-ws-panel-head">
-            <div className="img-ws-panel-title">Referências</div>
-            <span>{refs.length} / 8</span>
-          </div>
-          <div className="img-ws-section">
-            <div className="img-ws-refs">
-              {refs.map((url, i) => (
-                <div key={i} className="img-ws-ref">
-                  <img src={url} alt="ref" />
-                  <button onClick={() => setRefs((p) => p.filter((_, j) => j !== i))} aria-label="Remover">
-                    <Icon d="M6 6l12 12M6 18L18 6" />
-                  </button>
-                </div>
-              ))}
-              {Array.from({ length: Math.max(0, 4 - refs.length) }).slice(0, refs.length === 0 ? 4 : 4 - refs.length).map((_, i) => (
-                <button
-                  key={`slot-${i}`}
-                  className={"img-ws-ref-slot" + (i === 0 && refs.length < 8 ? " primary" : "")}
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={uploading || refs.length >= 8}
-                  aria-label="Adicionar referência"
-                >
-                  {i === 0 ? (
-                    <>
-                      <Icon d="M4 4h16v12H4z M4 16l4-4 4 4 4-4 4 4 M14 8a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z" />
-                      <span>{uploading ? "Enviando…" : "Adicionar"}</span>
-                    </>
-                  ) : (
-                    <Icon d="M12 5v14M5 12h14" />
-                  )}
-                </button>
-              ))}
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                hidden
-                onChange={(e) => {
-                  const f = e.target.files?.[0];
-                  if (f) handleAttach(f);
-                  if (e.currentTarget) e.currentTarget.value = "";
-                }}
-              />
-            </div>
-          </div>
+        <ReferencesPanel
+          refs={refs}
+          onChange={setRefs}
+          onUploadFile={onUploadRef}
+          modelId={MODEL_LABEL_TO_ID[modelLabel] || "nano-banana-pro"}
+          modelLabel={modelLabel}
+          showToast={showToast}
+        />
         </div>
 
         {/* PROMPT */}

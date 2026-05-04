@@ -17,7 +17,7 @@ export type Generation = {
 };
 
 async function invokeFn<T>(name: string, init: { method?: string; body?: unknown } = {}): Promise<T> {
-  const { data, error } = await supabase.functions.invoke<T>(name, init as any);
+  const { data, error } = await supabase.functions.invoke<T>(name, init);
   if (error) throw error;
   return data as T;
 }

@@ -88,7 +88,18 @@ export function JobsProvider({ children, onCompleted }: { children: ReactNode; o
             } catch { continue; }
           } else {
             let g;
-            try { g = await fetchGeneration(jobId); } catch { continue; }
+            let notFound = false;
+            try { g = await fetchGeneration(jobId); }
+            catch (err: any) {
+              const msg = String(err?.message || err || "");
+              if (/not found|404|no rows/i.test(msg)) notFound = true;
+              else continue;
+            }
+            if (notFound || !g) {
+              updateJob(jobId, { status: "failed", error: "Geração não encontrada", completedAt: Date.now() });
+              polling.current.delete(jobId);
+              return;
+            }
             if (g.status === "completed") {
               const url = g.image_urls?.[0] || g.video_urls?.[0];
               updateJob(jobId, { status: "completed", resultUrl: url, completedAt: Date.now() });

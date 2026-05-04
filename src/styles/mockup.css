@@ -48,9 +48,7 @@ img{display:block;max-width:100%}
   padding:clamp(10px, 1.2vh, 14px) 12px;
   box-shadow:12px 0 40px -12px rgba(0,0,0,.5);
 }
-.sidebar-v2:hover:not(.locked){
-  position:absolute; top:0; left:0; bottom:0;
-}
+/* hover empurra o layout (grid expande via :has) — sem flutuar por cima */
 
 /* Brand */
 .sb-brand{

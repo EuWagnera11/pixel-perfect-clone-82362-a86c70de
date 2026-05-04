@@ -55,7 +55,17 @@ export function useGenerations() {
     }
   }, []);
 
-  useEffect(() => { refresh(); }, [refresh]);
+  useEffect(() => {
+    refresh();
+    const { data: sub } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED" || event === "INITIAL_SESSION") {
+        refresh();
+      } else if (event === "SIGNED_OUT") {
+        setHistory([]);
+      }
+    });
+    return () => { sub.subscription.unsubscribe(); };
+  }, [refresh]);
 
   // Realtime: re-fetch quando alguma geração muda (insert/update/delete)
   useEffect(() => {

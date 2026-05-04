@@ -26,8 +26,8 @@ img{display:block;max-width:100%}
 .app{position:relative;z-index:2;display:grid;grid-template-columns:var(--sidebar-w) 1fr var(--rail-w);height:100dvh;transition:grid-template-columns .5s var(--spring)}
 .app.no-rail{grid-template-columns:var(--sidebar-w) 1fr 0px}
 .app.no-rail .rail{display:none}
-.app:has(.sidebar-v2.locked){grid-template-columns:var(--sidebar-w-expanded) 1fr var(--rail-w)}
-.app.no-rail:has(.sidebar-v2.locked){grid-template-columns:var(--sidebar-w-expanded) 1fr 0px}
+.app:has(.sidebar-v2.locked), .app:has(.sidebar-v2:hover){grid-template-columns:var(--sidebar-w-expanded) 1fr var(--rail-w)}
+.app.no-rail:has(.sidebar-v2.locked), .app.no-rail:has(.sidebar-v2:hover){grid-template-columns:var(--sidebar-w-expanded) 1fr 0px}
 
 /* ============ SIDEBAR V2 (collapsible) ============ */
 .sidebar-v2{

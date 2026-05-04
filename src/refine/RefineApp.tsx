@@ -294,22 +294,22 @@ function Workspace() {
         />
 
         <section className="workspace">
-          {currentTab === "image" ? (
-            <ImageWorkspace
-              history={history}
-              onUploadRef={async (file) => {
+          {currentTab === "image" || currentTab === "video" ? (
+            (currentTab === "image" ? ImageWorkspace : VideoWorkspace)({
+              history,
+              onUploadRef: async (file: File) => {
                 try {
-                  showToast("Enviando imagem…");
+                  showToast(currentTab === "video" ? "Enviando arquivo…" : "Enviando imagem…");
                   const url = await uploadFile(file);
-                  showToast("Referência adicionada");
+                  showToast("Adicionado");
                   return url;
                 } catch (e: any) {
                   showToast("Erro upload: " + (e?.message || "falha"));
                   return null;
                 }
-              }}
-              showToast={showToast}
-              refreshHistory={async () => {
+              },
+              showToast,
+              refreshHistory: async () => {
                 const { data } = await supabase.auth.getUser();
                 if (data.user) {
                   const { data: rows } = await supabase
@@ -320,21 +320,21 @@ function Workspace() {
                     g.status === "completed" && (g.image_urls?.length || g.video_urls?.length)
                   ) as any);
                 }
-              }}
-              onDeleteGeneration={async (id) => {
+              },
+              onDeleteGeneration: async (id: string) => {
                 const { error } = await supabase.from("generations").delete().eq("id", id);
                 if (error) { showToast("Erro: " + error.message); return; }
                 setHistory((p) => p.filter((g) => g.id !== id));
                 showToast("Excluído");
-              }}
-              onToggleFavorite={async (id, value) => {
+              },
+              onToggleFavorite: async (id: string, value: boolean) => {
                 const cur = history.find((g) => g.id === id) as any;
                 const md = { ...(cur?.metadata || {}), favorite: value };
                 const { error } = await supabase.from("generations").update({ metadata: md }).eq("id", id);
                 if (error) { showToast("Erro: " + error.message); return; }
                 setHistory((p) => p.map((g: any) => g.id === id ? { ...g, metadata: md } : g));
-              }}
-            />
+              },
+            } as any)
           ) : (
             <>
               <div className={"canvas" + (noDock ? " no-dock" : "")}>

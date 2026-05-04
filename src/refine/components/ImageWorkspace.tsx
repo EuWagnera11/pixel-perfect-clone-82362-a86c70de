@@ -900,9 +900,23 @@ function Lightbox(p: LightboxProps) {
   const [exportSub, setExportSub] = useState(false);
   const [shareSub, setShareSub] = useState(false);
   const [genSub, setGenSub] = useState(false);
+  const [idle, setIdle] = useState(false);
+
+  // Cinema mode: auto-hide chrome after 3s of mouse inactivity
+  useEffect(() => {
+    let t: ReturnType<typeof setTimeout>;
+    const reset = () => {
+      setIdle(false);
+      clearTimeout(t);
+      t = setTimeout(() => setIdle(true), 3000);
+    };
+    reset();
+    window.addEventListener("mousemove", reset);
+    return () => { window.removeEventListener("mousemove", reset); clearTimeout(t); };
+  }, []);
 
   return (
-    <div className="ilx" onClick={p.onClose} data-panel={showPanel ? "open" : "closed"}>
+    <div className={`ilx ${idle ? "is-idle" : ""}`} onClick={p.onClose} data-panel={showPanel ? "open" : "closed"}>
       {/* Top bar */}
       <div className="ilx-topbar" onClick={(e) => e.stopPropagation()}>
         <div className="ilx-glass-group">

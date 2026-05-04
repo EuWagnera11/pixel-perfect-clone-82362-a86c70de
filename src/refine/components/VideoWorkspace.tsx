@@ -20,6 +20,7 @@ import {
   VIDEO_MODELS,
   MODEL_LABEL_TO_ID,
   MODEL_ID_TO_LABEL,
+  getVideoModelModes,
   type AspectRatio,
   type VideoModel,
 } from "../lib/models";
@@ -121,14 +122,14 @@ export function VideoWorkspace({
 
   const modelId = MODEL_LABEL_TO_ID[modelLabel] || "kling-v2-5-pro";
   const currentModel = VIDEO_MODELS.find((m) => m.id === modelId) || VIDEO_MODELS[0];
+  const supportedModes = useMemo(() => getVideoModelModes(currentModel), [currentModel]);
 
-  // Em modo "text", garante que o modelo selecionado suporta text-to-video.
+  // Se o modo atual não é suportado pelo modelo, troca para o primeiro suportado.
   useEffect(() => {
-    if (mode === "text" && !currentModel.textToVideo) {
-      const firstT2V = VIDEO_MODELS.find((m) => m.textToVideo);
-      if (firstT2V) setModelLabel(firstT2V.label);
+    if (!supportedModes.includes(mode)) {
+      setMode(supportedModes[0]);
     }
-  }, [mode, currentModel]);
+  }, [supportedModes, mode]);
 
   // mention items (refs)
   const mentionItems = useMemo<MentionItem[]>(() =>
@@ -227,17 +228,22 @@ export function VideoWorkspace({
               <div className="vid-panel-title"><span className="vid-dot" /> Modo</div>
             </div>
             <div className="mode-segmented">
-              {MODES.map((m) => (
-                <button
-                  key={m.id}
-                  className={"mode-tab" + (mode === m.id ? " active" : "")}
-                  onClick={() => setMode(m.id)}
-                  type="button"
-                >
-                  <Icon d={m.icon} strokeWidth={1.6} />
-                  <span>{m.label}</span>
-                </button>
-              ))}
+              {MODES.map((m) => {
+                const ok = supportedModes.includes(m.id);
+                return (
+                  <button
+                    key={m.id}
+                    className={"mode-tab" + (mode === m.id ? " active" : "") + (ok ? "" : " disabled")}
+                    onClick={() => ok && setMode(m.id)}
+                    type="button"
+                    disabled={!ok}
+                    title={ok ? m.label : `${currentModel.label} não suporta ${m.label}`}
+                  >
+                    <Icon d={m.icon} strokeWidth={1.6} />
+                    <span>{m.label}</span>
+                  </button>
+                );
+              })}
             </div>
             <p className="mode-description">{MODES.find((m) => m.id === mode)!.desc}</p>
           </div>
@@ -247,7 +253,7 @@ export function VideoWorkspace({
             <div className="vid-panel-head">
               <div className="vid-panel-title"><span className="vid-dot" /> Modelo</div>
             </div>
-            <VideoModelPicker value={modelLabel} onChange={setModelLabel} open={modelPickerOpen} setOpen={setModelPickerOpen} mode={mode} />
+            <VideoModelPicker value={modelLabel} onChange={setModelLabel} open={modelPickerOpen} setOpen={setModelPickerOpen} />
           </div>
 
           {/* REFERÊNCIAS — depende do modo */}
@@ -629,15 +635,13 @@ export function VideoWorkspace({
  * VideoModelPicker — popover simples com modelos de vídeo
  * ========================================================= */
 function VideoModelPicker({
-  value, onChange, open, setOpen, mode,
-}: { value: string; onChange: (v: string) => void; open: boolean; setOpen: (b: boolean) => void; mode: Mode }) {
+  value, onChange, open, setOpen,
+}: { value: string; onChange: (v: string) => void; open: boolean; setOpen: (b: boolean) => void }) {
   const [q, setQ] = useState("");
   const filtered = useMemo(() => {
     const qq = q.trim().toLowerCase();
-    return VIDEO_MODELS
-      .filter((m) => mode === "text" ? m.textToVideo : true)
-      .filter((m) => !qq || m.label.toLowerCase().includes(qq));
-  }, [q, mode]);
+    return VIDEO_MODELS.filter((m) => !qq || m.label.toLowerCase().includes(qq));
+  }, [q]);
   const grouped = useMemo(() => {
     const order: VideoModel["family"][] = ["kling", "veo", "hailuo", "runway", "seedance", "pixverse", "ltx", "wan", "omnihuman"];
     return order.map((fam) => ({ fam, items: filtered.filter((m) => m.family === fam) })).filter((g) => g.items.length > 0);

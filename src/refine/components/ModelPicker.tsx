@@ -143,7 +143,7 @@ export function ModelPicker({ value, onChange }: Props) {
         onClick={() => select(m.label)}
         title={`${m.label} · ${DESCRIPTIONS[m.id] || meta.name}`}
       >
-        <span className="mp-avatar" style={{ background: `${meta.color}22`, color: meta.color, borderColor: `${meta.color}44` }}>
+        <span className={"mp-avatar mp-avatar--" + (AVATAR_TONE[m.id] || "standard")}>
           {meta.initial}
         </span>
         <span className="mp-item-text">

@@ -2787,3 +2787,28 @@ img{display:block;max-width:100%}
 .style-pop-item:hover{background:rgba(255,255,255,.05); color:var(--text)}
 .style-pop-item.active{background:var(--accent-soft); color:var(--accent-2)}
 .style-pop-item .check{color:var(--accent); font-weight:700}
+
+/* Sidebar accordion "Mais ferramentas" */
+.sb-nav-more .sb-nav-chev{
+  width:14px; height:14px; flex-shrink:0; color:var(--text-3);
+  transition:transform .3s var(--spring), opacity .25s var(--spring);
+  opacity:0;
+}
+.sidebar-v2:hover .sb-nav-more .sb-nav-chev,
+.sidebar-v2.locked .sb-nav-more .sb-nav-chev{opacity:1}
+.sb-nav-more.open .sb-nav-chev{transform:rotate(180deg); color:var(--accent)}
+
+.sb-nav-submenu{
+  display:flex; flex-direction:column; gap:1px;
+  max-height:0; overflow:hidden;
+  transition:max-height .4s var(--spring);
+}
+.sb-nav-submenu.open{max-height:520px}
+/* Em colapsado, força fechar */
+.sidebar-v2:not(:hover):not(.locked) .sb-nav-submenu{max-height:0 !important}
+.sidebar-v2:not(:hover):not(.locked) .sb-nav-more .sb-nav-chev{transform:none}
+
+.sb-nav-item.is-sub{height:clamp(26px, 3.1vh, 32px)}
+.sidebar-v2:hover .sb-nav-item.is-sub,
+.sidebar-v2.locked .sb-nav-item.is-sub{padding-left:24px}
+.sb-nav-item.is-sub .sb-nav-icon{opacity:.85}

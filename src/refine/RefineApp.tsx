@@ -372,7 +372,7 @@ function Workspace() {
         )}
       </div>
 
-      <JobsPanel onOpenResult={handleJobOpen} />
+      {currentTab !== "image" && <JobsPanel onOpenResult={handleJobOpen} />}
       <Toast msg={msg} show={show} />
     </>
   );

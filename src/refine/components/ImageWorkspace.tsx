@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 import { Icon } from "./Icon";
 import { ModelPicker } from "./ModelPicker";
 import { OutputControls } from "./OutputControls";
+import { ReferencesPanel, getRefLimit, type RefItem } from "./ReferencesPanel";
 import { useJobs, type Job } from "../lib/jobs";
 import { type Generation } from "../hooks/useGenerations";
 import {

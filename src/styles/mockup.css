@@ -753,7 +753,7 @@ img{display:block;max-width:100%}
 .toast .ok{width:16px;height:16px;border-radius:50%;background:var(--lime);display:grid;place-items:center;color:#0a0a0b}
 .toast .ok svg{width:10px;height:10px}
 
-@media (max-width:1280px){:root{--rail-w:268px;--sidebar-w:218px}.variations,.persona-grid,.assets-grid,.r3d-grid,.tools-bento{grid-template-columns:repeat(3,1fr)}.styles{grid-template-columns:repeat(4,1fr)}.formats,.campaigns,.product-grid,.home-hero,.r3d-presets{grid-template-columns:repeat(2,1fr)}.quick-tools{grid-template-columns:repeat(4,1fr)}}
+@media (max-width:1280px){:root{--rail-w:268px}.variations,.persona-grid,.assets-grid,.r3d-grid,.tools-bento{grid-template-columns:repeat(3,1fr)}.styles{grid-template-columns:repeat(4,1fr)}.formats,.campaigns,.product-grid,.home-hero,.r3d-presets{grid-template-columns:repeat(2,1fr)}.quick-tools{grid-template-columns:repeat(4,1fr)}}
 @media (max-width:768px){:root{--sidebar-w:0px;--rail-w:0px}.sidebar,.rail{display:none}.app{grid-template-columns:1fr}.home-hero,.formats,.campaigns,.product-grid,.r3d-presets,.r3d-grid,.persona-grid,.assets-grid,.variations,.tools-bento,.quick-tools,.styles{grid-template-columns:repeat(2,1fr)!important}.tabbar{padding:8px 12px}.canvas{padding:14px}.dock-inner{margin:0 8px}.stage-inner,.video-stage{height:auto;aspect-ratio:9/16}.head h1{font-size:24px}.hero-tile.featured{grid-column:span 2;grid-row:auto}.hero-tile.wide{grid-column:span 2}}
 @media (max-width:1024px){.rail{display:none}.app{grid-template-columns:var(--sidebar-w) 1fr}}
 

@@ -1,0 +1,1 @@
+DELETE FROM public.generations WHERE user_id = '51158935-2305-4a90-9720-f47c953c9698';

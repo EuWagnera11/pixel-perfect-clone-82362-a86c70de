@@ -14,6 +14,7 @@ import { Rail } from "./components/Rail";
 import { Toast } from "./components/Toast";
 import { JobsPanel } from "./components/JobsPanel";
 import { ImageWorkspace } from "./components/ImageWorkspace";
+import { VideoWorkspace } from "./components/VideoWorkspace";
 import { JobsProvider, useJobs, type Job } from "./lib/jobs";
 import { TAB_CONFIG } from "./lib/nav";
 import {

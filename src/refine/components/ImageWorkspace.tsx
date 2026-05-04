@@ -295,7 +295,6 @@ export function ImageWorkspace({
           modelLabel={modelLabel}
           showToast={showToast}
         />
-        </div>
 
         {/* PROMPT */}
         <div className="img-ws-panel img-ws-panel--prompt">

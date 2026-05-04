@@ -127,8 +127,9 @@ export function useAuth() {
 
   const signInWithGoogle = async () => {
     try {
+      const redirectUri = `${window.location.origin}${window.location.pathname}`;
       const result = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: window.location.origin,
+        redirect_uri: redirectUri,
       });
       if (result.error) {
         alert("Erro: " + (result.error.message || "OAuth falhou"));

@@ -247,27 +247,28 @@ export function LibraryPage({
             </div>
           )}
 
-          {filtered.map((it) => (
-            <button
-              key={`${it.type}:${it.id}`}
-              className="lib-card"
-              onClick={() => {
-                onPick(it);
-                onClose();
-              }}
-            >
-              <div className="card-thumb">
-                {it.avatarSrc ? (
-                  <img src={it.avatarSrc} alt={it.name} />
-                ) : (
-                  <div style={{ display: "grid", placeItems: "center", height: "100%" }}>
-                    <Icon d="M4 4h16v16H4z M4 16l4-4 4 4 4-4 4 4" />
-                  </div>
-                )}
-              </div>
-              <span className="card-name">#{it.name}</span>
-            </button>
-          ))}
+          {filtered.map((it) => {
+            const isSel = selected && selected.type === it.type && selected.id === it.id;
+            return (
+              <button
+                key={`${it.type}:${it.id}`}
+                className={"lib-card style-card" + (isSel ? " selected" : "")}
+                onClick={() => setSelected(it)}
+                onDoubleClick={() => { onPick(it); onClose(); }}
+              >
+                <div className="card-thumb">
+                  {it.avatarSrc ? (
+                    <img src={it.avatarSrc} alt={it.name} />
+                  ) : (
+                    <div style={{ display: "grid", placeItems: "center", height: "100%" }}>
+                      <Icon d="M4 4h16v16H4z M4 16l4-4 4 4 4-4 4 4" />
+                    </div>
+                  )}
+                </div>
+                <span className="card-name">#{it.name}</span>
+              </button>
+            );
+          })}
         </div>
       </main>
 

@@ -40,16 +40,94 @@ const SIDE_GROUPS: { eyebrow: string; items: { id: Category; label: string; icon
   },
 ];
 
-const TABS = ["Em destaque", "Meus estilos", "Tudo", "Foto", "Ilustração", "3D", "Design"];
+type CategoryConfig = {
+  title: string;
+  newLabel: string;
+  tabs: string[];
+  type: MentionType | "all";
+  seeds: { name: string; meta?: string }[];
+  emptyHint: string;
+};
 
-const CATEGORY_TO_TYPE: Record<Category, MentionType | "all"> = {
-  estilo: "style",
-  personagem: "character",
-  elemento: "product",
-  cor: "style",
-  efeitos: "style",
-  camera: "scene",
-  stock: "all",
+const CATEGORY_CONFIG: Record<Category, CategoryConfig> = {
+  stock: {
+    title: "Histórico",
+    newLabel: "Novo estilo",
+    tabs: ["Em destaque", "Meus estilos", "Tudo", "Foto", "Ilustração", "3D", "Design"],
+    type: "all",
+    seeds: [
+      { name: "cinematic" }, { name: "editorial" }, { name: "product" },
+      { name: "anime" }, { name: "3d" }, { name: "noir" },
+    ],
+    emptyHint: "Faça upload no painel à direita ou crie uma nova referência.",
+  },
+  estilo: {
+    title: "Estilos",
+    newLabel: "Novo estilo",
+    tabs: ["Em destaque", "Meus estilos", "Foto", "Ilustração", "3D", "Pintura", "Design"],
+    type: "style",
+    seeds: [
+      { name: "cinematic" }, { name: "editorial" }, { name: "anime" },
+      { name: "3d-render" }, { name: "watercolor" }, { name: "noir" },
+      { name: "pop-art" }, { name: "vaporwave" },
+    ],
+    emptyHint: "Crie um estilo a partir de uma imagem ou descrição.",
+  },
+  personagem: {
+    title: "Personagens",
+    newLabel: "Novo personagem",
+    tabs: ["Em destaque", "Meus personagens", "Realista", "Cartoon", "3D", "Anime"],
+    type: "character",
+    seeds: [
+      { name: "alex" }, { name: "maya" }, { name: "kenji" },
+      { name: "luna" }, { name: "rio" }, { name: "ada" },
+    ],
+    emptyHint: "Adicione fotos de referência para treinar um novo personagem.",
+  },
+  elemento: {
+    title: "Elementos",
+    newLabel: "Novo elemento",
+    tabs: ["Em destaque", "Meus elementos", "Produtos", "Logos", "Objetos", "Texturas"],
+    type: "product",
+    seeds: [
+      { name: "garrafa" }, { name: "tenis" }, { name: "logo-marca" },
+      { name: "smartwatch" }, { name: "cadeira" }, { name: "perfume" },
+    ],
+    emptyHint: "Faça upload de um produto ou objeto isolado.",
+  },
+  cor: {
+    title: "Cores",
+    newLabel: "Nova paleta",
+    tabs: ["Em destaque", "Minhas paletas", "Quente", "Fria", "Pastel", "Neon", "Monocromático"],
+    type: "style",
+    seeds: [
+      { name: "sunset" }, { name: "midnight" }, { name: "pastel-spring" },
+      { name: "neon-tokyo" }, { name: "earth-tones" }, { name: "mono-noir" },
+    ],
+    emptyHint: "Extraia uma paleta de uma imagem ou crie do zero.",
+  },
+  efeitos: {
+    title: "Efeitos",
+    newLabel: "Novo efeito",
+    tabs: ["Em destaque", "Meus efeitos", "Luz", "Textura", "Filme", "Glitch", "Bokeh"],
+    type: "style",
+    seeds: [
+      { name: "film-grain" }, { name: "bokeh" }, { name: "lens-flare" },
+      { name: "glitch" }, { name: "long-exposure" }, { name: "vhs" },
+    ],
+    emptyHint: "Combine efeitos para dar acabamento à imagem.",
+  },
+  camera: {
+    title: "Câmera",
+    newLabel: "Novo preset",
+    tabs: ["Em destaque", "Meus presets", "Lente", "Ângulo", "Movimento", "Profundidade"],
+    type: "scene",
+    seeds: [
+      { name: "35mm" }, { name: "85mm-portrait" }, { name: "wide-16mm" },
+      { name: "low-angle" }, { name: "drone-top" }, { name: "dolly-in" },
+    ],
+    emptyHint: "Defina lente, ângulo e movimento de câmera.",
+  },
 };
 
 export function LibraryPage({
@@ -63,12 +141,18 @@ export function LibraryPage({
   showToast,
 }: Props) {
   const [category, setCategory] = useState<Category>(defaultCategory);
-  const [tab, setTab] = useState<string>("Em destaque");
+  const cfg = CATEGORY_CONFIG[category];
+  const [tab, setTab] = useState<string>(cfg.tabs[0]);
   const [search, setSearch] = useState(initialQuery);
   const [dragOver, setDragOver] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [compactViewport, setCompactViewport] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Reset tab quando trocar categoria
+  useEffect(() => {
+    setTab(CATEGORY_CONFIG[category].tabs[0]);
+  }, [category]);
 
   useEffect(() => {
     if (open) {
@@ -98,9 +182,17 @@ export function LibraryPage({
   }, [open, onClose]);
 
   const filtered = useMemo(() => {
-    const t = CATEGORY_TO_TYPE[category];
+    const t = CATEGORY_CONFIG[category].type;
     let pool = items;
     if (t !== "all") pool = pool.filter((i) => i.type === t);
+    // injetar seeds da categoria se vazio
+    if (pool.length === 0) {
+      pool = CATEGORY_CONFIG[category].seeds.map((s, i) => ({
+        id: `seed-${category}-${i}`,
+        type: t === "all" ? "style" : t,
+        name: s.name,
+      })) as MentionItem[];
+    }
     const q = search.trim().toLowerCase();
     if (q) pool = pool.filter((i) => i.name.toLowerCase().includes(q));
     return pool;
@@ -133,13 +225,13 @@ export function LibraryPage({
   if (!open) return null;
 
   const titleByCat: Record<Category, string> = {
-    estilo: "Estilos",
-    personagem: "Personagens",
-    elemento: "Elementos",
-    cor: "Cores",
-    efeitos: "Efeitos",
-    camera: "Câmera",
-    stock: "Histórico",
+    estilo: CATEGORY_CONFIG.estilo.title,
+    personagem: CATEGORY_CONFIG.personagem.title,
+    elemento: CATEGORY_CONFIG.elemento.title,
+    cor: CATEGORY_CONFIG.cor.title,
+    efeitos: CATEGORY_CONFIG.efeitos.title,
+    camera: CATEGORY_CONFIG.camera.title,
+    stock: CATEGORY_CONFIG.stock.title,
   };
 
   const handleApply = () => {
@@ -226,21 +318,24 @@ export function LibraryPage({
 
         <div className="lib-content-header">
           <div className="lib-header-row">
-            <h2 className="lib-title">{titleByCat[category]}</h2>
-            <button className="lib-new-btn">
+            <h2 className="lib-title">{cfg.title}</h2>
+            <button
+              className="lib-new-btn"
+              onClick={() => showToast(`${cfg.newLabel} — em breve`)}
+            >
               <Icon d="M12 5v14M5 12h14" />
-              Novo {category === "personagem" ? "personagem" : "estilo"}
+              {cfg.newLabel}
             </button>
           </div>
           <div className="lib-tabs">
-            {TABS.map((t) => (
+            {cfg.tabs.map((t, i) => (
               <button
                 key={t}
                 className={"lib-tab" + (tab === t ? " active" : "")}
                 onClick={() => setTab(t)}
               >
-                {t === "Em destaque" && <Icon d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z" />}
-                {t === "Meus estilos" && <Icon d="M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0z M4 20a8 8 0 0 1 16 0" />}
+                {i === 0 && <Icon d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z" />}
+                {i === 1 && <Icon d="M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0z M4 20a8 8 0 0 1 16 0" />}
                 {t}
               </button>
             ))}

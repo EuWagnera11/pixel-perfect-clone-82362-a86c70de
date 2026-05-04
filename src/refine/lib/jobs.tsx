@@ -40,7 +40,12 @@ const JobsCtx = createContext<Ctx | null>(null);
 
 export function JobsProvider({ children, onCompleted }: { children: ReactNode; onCompleted?: (job: Job) => void }) {
   const [jobs, setJobs] = useState<Job[]>(() => {
-    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"); } catch { return []; }
+    try {
+      const raw: Job[] = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+      // Descarta jobs "processing" antigos (>10min) — ficaram órfãos
+      const cutoff = Date.now() - 10 * 60_000;
+      return raw.filter((j) => j.status !== "processing" || j.startedAt > cutoff);
+    } catch { return []; }
   });
   const polling = useRef<Set<string>>(new Set());
   const onCompletedRef = useRef(onCompleted);
@@ -88,7 +93,18 @@ export function JobsProvider({ children, onCompleted }: { children: ReactNode; o
             } catch { continue; }
           } else {
             let g;
-            try { g = await fetchGeneration(jobId); } catch { continue; }
+            let notFound = false;
+            try { g = await fetchGeneration(jobId); }
+            catch (err: any) {
+              const msg = String(err?.message || err || "");
+              if (/not found|404|no rows/i.test(msg)) notFound = true;
+              else continue;
+            }
+            if (notFound || !g) {
+              updateJob(jobId, { status: "failed", error: "Geração não encontrada", completedAt: Date.now() });
+              polling.current.delete(jobId);
+              return;
+            }
             if (g.status === "completed") {
               const url = g.image_urls?.[0] || g.video_urls?.[0];
               updateJob(jobId, { status: "completed", resultUrl: url, completedAt: Date.now() });

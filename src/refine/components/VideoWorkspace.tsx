@@ -122,14 +122,14 @@ export function VideoWorkspace({
 
   const modelId = MODEL_LABEL_TO_ID[modelLabel] || "kling-v2-5-pro";
   const currentModel = VIDEO_MODELS.find((m) => m.id === modelId) || VIDEO_MODELS[0];
+  const supportedModes = useMemo(() => getVideoModelModes(currentModel), [currentModel]);
 
-  // Em modo "text", garante que o modelo selecionado suporta text-to-video.
+  // Se o modo atual não é suportado pelo modelo, troca para o primeiro suportado.
   useEffect(() => {
-    if (mode === "text" && !currentModel.textToVideo) {
-      const firstT2V = VIDEO_MODELS.find((m) => m.textToVideo);
-      if (firstT2V) setModelLabel(firstT2V.label);
+    if (!supportedModes.includes(mode)) {
+      setMode(supportedModes[0]);
     }
-  }, [mode, currentModel]);
+  }, [supportedModes, mode]);
 
   // mention items (refs)
   const mentionItems = useMemo<MentionItem[]>(() =>

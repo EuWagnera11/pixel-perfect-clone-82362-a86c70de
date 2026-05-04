@@ -116,6 +116,9 @@ export function LibraryPage({
     [onUploadFile, onPick]
   );
 
+  const [selected, setSelected] = useState<MentionItem | null>(null);
+  useEffect(() => { if (!open) setSelected(null); }, [open]);
+
   if (!open) return null;
 
   const titleByCat: Record<Category, string> = {
@@ -128,12 +131,38 @@ export function LibraryPage({
     stock: "Histórico",
   };
 
+  const handleApply = () => {
+    if (!selected) return;
+    onPick(selected);
+    onClose();
+  };
+
   return (
-    <div className="library-page" role="dialog" aria-modal="true">
-      {/* Botão fechar flutuante */}
-      <button className="library-close" onClick={onClose} title="Fechar (Esc)" aria-label="Fechar">
-        <Icon d="M6 6l12 12M6 18L18 6" strokeWidth={2.2} />
-      </button>
+    <div
+      className="style-modal-overlay"
+      role="dialog"
+      aria-modal="true"
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <div className="style-modal">
+        {/* TOPBAR */}
+        <div className="modal-topbar">
+          <div className="topbar-left">
+            <span className="topbar-icon">
+              <Icon d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z" />
+            </span>
+            <div className="topbar-title">
+              <span className="topbar-eyebrow">REFINE · BIBLIOTECA</span>
+              <span className="topbar-text">{titleByCat[category]}</span>
+            </div>
+          </div>
+          <div className="topbar-right">
+            <button className="topbar-btn close" onClick={onClose} aria-label="Fechar">
+              <Icon d="M6 6l12 12M6 18L18 6" strokeWidth={2.2} />
+              <span className="kbd">Esc</span>
+            </button>
+          </div>
+        </div>
 
       {/* SIDEBAR */}
       <aside className="library-sidebar">

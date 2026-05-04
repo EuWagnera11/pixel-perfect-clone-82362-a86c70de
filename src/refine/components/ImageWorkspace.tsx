@@ -258,6 +258,7 @@ export function ImageWorkspace({
       {/* ===== LEFT CONTROLS ===== */}
       <aside className="img-ws-controls">
         <div className="img-ws-sidebar-head">
+          <span className="eyebrow">WORKSPACE · IMAGE</span>
           <h1>Criar imagens</h1>
           <p>Prompt, referências e saídas</p>
         </div>

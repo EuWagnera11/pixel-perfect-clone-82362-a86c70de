@@ -122,6 +122,14 @@ export function VideoWorkspace({
   const modelId = MODEL_LABEL_TO_ID[modelLabel] || "kling-v2-5-pro";
   const currentModel = VIDEO_MODELS.find((m) => m.id === modelId) || VIDEO_MODELS[0];
 
+  // Em modo "text", garante que o modelo selecionado suporta text-to-video.
+  useEffect(() => {
+    if (mode === "text" && !currentModel.textToVideo) {
+      const firstT2V = VIDEO_MODELS.find((m) => m.textToVideo);
+      if (firstT2V) setModelLabel(firstT2V.label);
+    }
+  }, [mode, currentModel]);
+
   // mention items (refs)
   const mentionItems = useMemo<MentionItem[]>(() =>
     refs.map((r, i) => ({ id: `ref-${i}`, type: "image" as MentionType, name: `img${i + 1}`, avatarSrc: r.url })),
@@ -239,7 +247,7 @@ export function VideoWorkspace({
             <div className="vid-panel-head">
               <div className="vid-panel-title"><span className="vid-dot" /> Modelo</div>
             </div>
-            <VideoModelPicker value={modelLabel} onChange={setModelLabel} open={modelPickerOpen} setOpen={setModelPickerOpen} />
+            <VideoModelPicker value={modelLabel} onChange={setModelLabel} open={modelPickerOpen} setOpen={setModelPickerOpen} mode={mode} />
           </div>
 
           {/* REFERÊNCIAS — depende do modo */}
@@ -621,13 +629,15 @@ export function VideoWorkspace({
  * VideoModelPicker — popover simples com modelos de vídeo
  * ========================================================= */
 function VideoModelPicker({
-  value, onChange, open, setOpen,
-}: { value: string; onChange: (v: string) => void; open: boolean; setOpen: (b: boolean) => void }) {
+  value, onChange, open, setOpen, mode,
+}: { value: string; onChange: (v: string) => void; open: boolean; setOpen: (b: boolean) => void; mode: Mode }) {
   const [q, setQ] = useState("");
   const filtered = useMemo(() => {
     const qq = q.trim().toLowerCase();
-    return VIDEO_MODELS.filter((m) => !qq || m.label.toLowerCase().includes(qq));
-  }, [q]);
+    return VIDEO_MODELS
+      .filter((m) => mode === "text" ? m.textToVideo : true)
+      .filter((m) => !qq || m.label.toLowerCase().includes(qq));
+  }, [q, mode]);
   const grouped = useMemo(() => {
     const order: VideoModel["family"][] = ["kling", "veo", "hailuo", "runway", "seedance", "pixverse", "ltx", "wan", "omnihuman"];
     return order.map((fam) => ({ fam, items: filtered.filter((m) => m.family === fam) })).filter((g) => g.items.length > 0);

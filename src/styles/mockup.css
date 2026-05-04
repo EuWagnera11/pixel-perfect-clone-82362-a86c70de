@@ -2250,3 +2250,157 @@ img{display:block;max-width:100%}
   .library-page{grid-template-columns:200px 1fr}
   .library-rightpanel{display:none}
 }
+
+/* =====================================================================
+   RESPONSIVIDADE DESKTOP TOTAL — 1024px → 8K
+   Camada aditiva: tokens fluidos + breakpoints discretos do /image
+   ===================================================================== */
+:root{
+  /* Tokens fluidos — usar gradualmente nos componentes novos */
+  --fs-display: clamp(28px, 2.2vw, 56px);
+  --fs-h1: clamp(22px, 1.7vw, 42px);
+  --fs-h2: clamp(18px, 1.3vw, 32px);
+  --fs-h3: clamp(16px, 1.1vw, 24px);
+  --fs-body-lg: clamp(14px, .95vw, 20px);
+  --fs-body: clamp(12.5px, .85vw, 17px);
+  --fs-body-sm: clamp(11.5px, .78vw, 15px);
+  --fs-label: clamp(10.5px, .72vw, 13px);
+  --fs-eyebrow: clamp(9.5px, .65vw, 12px);
+  --fs-mono: clamp(10.5px, .72vw, 13.5px);
+  --fs-tiny: clamp(8.5px, .6vw, 11px);
+
+  --space-1: clamp(2px, .15vw, 4px);
+  --space-2: clamp(4px, .3vw, 7px);
+  --space-3: clamp(6px, .45vw, 11px);
+  --space-4: clamp(8px, .6vw, 14px);
+  --space-5: clamp(10px, .8vw, 18px);
+  --space-6: clamp(12px, 1vw, 22px);
+  --space-8: clamp(16px, 1.4vw, 32px);
+  --space-10: clamp(20px, 1.7vw, 40px);
+  --space-12: clamp(24px, 2.1vw, 48px);
+  --space-16: clamp(32px, 2.8vw, 64px);
+
+  --h-button-sm: clamp(28px, 2.2vw, 40px);
+  --h-button: clamp(36px, 2.8vw, 52px);
+  --h-button-lg: clamp(44px, 3.4vw, 64px);
+  --h-input: clamp(36px, 2.8vw, 52px);
+  --h-pill: clamp(28px, 2.2vw, 40px);
+
+  --r-sm: clamp(6px, .5vw, 10px);
+  --r-fluid: clamp(10px, .8vw, 16px);
+  --r-fluid-lg: clamp(14px, 1.1vw, 22px);
+  --r-fluid-xl: clamp(20px, 1.5vw, 32px);
+
+  --w-content-max: clamp(960px, 85vw, 2400px);
+
+  --icon-sm: clamp(11px, .9vw, 16px);
+  --icon: clamp(14px, 1.05vw, 20px);
+  --icon-lg: clamp(18px, 1.4vw, 28px);
+}
+
+/* Base font-size respira em telas muito grandes */
+@media (min-width:3840px){ html{font-size:18px} }
+@media (min-width:6144px){ html{font-size:20px} }
+
+/* ---------- /image — sidebar de controles ---------- */
+/* xs (1024-1279): coluna de controles um pouco mais estreita */
+@media (min-width:1024px) and (max-width:1279px){
+  .img-ws{grid-template-columns:260px 1fr}
+}
+/* md+ (1536+): cresce com a viewport */
+@media (min-width:1536px){
+  .img-ws{grid-template-columns:clamp(300px, 19vw, 360px) 1fr}
+}
+@media (min-width:2560px){
+  .img-ws{grid-template-columns:clamp(340px, 18vw, 420px) 1fr}
+}
+@media (min-width:3840px){
+  .img-ws{grid-template-columns:clamp(380px, 17vw, 520px) 1fr}
+  .img-ws-controls{padding:18px 16px 16px;gap:14px}
+}
+
+/* ---------- /image — galeria escalando colunas ---------- */
+@media (min-width:1920px){
+  .img-ws-gen-grid{grid-template-columns:repeat(5,1fr);gap:10px}
+}
+@media (min-width:2560px){
+  .img-ws-gen-grid{grid-template-columns:repeat(6,1fr);gap:12px}
+}
+@media (min-width:3840px){
+  .img-ws-gen-grid{grid-template-columns:repeat(7,1fr);gap:14px}
+}
+@media (min-width:5120px){
+  .img-ws-gen-grid{grid-template-columns:repeat(8,1fr);gap:16px}
+}
+/* 8K: cap de largura para evitar tiles minúsculos ou linhas gigantes */
+@media (min-width:6144px){
+  .img-ws-gen-grid{
+    grid-template-columns:repeat(auto-fill,minmax(360px,1fr));
+    max-width:7000px;margin-left:auto;margin-right:auto;gap:18px;
+  }
+}
+
+/* ---------- Refs grid escala em telas grandes ---------- */
+@media (min-width:2560px){
+  .img-ws-refs{grid-template-columns:repeat(5,1fr)}
+  .references-grid{grid-template-columns:repeat(5,1fr) !important}
+}
+@media (min-width:3840px){
+  .img-ws-refs{grid-template-columns:repeat(6,1fr)}
+  .references-grid{grid-template-columns:repeat(6,1fr) !important}
+}
+
+/* ---------- Sidebar global do app ---------- */
+@media (min-width:2560px){
+  :root{--sidebar-w:clamp(260px, 14vw, 340px); --rail-w:clamp(320px, 17vw, 400px)}
+}
+@media (min-width:3840px){
+  :root{--sidebar-w:clamp(320px, 13vw, 420px); --rail-w:clamp(380px, 16vw, 500px)}
+}
+
+/* ---------- Library full-screen escala ---------- */
+@media (min-width:1920px){
+  .library-page{grid-template-columns:clamp(240px,14vw,300px) 1fr clamp(320px,18vw,420px)}
+  .lib-grid{grid-template-columns:repeat(auto-fill, minmax(clamp(140px,10vw,200px),1fr))}
+}
+@media (min-width:3840px){
+  .library-page{grid-template-columns:clamp(300px,12vw,380px) 1fr clamp(380px,14vw,480px)}
+  .lib-grid{grid-template-columns:repeat(auto-fill, minmax(clamp(180px,9vw,260px),1fr))}
+  .lib-title{font-size:var(--fs-h1)}
+}
+@media (min-width:6144px){
+  .library-main{max-width:6800px;margin:0 auto;padding:var(--space-12) var(--space-16)}
+}
+
+/* ---------- Modal preview / lightbox ---------- */
+@media (min-width:2560px){
+  .ilx-frame-outer,
+  .image-frame-outer{max-width:75vw;max-height:80vh}
+  .ilx-side,
+  .modal-side-panel{width:clamp(360px, 22vw, 520px)}
+}
+@media (min-width:3840px){
+  .ilx-frame-outer,
+  .image-frame-outer{max-width:70vw;max-height:78vh}
+}
+
+/* ---------- Performance em telas grandes ---------- */
+@media (min-width:1920px){
+  .img-ws-tile,
+  .lib-card,
+  .ref-slot{contain:layout style paint}
+}
+
+/* ---------- Search bar (8K legibilidade) ---------- */
+@media (min-width:3840px){
+  .img-ws-search input,
+  .lib-search-bar input{font-size:var(--fs-body)}
+}
+
+/* ---------- Topbar filtros — em xs vira chip único "Filtros" ---------- */
+/* (visual fallback caso .gallery-filters-mobile-trigger seja adicionado no futuro;
+   por ora apenas reduz padding dos chips existentes) */
+@media (min-width:1024px) and (max-width:1279px){
+  .img-ws-chip-btn{height:30px;padding:0 8px;font-size:11.5px}
+  .img-ws-search{height:34px}
+}

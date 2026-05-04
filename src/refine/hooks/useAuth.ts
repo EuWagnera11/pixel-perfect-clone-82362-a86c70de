@@ -30,6 +30,35 @@ export function useAuth() {
     let mounted = true;
     (async () => {
       try {
+        // OAuth callback (full-page redirect): captura tokens vindos na URL.
+        // O SDK @lovable.dev/cloud-auth-js, quando NÃO está em iframe, faz
+        // window.location.href = /~oauth/initiate, e o broker redireciona de
+        // volta com access_token/refresh_token em query OU hash. Precisamos
+        // ler isso e setar a sessão manualmente.
+        try {
+          const url = new URL(window.location.href);
+          const hashParams = new URLSearchParams(
+            url.hash.startsWith("#") ? url.hash.slice(1) : url.hash
+          );
+          const access_token =
+            url.searchParams.get("access_token") || hashParams.get("access_token");
+          const refresh_token =
+            url.searchParams.get("refresh_token") || hashParams.get("refresh_token");
+          if (access_token && refresh_token) {
+            await supabase.auth.setSession({ access_token, refresh_token });
+            // limpa os tokens da URL para não ficarem expostos / re-processados
+            ["access_token", "refresh_token", "expires_in", "expires_at",
+             "token_type", "provider_token", "provider_refresh_token", "state",
+             "type"].forEach((k) => {
+              url.searchParams.delete(k);
+            });
+            url.hash = "";
+            window.history.replaceState({}, "", url.toString());
+          }
+        } catch (e) {
+          console.warn("[refine] oauth callback parse failed:", e);
+        }
+
         const { data } = await supabase.auth.getSession();
         if (!mounted) return;
         if (data.session) {

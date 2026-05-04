@@ -66,9 +66,29 @@ Deno.serve(async (req) => {
   const update: Record<string, unknown> = { status };
   if (status === "completed") {
     update.completed_at = new Date().toISOString();
-    if (gen.media_type === "video") update.video_urls = urls;
-    else if (gen.media_type === "audio") update.video_urls = urls; // reuse field
-    else update.image_urls = urls;
+    const isVideo = gen.media_type === "video";
+    const isAudio = gen.media_type === "audio";
+    const ext = isVideo ? "mp4" : isAudio ? "mp3" : "png";
+    const contentType = isVideo ? "video/mp4" : isAudio ? "audio/mpeg" : "image/png";
+    const persisted: string[] = [];
+    for (let i = 0; i < urls.length; i++) {
+      const u = urls[i];
+      try {
+        const r = await fetch(u);
+        if (!r.ok) { persisted.push(u); continue; }
+        const bytes = new Uint8Array(await r.arrayBuffer());
+        const objPath = `${auth.userId}/generations/${generationId}/${i}.${ext}`;
+        const up = await auth.admin.storage.from("uploads")
+          .upload(objPath, bytes, { contentType, upsert: true });
+        if (up.error) { persisted.push(u); continue; }
+        const { data: pub } = auth.admin.storage.from("uploads").getPublicUrl(objPath);
+        persisted.push(pub.publicUrl);
+      } catch {
+        persisted.push(u);
+      }
+    }
+    if (isVideo || isAudio) update.video_urls = persisted;
+    else update.image_urls = persisted;
   }
   if (status === "failed") {
     const d = fp.body?.data ?? {};

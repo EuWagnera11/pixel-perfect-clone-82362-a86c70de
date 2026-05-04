@@ -16,6 +16,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { createPortal } from "react-dom";
 import { Icon } from "./Icon";
 
 export type MentionType = "image" | "character" | "style" | "product" | "scene" | "logo";
@@ -362,7 +363,7 @@ export const PromptInput = forwardRef<PromptInputHandle, Props>(function PromptI
         }}
       />
 
-      {open && (
+      {open && createPortal(
         <div
           ref={dropdownRef}
           className="mention-dropdown"
@@ -465,7 +466,8 @@ export const PromptInput = forwardRef<PromptInputHandle, Props>(function PromptI
               <span className="kbd">Esc</span>Fechar
             </span>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );

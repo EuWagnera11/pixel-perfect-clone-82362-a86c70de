@@ -580,11 +580,38 @@ type LightboxProps = {
 
 function Lightbox(p: LightboxProps) {
   const item = p.items[p.index];
+  const [showPanel, setShowPanel] = useState<boolean>(() => {
+    try { return localStorage.getItem("ils-panel") === "1"; } catch { return false; }
+  });
+  const [zoomed, setZoomed] = useState(false);
+  const [exportOpen, setExportOpen] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
+
+  useEffect(() => {
+    try { localStorage.setItem("ils-panel", showPanel ? "1" : "0"); } catch {}
+  }, [showPanel]);
+
+  // keyboard shortcuts
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.target as HTMLElement)?.tagName === "INPUT" || (e.target as HTMLElement)?.tagName === "TEXTAREA") return;
+      if (e.key === "v" || e.key === "V") p.onVariations(item);
+      else if (e.key === "e" || e.key === "E") p.onSendToEdit(item.url);
+      else if (e.key === "r" || e.key === "R") p.onCopyPrompt(item.prompt);
+      else if (e.key === "d" || e.key === "D") download("png");
+      else if (e.key === "f" || e.key === "F") p.onToggleFavorite(item);
+      else if (e.key === "i" || e.key === "I") setShowPanel((s) => !s);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [item, p]);
+
   if (!item) return null;
   const meta = item.meta || {};
   const sizeLabel = meta.width && meta.height ? `${meta.width}×${meta.height}` : meta.size || "—";
 
-  const download = async (format: "png" | "jpg" = "png") => {
+  async function download(format: "png" | "jpg" | "webp" = "png") {
     try {
       const res = await fetch(item.url);
       const blob = await res.blob();
@@ -595,123 +622,184 @@ function Lightbox(p: LightboxProps) {
       document.body.appendChild(a); a.click(); a.remove();
       URL.revokeObjectURL(url);
       p.showToast("Download iniciado");
+      setExportOpen(false);
     } catch {
       p.showToast("Falha ao baixar");
     }
-  };
+  }
+
+  async function copyImage() {
+    try {
+      const res = await fetch(item.url);
+      const blob = await res.blob();
+      // @ts-ignore
+      await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
+      p.showToast("Imagem copiada");
+    } catch {
+      p.showToast("Falha ao copiar");
+    }
+    setExportOpen(false);
+  }
+
+  async function copyLink() {
+    try {
+      await navigator.clipboard.writeText(item.url);
+      p.showToast("Link copiado");
+    } catch { p.showToast("Falha ao copiar link"); }
+    setShareOpen(false);
+  }
 
   return (
-    <div className="img-lightbox" onClick={p.onClose}>
-      <button className="img-lightbox-close" onClick={p.onClose} aria-label="Fechar">
-        <Icon d="M6 6l12 12M6 18L18 6" strokeWidth={2} />
-      </button>
-
-      {p.index > 0 && (
-        <button className="img-lightbox-nav prev" onClick={(e) => { e.stopPropagation(); p.onPrev(); }}>
-          <Icon d="M15 6l-6 6 6 6" strokeWidth={2} />
-        </button>
-      )}
-      {p.index < p.items.length - 1 && (
-        <button className="img-lightbox-nav next" onClick={(e) => { e.stopPropagation(); p.onNext(); }}>
-          <Icon d="M9 6l6 6-6 6" strokeWidth={2} />
-        </button>
-      )}
-
-      <div className="img-lightbox-stage" onClick={(e) => e.stopPropagation()}>
-        <img src={item.url} alt={item.prompt} />
+    <div className="ilx" onClick={p.onClose} data-panel={showPanel ? "open" : "closed"}>
+      {/* Top bar */}
+      <div className="ilx-topbar" onClick={(e) => e.stopPropagation()}>
+        <div className="ilx-top-left">
+          <button className="ilx-icbtn" onClick={p.onClose} title="Voltar (Esc)">
+            <Icon d="M15 6l-6 6 6 6" strokeWidth={2} />
+            <span>Voltar</span>
+          </button>
+          <span className="ilx-sep" />
+          <span className="ilx-counter">Imagem {p.index + 1} de {p.items.length}</span>
+        </div>
+        <div className="ilx-top-center">
+          <button className="ilx-icbtn round" disabled={p.index === 0} onClick={p.onPrev} title="Anterior (←)">
+            <Icon d="M15 6l-6 6 6 6" strokeWidth={2} />
+          </button>
+          <button className="ilx-icbtn round" disabled={p.index === p.items.length - 1} onClick={p.onNext} title="Próxima (→)">
+            <Icon d="M9 6l6 6-6 6" strokeWidth={2} />
+          </button>
+        </div>
+        <div className="ilx-top-right">
+          <button className={`ilx-icbtn ${showPanel ? "active" : ""}`} onClick={() => setShowPanel((s) => !s)} title="Detalhes (I)">
+            <Icon d="M12 8v.01M11 12h1v4h1" strokeWidth={2} />
+            <span>Detalhes</span>
+          </button>
+          <button className="ilx-icbtn round" onClick={p.onClose} title="Fechar (Esc)">
+            <Icon d="M6 6l12 12M6 18L18 6" strokeWidth={2} />
+          </button>
+        </div>
       </div>
 
-      <aside className="img-lightbox-side" onClick={(e) => e.stopPropagation()}>
-        <div className="ils-card ils-card--hero">
-          <div className="ils-card-top">
-            <div className="ils-label">Preview</div>
-            <span className="ils-position">{p.index + 1} / {p.items.length}</span>
-          </div>
-          <p className="ils-prompt">{item.prompt || "(sem prompt)"}</p>
-          <button className="ils-link" onClick={() => p.onCopyPrompt(item.prompt)}>
-            <Icon d="M8 4h10v14M4 8h10v12H4z" /> Copiar prompt
+      {/* Stage */}
+      <div className="ilx-stage" onClick={(e) => e.stopPropagation()}>
+        <img
+          src={item.url}
+          alt={item.prompt}
+          className={zoomed ? "zoomed" : ""}
+          onClick={() => setZoomed((z) => !z)}
+        />
+      </div>
+
+      {/* Bottom dock */}
+      <div className="ilx-dock" onClick={(e) => e.stopPropagation()}>
+        <button className="ilx-pill primary" onClick={() => p.onVariations(item)} title="Variações (V)">
+          <Icon d="M4 4h7v7H4z M13 4h7v7h-7z M4 13h7v7H4z M13 13h7v7h-7z" />
+          <span>Variações</span>
+        </button>
+        <button className="ilx-pill" onClick={() => p.onSendToEdit(item.url)} title="Editar (E)">
+          <Icon d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4z" />
+          <span>Editar</span>
+        </button>
+        <button className="ilx-pill" onClick={() => p.onCopyPrompt(item.prompt)} title="Reusar prompt (R)">
+          <Icon d="M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5" />
+          <span>Reusar prompt</span>
+        </button>
+        <div className="ilx-pill-wrap">
+          <button className="ilx-pill" onClick={() => setExportOpen((o) => !o)} title="Exportar (D)">
+            <Icon d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14" />
+            <span>Exportar</span>
           </button>
+          {exportOpen && (
+            <div className="ilx-menu" onMouseLeave={() => setExportOpen(false)}>
+              <button onClick={() => download("png")}>PNG</button>
+              <button onClick={() => download("jpg")}>JPG</button>
+              <button onClick={() => download("webp")}>WebP</button>
+              <button onClick={copyImage}>Copiar imagem</button>
+            </div>
+          )}
         </div>
-
-        <div className="ils-card">
-          <div className="ils-label">Informações</div>
-          <div className="ils-info-row"><span>Modelo</span><b>{MODEL_ID_TO_LABEL[meta.model] || meta.model || "—"}</b></div>
-          <div className="ils-info-row"><span>Aspecto</span><b>{meta.ratio || "—"}</b></div>
-          <div className="ils-info-row"><span>Qualidade</span><b>{meta.quality || "—"}</b></div>
-          <div className="ils-info-row"><span>Tamanho</span><b>{sizeLabel}</b></div>
-          {meta.seed && <div className="ils-info-row"><span>Seed</span><b>{meta.seed}</b></div>}
-        </div>
-
-        <div className="ils-card">
-          <div className="ils-label">Exportar</div>
-          <div className="ils-actions ils-actions--2">
-            <button className="ils-btn primary" onClick={() => download("png")}>
-              <Icon d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14" /> <span>PNG</span>
-            </button>
-            <button className="ils-btn" onClick={() => download("jpg")}>
-              <Icon d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14" /> <span>JPG</span>
-            </button>
-          </div>
-        </div>
-
-        <div className="ils-card">
-          <div className="ils-label">Reutilizar</div>
-          <div className="ils-actions ils-actions--2">
-            <button className="ils-btn" onClick={() => p.onUseAsRef(item.url)}>
-              <Icon d="M5 12h14M12 5l7 7-7 7" /> <span>Referência</span>
-            </button>
-            <button className="ils-btn" onClick={() => p.onUseAsStyle(item.url)}>
-              <Icon d="M3 12h18M3 6h18M3 18h12" /> <span>Estilo</span>
-            </button>
-            <button className="ils-btn" onClick={() => p.onCopyPrompt(item.prompt)}>
-              <Icon d="M8 4h10v14M4 8h10v12H4z" /> <span>Prompt</span>
-            </button>
-            <button className="ils-btn" onClick={() => p.onToggleFavorite(item)}>
-              <Icon d="M12 2 14 9h7l-6 4 2 7-7-4-7 4 2-7-6-4h7z" />
-              <span>{item.isFav ? "Desfavoritar" : "Favoritar"}</span>
-            </button>
-          </div>
-        </div>
-
-        <div className="ils-card">
-          <div className="ils-label">Gerar a partir desta</div>
-          <div className="ils-actions ils-actions--3">
-            <button className="ils-btn" onClick={() => p.onRegenerate(item)}>
-              <Icon d="M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5" /> <span>Recriar</span>
-            </button>
-            <button className="ils-btn primary" onClick={() => p.onVariations(item)}>
-              <Icon d="M4 4h7v7H4z M13 4h7v7h-7z M4 13h7v7H4z M13 13h7v7h-7z" /> <span>Variações</span>
-            </button>
-            <button className="ils-btn" onClick={() => p.onChangeCamera(item)}>
-              <Icon d="M3 7h4l2-3h6l2 3h4v12H3z M12 17a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" /> <span>Câmera</span>
-            </button>
-            <button className="ils-btn" onClick={() => p.onSendToEdit(item.url)}>
-              <Icon d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4z" /> <span>Editar</span>
-            </button>
-            <button className="ils-btn" onClick={() => p.onSendToUpscale(item.url)}>
-              <Icon d="M3 16V8a2 2 0 0 1 2-2h14M21 8v8a2 2 0 0 1-2 2H5" /> <span>Upscale</span>
-            </button>
-            <button className="ils-btn" onClick={() => p.onSendToSkinEnhancer(item.url)}>
-              <Icon d="M12 2a7 7 0 0 1 7 7c0 5-7 13-7 13S5 14 5 9a7 7 0 0 1 7-7z" /> <span>Pele</span>
-            </button>
-            <button className="ils-btn" onClick={() => p.onSendTo3D(item.url)}>
-              <Icon d="M12 2 3 7v10l9 5 9-5V7z M12 12 3 7M12 12l9-5M12 12v10" /> <span>Modelo 3D</span>
-            </button>
-            <button className="ils-btn" onClick={() => p.onSendTo3DScene(item.url)}>
-              <Icon d="M3 21V8l9-5 9 5v13M9 21V12h6v9" /> <span>Cena 3D</span>
-            </button>
-            <button className="ils-btn" onClick={() => p.onSendToVideo(item.url)}>
-              <Icon d="M4 6h12v12H4z M16 9l5-3v12l-5-3" /> <span>Vídeo</span>
-            </button>
-          </div>
-        </div>
-
-        <div className="ils-card ils-card--danger">
-          <button className="ils-btn danger" onClick={() => p.onDelete(item)} style={{ width: "100%", justifyContent: "center" }}>
-            <Icon d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14" /> Excluir geração
+        <div className="ilx-pill-wrap">
+          <button className="ilx-pill" onClick={() => setShareOpen((o) => !o)} title="Compartilhar (C)">
+            <Icon d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7M16 6l-4-4-4 4M12 2v14" />
+            <span>Compartilhar</span>
           </button>
+          {shareOpen && (
+            <div className="ilx-menu" onMouseLeave={() => setShareOpen(false)}>
+              <button onClick={copyLink}>Copiar link</button>
+              <button onClick={() => download("png")}>Baixar imagem</button>
+            </div>
+          )}
         </div>
-      </aside>
+      </div>
+
+      {/* Side panel */}
+      {showPanel && (
+        <aside className="ilx-side" onClick={(e) => e.stopPropagation()}>
+          <div className="ilx-side-head">
+            <span className="ilx-side-title">Detalhes</span>
+            <button className="ilx-icbtn round sm" onClick={() => setShowPanel(false)} title="Fechar painel">
+              <Icon d="M6 6l12 12M6 18L18 6" strokeWidth={2} />
+            </button>
+          </div>
+
+          <section className="ilx-sec">
+            <div className="ilx-sec-label">Prompt</div>
+            <div className="ilx-prompt-card">
+              <button className="ilx-prompt-copy" onClick={() => p.onCopyPrompt(item.prompt)} title="Copiar">
+                <Icon d="M8 4h10v14M4 8h10v12H4z" />
+              </button>
+              <p>{item.prompt || "(sem prompt)"}</p>
+            </div>
+          </section>
+
+          <section className="ilx-sec">
+            <div className="ilx-sec-label">Informações</div>
+            <div className="ilx-meta-grid">
+              <div><span>Modelo</span><b>{MODEL_ID_TO_LABEL[meta.model] || meta.model || "—"}</b></div>
+              <div><span>Aspecto</span><b>{meta.ratio || "—"}</b></div>
+              <div><span>Qualidade</span><b>{meta.quality || "—"}</b></div>
+              <div><span>Tamanho</span><b>{sizeLabel}</b></div>
+              {meta.seed && <div><span>Seed</span><b>{meta.seed}</b></div>}
+            </div>
+          </section>
+
+          <section className="ilx-sec">
+            <div className="ilx-sec-label">Reutilizar</div>
+            <div className="ilx-row-actions">
+              <button onClick={() => p.onUseAsRef(item.url)}>Como referência</button>
+              <button onClick={() => p.onUseAsStyle(item.url)}>Como estilo</button>
+            </div>
+          </section>
+
+          <section className="ilx-sec">
+            <div className="ilx-sec-label">Gerar a partir desta</div>
+            <div className="ilx-row-actions wrap">
+              <button onClick={() => p.onRegenerate(item)}>Recriar</button>
+              <button onClick={() => p.onChangeCamera(item)}>Câmera</button>
+              <button onClick={() => p.onSendToUpscale(item.url)}>Upscale</button>
+              <button onClick={() => p.onSendToSkinEnhancer(item.url)}>Pele</button>
+              <button onClick={() => p.onSendTo3D(item.url)}>Modelo 3D</button>
+              <button onClick={() => p.onSendTo3DScene(item.url)}>Cena 3D</button>
+              <button onClick={() => p.onSendToVideo(item.url)}>Vídeo</button>
+            </div>
+          </section>
+
+          <section className="ilx-sec">
+            <div className="ilx-sec-label">Ações</div>
+            <ul className="ilx-actions-list">
+              <li><button onClick={() => p.onToggleFavorite(item)}>
+                <Icon d="M12 2 14 9h7l-6 4 2 7-7-4-7 4 2-7-6-4h7z" />
+                {item.isFav ? "Remover dos favoritos" : "Adicionar aos favoritos"}
+              </button></li>
+              <li><button onClick={() => p.onDelete(item)} className="danger">
+                <Icon d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14" />
+                Excluir
+              </button></li>
+            </ul>
+          </section>
+        </aside>
+      )}
     </div>
   );
 }
+

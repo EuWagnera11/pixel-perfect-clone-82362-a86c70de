@@ -1597,7 +1597,7 @@ img{display:block;max-width:100%}
 .oc-pill:not(.active):hover{color:var(--text)}
 
 /* Aspect cards */
-.oc-aspects{display:grid;grid-template-columns:repeat(auto-fit,minmax(58px,1fr));gap:6px !important}
+.oc-aspects{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px !important}
 .oc-aspect{
   border-radius:9px !important;border:1px solid var(--hairline) !important;
   background:rgba(255,255,255,.02) !important;

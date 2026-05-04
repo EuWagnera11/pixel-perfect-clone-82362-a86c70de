@@ -45,12 +45,14 @@ type Props = {
   modelId: string;
   modelLabel: string;
   showToast: (m: string) => void;
+  /** Quando definido, o botão "Biblioteca" chama isto em vez do popover interno. */
+  onOpenLibrary?: () => void;
 };
 
 const ALLOWED = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 const MAX_BYTES = 10 * 1024 * 1024;
 
-export function ReferencesPanel({ refs, onChange, onUploadFile, modelId, modelLabel, showToast }: Props) {
+export function ReferencesPanel({ refs, onChange, onUploadFile, modelId, modelLabel, showToast, onOpenLibrary }: Props) {
   const max = getRefLimit(modelId);
   const disabled = max === 0;
   const isFull = refs.length >= max;
@@ -235,7 +237,7 @@ export function ReferencesPanel({ refs, onChange, onUploadFile, modelId, modelLa
             <Icon d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14" />
             <span className="label">{uploading ? "Enviando…" : "Upload"}</span>
           </button>
-          <button className="ref-toolbar-btn" onClick={() => setShowLib(true)}>
+          <button className="ref-toolbar-btn" onClick={() => (onOpenLibrary ? onOpenLibrary() : setShowLib(true))}>
             <Icon d="M4 6h16v12H4z M4 10h16" />
             <span className="label">Biblioteca</span>
             <span className="kbd">@</span>

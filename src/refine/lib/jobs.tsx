@@ -27,6 +27,8 @@ export type Job = {
 
 const STORAGE_KEY = "refine.jobs.v1";
 const MAX_KEPT = 40;
+const STALE_PROCESSING_MS = 2 * 60_000;
+const COMPLETED_RETENTION_MS = 60_000;
 
 type Ctx = {
   jobs: Job[];
@@ -42,9 +44,12 @@ export function JobsProvider({ children, onCompleted }: { children: ReactNode; o
   const [jobs, setJobs] = useState<Job[]>(() => {
     try {
       const raw: Job[] = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
-      // Descarta jobs "processing" antigos (>10min) — ficaram órfãos
-      const cutoff = Date.now() - 10 * 60_000;
-      return raw.filter((j) => j.status !== "processing" || j.startedAt > cutoff);
+      const now = Date.now();
+      return raw.filter((j) => {
+        if (j.status === "processing") return j.startedAt > now - STALE_PROCESSING_MS;
+        if (!j.completedAt) return false;
+        return j.completedAt > now - COMPLETED_RETENTION_MS;
+      });
     } catch { return []; }
   });
   const polling = useRef<Set<string>>(new Set());

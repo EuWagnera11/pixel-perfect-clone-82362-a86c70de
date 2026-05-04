@@ -1851,7 +1851,7 @@ img{display:block;max-width:100%}
 }
 
 .img-ws-controls{
-  height:100vh !important; max-height:100vh !important; min-height:0 !important;
+  height:100% !important; max-height:100% !important; min-height:0 !important;
   padding:var(--pad-card) !important;
   gap:var(--gap-stack) !important;
   overflow:hidden !important;
@@ -1977,6 +1977,49 @@ img{display:block;max-width:100%}
 }
 
 /* Container queries — adapt as panel shrinks */
+@container panel (height < 900px){
+  .img-ws-controls{padding:8px !important; gap:6px !important}
+  .img-ws-controls .img-ws-panel{padding:8px !important; gap:6px !important}
+  .img-ws-controls .img-ws-sidebar-head{padding:0 2px 2px !important; gap:2px !important}
+  .img-ws-controls .img-ws-sidebar-head h1{font-size:13px !important}
+  .img-ws-controls .img-ws-sidebar-head p{display:none}
+  .references-card{gap:8px; padding:8px}
+  .references-grid{gap:5px}
+  .ref-slot{max-height:50px}
+  .references-toolbar{padding-top:4px}
+  .ref-toolbar-btn{height:22px; font-size:9px}
+  .img-ws-controls .img-ws-panel--prompt{
+    min-height:88px !important;
+    max-height:clamp(110px, 16vh, 150px) !important;
+  }
+  .img-ws-controls .img-ws-panel--prompt .img-ws-textarea{
+    min-height:34px !important;
+    line-height:1.35 !important;
+  }
+  .img-ws-controls .img-ws-panel--prompt .img-ws-style-row{
+    flex-wrap:nowrap;
+    overflow-x:auto;
+    max-height:28px;
+    padding-top:6px !important;
+    margin-top:4px;
+    scrollbar-width:none;
+  }
+  .img-ws-controls .img-ws-panel--prompt .img-ws-style-row::-webkit-scrollbar{display:none}
+  .img-ws-controls .oc-section{gap:5px !important; padding:6px 0 !important}
+  .img-ws-controls .oc-pill{height:30px !important}
+  .img-ws-controls .oc-aspects{gap:4px !important}
+  .img-ws-controls .oc-aspect{max-height:44px; padding:4px 2px !important}
+  .img-ws-controls .oc-aspect-frame{width:18px !important; height:18px !important}
+  .img-ws-controls .oc-aspect-label b{font-size:9px !important}
+  .img-ws-controls .oc-aspect-label em{font-size:7px !important}
+  .img-ws-controls .oc-segmented{height:30px !important}
+  .img-ws-controls .oc-seg-num{font-size:11px !important}
+  .img-ws-controls .oc-seg-mult{font-size:8px !important; margin-top:1px !important}
+  .img-ws-controls .oc-summary{font-size:10px !important; padding:6px 0 !important}
+  .img-ws-controls .img-ws-generate-wrap{padding-top:8px !important}
+  .img-ws-controls .img-ws-generate{height:40px !important; font-size:12px !important}
+}
+
 @container panel (height < 760px){
   .img-ws-controls .img-ws-sidebar-head p{display:none}
   .references-card{gap:8px; padding:10px}

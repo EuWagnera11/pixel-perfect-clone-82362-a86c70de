@@ -12,6 +12,7 @@ type SidebarProps = {
   onUpgrade: () => void;
   onSignInGoogle: () => void;
   onSignOut: () => void;
+  activeJobsCount?: number;
 };
 
 const LS_KEY = "sidebar-locked";

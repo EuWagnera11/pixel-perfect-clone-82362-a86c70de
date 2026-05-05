@@ -316,7 +316,7 @@ export function ToolWorkspace({
                 tab={tab}
                 value={toolOptions}
                 onChange={(patch) => setToolOptions((prev) => ({ ...prev, ...patch }))}
-                onSuggestPrompt={(text) => setPrompt(text)}
+                onSuggestPrompt={(text) => setPrompt((cur) => (cur.trim() ? cur : text))}
               />
             </div>
           )}

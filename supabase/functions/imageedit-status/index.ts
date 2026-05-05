@@ -84,6 +84,23 @@ Deno.serve(async (req) => {
   }
 
   if (fpStatus !== "COMPLETED" && fpStatus !== "DONE" && fpStatus !== "SUCCESS") {
+    const createdAtMs = gen.created_at ? new Date(gen.created_at).getTime() : Date.now();
+    const ageMs = Date.now() - createdAtMs;
+    const stuckReplaceBgNanoBanana = gen.tool === "replace-bg"
+      && gen.model === "nano-banana-pro"
+      && ageMs > 10 * 60_000;
+
+    if (stuckReplaceBgNanoBanana) {
+      const errorMessage = "Troca de fundo expirou neste modelo. Tente novamente — o fluxo agora usa um modelo mais rápido para essa ferramenta.";
+      await sb.from("imageedit_generations").update({
+        status: "FAILED",
+        error_message: errorMessage,
+        completed_at: new Date().toISOString(),
+      }).eq("generation_id", generationId);
+
+      return json({ generation_id: generationId, status: "FAILED", error: errorMessage });
+    }
+
     return json({ generation_id: generationId, status: "IN_PROGRESS" });
   }
 

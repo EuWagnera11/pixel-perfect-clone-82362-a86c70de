@@ -53,6 +53,18 @@ Deno.serve(async (req) => {
     });
   }
 
+  // OmniHuman exige image_url + audio_url (audio-driven)
+  if (engineId === "omnihuman-1-5") {
+    const img = refs[0];
+    const a = body.audio_url || extras.audio_url;
+    if (!img) return json({ error: "image_url required for OmniHuman" }, 400);
+    if (!a) return json({ error: "audio_url required for OmniHuman (audio-driven)" }, 400);
+    return await startGeneration({
+      auth, engineId, tool: "video", op: "i2v", mediaType: "video",
+      input: { prompt, aspect: body.aspect_ratio || "16:9", refs, num: 1, extra: { ...extras, audio_url: a }, resolution: body.resolution },
+    });
+  }
+
   // Most engines are i2v; LTX/Wan-t2v are pure t2v; Seedance 1.5 + Omnihuman live under /video/ and accept both
   const isT2V = engine.path.includes("/text-to-video/");
   const isFlexible = engine.path.startsWith("/v1/ai/video/"); // seedance-1-5-pro-* / omnihuman / video-upscaler / lip-sync

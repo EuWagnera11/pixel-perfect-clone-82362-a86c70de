@@ -207,7 +207,15 @@ export function ToolWorkspace({
   const [libraryOpen, setLibraryOpen] = useState(false);
   const [libraryCategory, setLibraryCategory] = useState<"estilo" | "personagem" | "elemento" | "cor" | "efeitos" | "camera" | "stock">("estilo");
   const [libraryQuery, setLibraryQuery] = useState("");
+  const [preview, setPreview] = useState<{ url: string; kind: MediaKind } | null>(null);
   const promptRef = useRef<PromptInputHandle>(null);
+
+  useEffect(() => {
+    if (!preview) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setPreview(null); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [preview]);
 
   // Reseta ao trocar de tab
   useEffect(() => {
@@ -388,6 +396,7 @@ export function ToolWorkspace({
                   key={g.id}
                   gen={g}
                   output={cfg.output}
+                  onOpen={(url) => setPreview({ url, kind: cfg.output })}
                   onDelete={async () => { if (confirm("Excluir?")) await onDeleteGeneration(g.id); }}
                   onToggleFav={async () => {
                     const fav = !!(g as any).metadata?.favorite;
@@ -415,6 +424,37 @@ export function ToolWorkspace({
           setRefs((p) => [...p, { url: item.avatarSrc!, source: "library", name: item.name }]);
         }}
       />
+
+      {preview && (
+        <div
+          onClick={() => setPreview(null)}
+          style={{
+            position: "fixed", inset: 0, background: "rgba(0,0,0,0.92)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            zIndex: 9999, cursor: "zoom-out", padding: 24,
+          }}
+        >
+          <button
+            onClick={(e) => { e.stopPropagation(); setPreview(null); }}
+            style={{
+              position: "absolute", top: 16, right: 16, width: 40, height: 40,
+              borderRadius: 999, border: "1px solid rgba(255,255,255,0.2)",
+              background: "rgba(0,0,0,0.5)", color: "#fff", cursor: "pointer",
+              fontSize: 20, lineHeight: 1,
+            }}
+            aria-label="Fechar"
+          >×</button>
+          {preview.kind === "image" && (
+            <img src={preview.url} alt="" style={{ maxWidth: "95vw", maxHeight: "95vh", objectFit: "contain" }} onClick={(e) => e.stopPropagation()} />
+          )}
+          {preview.kind === "video" && (
+            <video src={preview.url} controls autoPlay style={{ maxWidth: "95vw", maxHeight: "95vh" }} onClick={(e) => e.stopPropagation()} />
+          )}
+          {preview.kind === "audio" && (
+            <audio src={preview.url} controls autoPlay onClick={(e) => e.stopPropagation()} />
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -457,12 +497,13 @@ function SimpleModelPicker({ value, onChange }: { value: string; onChange: (v: s
 /* ─────────────── ResultCard (image / video / audio) ─────────────── */
 
 function ResultCard({
-  gen, output, onDelete, onToggleFav,
+  gen, output, onDelete, onToggleFav, onOpen,
 }: {
   gen: Generation;
   output: MediaKind;
   onDelete: () => void;
   onToggleFav: () => void;
+  onOpen: (url: string) => void;
 }) {
   const fav = !!(gen as any).metadata?.favorite;
   const url =
@@ -473,10 +514,10 @@ function ResultCard({
 
   return (
     <div className="tw-card">
-      <div className="tw-card-media">
+      <div className="tw-card-media" onClick={() => onOpen(url)} style={{ cursor: output === "audio" ? "default" : "zoom-in" }}>
         {output === "image" && <img src={url} alt="" />}
         {output === "video" && <video src={url} muted loop playsInline preload="metadata" onMouseEnter={(e) => e.currentTarget.play()} onMouseLeave={(e) => e.currentTarget.pause()} />}
-        {output === "audio" && <audio src={url} controls style={{ width: "100%" }} />}
+        {output === "audio" && <audio src={url} controls style={{ width: "100%" }} onClick={(e) => e.stopPropagation()} />}
       </div>
       <div className="tw-card-actions">
         <button className={"vc-act" + (fav ? " active" : "")} onClick={onToggleFav} title="Favoritar">

@@ -50,15 +50,19 @@ export async function runCinema(opts: {
 
 // ───────── VIDEO ─────────
 export async function runVideo(opts: {
-  prompt: string; sourceUrl: string; model: string; aspect?: string; duration?: string;
+  prompt: string; sourceUrl: string; model: string; aspect?: string; duration?: string; lastImageUrl?: string;
 }): Promise<EnqueueResult> {
   if (!opts.sourceUrl) throw new Error("Anexe uma imagem inicial");
+  if (opts.model === "pixverse-v5-transition" && !opts.lastImageUrl) {
+    throw new Error("Pixverse Transition exige imagem final (último frame)");
+  }
   const r = await startVideo({
     prompt: opts.prompt,
     image_url: opts.sourceUrl,
     model: opts.model || "kling-v2-5-pro",
     aspect_ratio: opts.aspect,
     duration: opts.duration,
+    last_image_url: opts.lastImageUrl,
   });
   return { generationId: r.id, mediaType: "video", taskId: r.task_id };
 }

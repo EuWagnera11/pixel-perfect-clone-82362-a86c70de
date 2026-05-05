@@ -25,6 +25,8 @@ type Props = {
   tab: string;
   value: ToolOptions;
   onChange: (patch: Partial<ToolOptions>) => void;
+  /** Conteúdo extra renderizado à direita (ex.: upload de último frame). */
+  extra?: React.ReactNode;
 };
 
 const wrap: CSSProperties = {

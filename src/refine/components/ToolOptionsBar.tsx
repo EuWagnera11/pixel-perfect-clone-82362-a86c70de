@@ -147,7 +147,8 @@ function NumInput({ val, onChange, min, max, step = 1, ph }: {
   );
 }
 
-export function ToolOptionsBar({ tab, value, onChange, extra, onSuggestPrompt }: Props) {
+export function ToolOptionsBar({ tab, value, onChange, extra, onSuggestPrompt, sourceImageUrl, onUploadFile, showToast }: Props) {
+  const [maskOpen, setMaskOpen] = useState(false);
   const setExtra = (patch: Partial<ToolExtras>) =>
     onChange({ extras: { ...(value.extras || {}), ...patch } });
   const suggest = (text?: string) => { if (text && onSuggestPrompt) onSuggestPrompt(text); };

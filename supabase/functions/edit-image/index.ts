@@ -18,6 +18,9 @@ Deno.serve(async (req) => {
 
   const op = body.op || "replace-bg";
   if (!body.image_url) return json({ error: "image_url required" }, 400);
+  if ((op === "replace-bg" || op === "style-transfer") && !body.style_url) {
+    return json({ error: "style_url (reference image) required for " + op }, 400);
+  }
 
   const refs: string[] = [body.image_url];
   if (body.style_url) refs.push(body.style_url);

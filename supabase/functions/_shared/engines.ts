@@ -46,6 +46,8 @@ export type BuildInput = {
   num: number;
   duration?: string; // "5" | "6" | "10"
   resolution?: string; // "1k" | "2k" | "4k"
+  /** Optional second-frame URL for transition engines (e.g. pixverse-v5-transition). */
+  lastImageUrl?: string;
   extra?: Record<string, unknown>;
 };
 

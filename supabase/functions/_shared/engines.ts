@@ -432,8 +432,24 @@ const VIDEO: Record<string, EngineEntry> = {
       return body;
     },
   },
-  "wan-v2-6-1080p":        { id: "wan-v2-6-1080p",        kind: "video", path: "/v1/ai/image-to-video/wan-v2-6-1080p",         aspectStyle: "none" },
-  "wan-2-5-i2v-1080p":     { id: "wan-2-5-i2v-1080p",     kind: "video", path: "/v1/ai/image-to-video/wan-2-5-i2v-1080p",      aspectStyle: "none" },
+  "wan-v2-6-1080p": {
+    id: "wan-v2-6-1080p", kind: "video", path: "/v1/ai/image-to-video/wan-v2-6-1080p", aspectStyle: "none",
+    build: (i) => {
+      const body: Record<string, unknown> = { prompt: i.prompt, duration: Number(i.duration || "5") };
+      if (i.refs[0]) body.start_image_url = i.refs[0];
+      if (i.aspect) body.aspect_ratio = i.aspect;
+      return body;
+    },
+  },
+  "wan-2-5-i2v-1080p": {
+    id: "wan-2-5-i2v-1080p", kind: "video", path: "/v1/ai/image-to-video/wan-2-5-i2v-1080p", aspectStyle: "none",
+    build: (i) => {
+      const body: Record<string, unknown> = { prompt: i.prompt, duration: Number(i.duration || "5") };
+      if (i.refs[0]) body.start_image_url = i.refs[0];
+      if (i.aspect) body.aspect_ratio = i.aspect;
+      return body;
+    },
+  },
   "wan-2-5-t2v-1080p":     { id: "wan-2-5-t2v-1080p",     kind: "video", path: "/v1/ai/text-to-video/wan-2-5-t2v-1080p",       aspectStyle: "none" },
   "wan-2-5-t2v-720p":      { id: "wan-2-5-t2v-720p",      kind: "video", path: "/v1/ai/text-to-video/wan-2-5-t2v-720p",        aspectStyle: "none" },
   // Omnihuman

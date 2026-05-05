@@ -178,7 +178,7 @@ export function ToolOptionsBar({ tab, value, onChange, extra, onSuggestPrompt }:
             { id: "skin-enhancer-flexible", label: "Skin·Flexible" },
           ]}
           value={op}
-          onChange={(v) => onChange({ editOp: v })}
+          onChange={(v) => { onChange({ editOp: v }); suggest(EDIT_PROMPTS[v]); }}
         />
         {op === "ideogram-edit" && (
           <>

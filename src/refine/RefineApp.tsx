@@ -76,7 +76,7 @@ function Workspace() {
   const viewRef = useRef<HTMLDivElement>(null);
 
   // Trocar de aba limpa upload (cada ferramenta tem seu fluxo independente)
-  useEffect(() => { setSourceUrl(null); }, [currentTab]);
+  useEffect(() => { setSourceUrl(null); setLastFrameUrl(null); }, [currentTab]);
 
   const tabConfig = TAB_CONFIG[currentTab] || TAB_CONFIG.home;
   const noDock = (MOCKUP_TAB_CFG as any)[currentTab]?.noDock;

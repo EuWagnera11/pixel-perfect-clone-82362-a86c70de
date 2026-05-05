@@ -13,6 +13,7 @@ import { Dock } from "./components/Dock";
 import { Rail } from "./components/Rail";
 import { Toast } from "./components/Toast";
 import { JobsPanel } from "./components/JobsPanel";
+import { ToolOptionsBar, tabHasOptions, type ToolOptions } from "./components/ToolOptionsBar";
 import { ImageWorkspace } from "./components/ImageWorkspace";
 import { VideoWorkspace } from "./components/VideoWorkspace";
 import { JobsProvider, useJobs, type Job } from "./lib/jobs";
@@ -70,6 +71,7 @@ function Workspace() {
   const [quality, setQuality] = useState("1K");
   const [variations, setVariations] = useState(1);
   const [stylePack, setStylePack] = useState<string | null>(null);
+  const [toolOptions, setToolOptions] = useState<ToolOptions>({});
   const viewRef = useRef<HTMLDivElement>(null);
 
   // Trocar de aba limpa upload (cada ferramenta tem seu fluxo independente)
@@ -240,6 +242,10 @@ function Workspace() {
         tab: currentTab, prompt: trimmed, aspect: ratio,
         sourceUrl, model: modelId, thumb: sourceUrl || undefined,
         quality, numVariations: 1, stylePack,
+        duration: toolOptions.videoDuration,
+        editOp: toolOptions.editOp,
+        upscaleEngine: toolOptions.upscaleEngine,
+        audioKind: toolOptions.audioKind,
       })
     );
     const results = await Promise.all(promises);
@@ -247,7 +253,7 @@ function Workspace() {
     if (fail) { showToast("Erro: " + (fail.error || "falha")); return; }
     showToast(n > 1 ? `${n} gerações iniciadas em paralelo` : "Geração iniciada");
     setPrompt("");
-  }, [prompt, ratio, modelLabel, currentTab, sourceUrl, enqueue, showToast, quality, variations, stylePack]);
+  }, [prompt, ratio, modelLabel, currentTab, sourceUrl, enqueue, showToast, quality, variations, stylePack, toolOptions]);
 
   // Quando um job completa, mostra no stage + adiciona ao history + toast
   const handleJobOpen = useCallback((job: Job) => {
@@ -349,6 +355,13 @@ function Workspace() {
               <div className={"canvas" + (noDock ? " no-dock" : "")}>
                 <div ref={viewRef} dangerouslySetInnerHTML={{ __html: viewHtml }} />
               </div>
+              {!noDock && tabHasOptions(currentTab) && (
+                <ToolOptionsBar
+                  tab={currentTab}
+                  value={toolOptions}
+                  onChange={(patch) => setToolOptions((prev) => ({ ...prev, ...patch }))}
+                />
+              )}
               {!noDock && (
                 <Dock
                   prompt={prompt}

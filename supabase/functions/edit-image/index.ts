@@ -31,7 +31,7 @@ Deno.serve(async (req) => {
     if (!s.ok) return json({ error: s.message }, 400);
     if (!s.text) return json({ error: "prompt required for replace-bg" }, 400);
 
-    const requested = (body.model || defaultModelForTool("replace-bg")).toString();
+    const requested = (body.model || "nano-banana-pro-flash").toString();
     const allowed = TOOL_MODEL_WHITELIST["replace-bg"];
     const modelId = allowed.includes(requested) ? requested : defaultModelForTool("replace-bg");
     const model = getModel(modelId);

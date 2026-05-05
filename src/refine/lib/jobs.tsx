@@ -69,7 +69,7 @@ export function JobsProvider({ children, onCompleted }: { children: ReactNode; o
   const startPolling = useCallback((jobId: string, mediaType: ToolMediaKind, flow: JobFlow = "legacy") => {
     if (polling.current.has(jobId)) return;
     polling.current.add(jobId);
-    const maxMs = mediaType === "video" ? 600_000 : 300_000;
+    const maxMs = mediaType === "video" || flow === "imageedit" ? 600_000 : 300_000;
     const start = Date.now();
     (async () => {
       try {

@@ -65,8 +65,9 @@ function Seg<T extends string>({
 }: { options: { id: T; label: string }[]; value?: T; onChange: (v: T) => void }) {
   return (
     <div style={{
-      display: "inline-flex", borderRadius: 10, overflow: "hidden",
+      display: "inline-flex", flexWrap: "wrap", borderRadius: 10, overflow: "hidden",
       border: "1px solid rgba(255,255,255,.12)", background: "rgba(255,255,255,.03)",
+      maxWidth: "100%",
     }}>
       {options.map((o) => {
         const active = o.id === value;
@@ -78,6 +79,7 @@ function Seg<T extends string>({
               all: "unset", cursor: "pointer", padding: "6px 12px", fontSize: 11.5,
               color: active ? "#ff8a3d" : "rgba(255,255,255,.75)",
               background: active ? "rgba(255,106,26,.10)" : "transparent",
+              whiteSpace: "nowrap",
             }}
           >
             {o.label}

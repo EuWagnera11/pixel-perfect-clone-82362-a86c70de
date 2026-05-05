@@ -45,7 +45,9 @@ Deno.serve(async (req) => {
 
   const detailMessage =
     typeof fp.body?.message === "string" ? fp.body.message :
-    typeof fp.body?.detail?.message === "string" ? fp.body.detail.message : "";
+    typeof fp.body?.detail === "string" ? fp.body.detail :
+    typeof fp.body?.detail?.message === "string" ? fp.body.detail.message :
+    typeof fp.body?.detail?.detail === "string" ? fp.body.detail.detail : "";
 
   // Transient: task may take a few seconds before becoming visible
   if (fp.status === 404 && /task not found/i.test(detailMessage)) {
@@ -53,11 +55,14 @@ Deno.serve(async (req) => {
   }
 
   if (fp.status >= 400) {
+    const errMsg = `Magnific status ${fp.status}: ${detailMessage || "Unknown error"}`;
     await auth.admin.from("generations").update({
       status: "failed",
-      error_message: `Magnific status ${fp.status}: ${detailMessage || "Unknown error"}`,
+      error_message: errMsg,
+      completed_at: new Date().toISOString(),
     }).eq("id", generationId);
-    return json({ error: "Magnific status error", detail: fp.body }, 502);
+    // Return 200 with failed row so frontend handles gracefully (no blank screen).
+    return json({ ...gen, status: "failed", error_message: errMsg });
   }
 
   const status = normalizeStatus(fp.body);

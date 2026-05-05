@@ -310,7 +310,8 @@ function Workspace() {
 
         <section className="workspace">
           {(() => {
-            if (currentTab !== "image" && currentTab !== "video") return null;
+            const useWorkspace = currentTab === "image" || currentTab === "video" || tabHasToolWorkspace(currentTab);
+            if (!useWorkspace) return null;
             const wsProps = {
               history,
               onUploadRef: async (file: File) => {
@@ -351,11 +352,11 @@ function Workspace() {
                 setHistory((p) => p.map((g: any) => g.id === id ? { ...g, metadata: md } : g));
               },
             };
-            return currentTab === "image"
-              ? <ImageWorkspace {...wsProps} />
-              : <VideoWorkspace {...wsProps} />;
+            if (currentTab === "image") return <ImageWorkspace {...wsProps} />;
+            if (currentTab === "video") return <VideoWorkspace {...wsProps} />;
+            return <ToolWorkspace tab={currentTab} {...wsProps} />;
           })()}
-          {currentTab !== "image" && currentTab !== "video" && (
+          {!(currentTab === "image" || currentTab === "video" || tabHasToolWorkspace(currentTab)) && (
             <>
               <div className={"canvas" + (noDock ? " no-dock" : "")}>
                 <div ref={viewRef} dangerouslySetInnerHTML={{ __html: viewHtml }} />

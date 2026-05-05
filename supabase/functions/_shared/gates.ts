@@ -27,7 +27,7 @@ export async function requireUserId(req: Request): Promise<string | Response> {
   return data.user.id;
 }
 
-const RATE_DAILY_FREE = 15;
+const RATE_DAILY_FREE = 200;
 
 export async function checkRateLimit(userId: string): Promise<true | Response> {
   const sb = adminClient();

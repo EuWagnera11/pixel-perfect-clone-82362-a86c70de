@@ -253,7 +253,7 @@ function Workspace() {
     if (fail) { showToast("Erro: " + (fail.error || "falha")); return; }
     showToast(n > 1 ? `${n} gerações iniciadas em paralelo` : "Geração iniciada");
     setPrompt("");
-  }, [prompt, ratio, modelLabel, currentTab, sourceUrl, enqueue, showToast, quality, variations, stylePack]);
+  }, [prompt, ratio, modelLabel, currentTab, sourceUrl, enqueue, showToast, quality, variations, stylePack, toolOptions]);
 
   // Quando um job completa, mostra no stage + adiciona ao history + toast
   const handleJobOpen = useCallback((job: Job) => {

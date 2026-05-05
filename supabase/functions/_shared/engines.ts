@@ -409,7 +409,19 @@ const VIDEO: Record<string, EngineEntry> = {
   "wan-2-5-t2v-1080p":     { id: "wan-2-5-t2v-1080p",     kind: "video", path: "/v1/ai/text-to-video/wan-2-5-t2v-1080p",       aspectStyle: "none" },
   "wan-2-5-t2v-720p":      { id: "wan-2-5-t2v-720p",      kind: "video", path: "/v1/ai/text-to-video/wan-2-5-t2v-720p",        aspectStyle: "none" },
   // Omnihuman
-  "omnihuman-1-5":         { id: "omnihuman-1-5",         kind: "video", path: "/v1/ai/video/omni-human-1-5",                  aspectStyle: "none" },
+  "omnihuman-1-5":         {
+    id: "omnihuman-1-5", kind: "video",
+    path: "/v1/ai/video/omni-human-1-5", aspectStyle: "none",
+    build: (i) => {
+      const body: Record<string, unknown> = {
+        image_url: i.refs[0],
+        audio_url: (i.extra?.audio_url as string) || i.refs[1],
+      };
+      if (i.prompt) body.prompt = i.prompt;
+      if (i.resolution) body.resolution = i.resolution;
+      return body;
+    },
+  },
   // Seedance 1.5 Pro (text-to-video + image-to-video, with audio/lip-sync)
   "seedance-1-5-pro-480p": {
     id: "seedance-1-5-pro-480p", kind: "video",

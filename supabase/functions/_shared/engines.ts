@@ -410,6 +410,54 @@ const VIDEO: Record<string, EngineEntry> = {
   "wan-2-5-t2v-720p":      { id: "wan-2-5-t2v-720p",      kind: "video", path: "/v1/ai/text-to-video/wan-2-5-t2v-720p",        aspectStyle: "none" },
   // Omnihuman
   "omnihuman-1-5":         { id: "omnihuman-1-5",         kind: "video", path: "/v1/ai/video/omni-human-1-5",                  aspectStyle: "none" },
+  // Seedance 1.5 Pro (text-to-video + image-to-video, with audio/lip-sync)
+  "seedance-1-5-pro-480p": {
+    id: "seedance-1-5-pro-480p", kind: "video",
+    path: "/v1/ai/video/seedance-1-5-pro-480p", aspectStyle: "none",
+    build: (i) => {
+      const body: Record<string, unknown> = { prompt: i.prompt, duration: Number(i.duration || "5") };
+      if (i.refs[0]) body.image = i.refs[0];
+      return body;
+    },
+  },
+  "seedance-1-5-pro-720p": {
+    id: "seedance-1-5-pro-720p", kind: "video",
+    path: "/v1/ai/video/seedance-1-5-pro-720p", aspectStyle: "none",
+    build: (i) => {
+      const body: Record<string, unknown> = { prompt: i.prompt, duration: Number(i.duration || "5") };
+      if (i.refs[0]) body.image = i.refs[0];
+      return body;
+    },
+  },
+  "seedance-1-5-pro-1080p": {
+    id: "seedance-1-5-pro-1080p", kind: "video",
+    path: "/v1/ai/video/seedance-1-5-pro-1080p", aspectStyle: "none",
+    build: (i) => {
+      const body: Record<string, unknown> = { prompt: i.prompt, duration: Number(i.duration || "5") };
+      if (i.refs[0]) body.image = i.refs[0];
+      return body;
+    },
+  },
+  // Video Upscaler (Magnific)
+  "video-upscaler": {
+    id: "video-upscaler", kind: "video",
+    path: "/v1/ai/video-upscaler", aspectStyle: "none",
+    build: (i) => ({ video: i.refs[0], resolution: i.resolution || "2k" }),
+  },
+  "video-upscaler-turbo": {
+    id: "video-upscaler-turbo", kind: "video",
+    path: "/v1/ai/video-upscaler/turbo", aspectStyle: "none",
+    build: (i) => ({ video: i.refs[0], resolution: i.resolution || "2k" }),
+  },
+  // Lip Sync (Latent Sync) — needs video_url + audio_url
+  "latent-sync": {
+    id: "latent-sync", kind: "video",
+    path: "/v1/ai/lip-sync/latent-sync", aspectStyle: "none",
+    build: (i) => ({
+      video_url: i.refs[0],
+      audio_url: (i.extra?.audio_url as string) || i.refs[1],
+    }),
+  },
 };
 
 // Default video body builder if none provided

@@ -242,6 +242,10 @@ function Workspace() {
         tab: currentTab, prompt: trimmed, aspect: ratio,
         sourceUrl, model: modelId, thumb: sourceUrl || undefined,
         quality, numVariations: 1, stylePack,
+        duration: toolOptions.videoDuration,
+        editOp: toolOptions.editOp,
+        upscaleEngine: toolOptions.upscaleEngine,
+        audioKind: toolOptions.audioKind,
       })
     );
     const results = await Promise.all(promises);

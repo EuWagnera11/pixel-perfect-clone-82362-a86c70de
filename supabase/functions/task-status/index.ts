@@ -33,14 +33,21 @@ Deno.serve(async (req) => {
   }
 
   const taskId = gen.metadata?.magnific_task_id ?? gen.metadata?.freepik_task_id;
-  const path = gen.metadata?.magnific_path ?? gen.metadata?.freepik_path ?? gen.freepik_endpoint;
-  if (!taskId || !path) {
+  const rawPath = gen.metadata?.magnific_path ?? gen.metadata?.freepik_path ?? gen.freepik_endpoint;
+  if (!taskId || !rawPath) {
     return json({ ...gen, polling_skipped: true });
   }
 
-  const fp = await magnificFetch(`${path}/${taskId}`, {
+  // Normalize status path: alguns motores usam um sub-path no POST mas
+  // expõem o GET de status num path raiz. Ex.: skin-enhancer/{creative|faithful|flexible}
+  // → GET /v1/ai/skin-enhancer/{task-id}
+  let statusPath = rawPath as string;
+  const m = /^(\/v1\/ai\/skin-enhancer)\/(creative|faithful|flexible)$/.exec(statusPath);
+  if (m) statusPath = m[1];
+
+  const fp = await magnificFetch(`${statusPath}/${taskId}`, {
     method: "GET",
-    logCtx: { userId: auth.userId, generationId, endpointKey: `${path}/:id` },
+    logCtx: { userId: auth.userId, generationId, endpointKey: `${statusPath}/:id` },
   });
 
   const detailMessage =

@@ -2,7 +2,8 @@
  * ToolOptionsBar — barra de opções específicas por ferramenta,
  * renderizada acima do Dock. Cada tab mostra só os controles que fazem sentido.
  */
-import type { CSSProperties } from "react";
+import { useState, type CSSProperties } from "react";
+import { MaskEditor } from "./MaskEditor";
 
 export type ToolExtras = {
   mask_url?: string;
@@ -46,6 +47,12 @@ type Props = {
   extra?: React.ReactNode;
   /** Quando o usuário escolhe uma operação, sugerimos um prompt pronto. */
   onSuggestPrompt?: (text: string) => void;
+  /** URL da imagem-fonte (para Inpaint desenhar máscara em cima). */
+  sourceImageUrl?: string | null;
+  /** Upload de arquivo → URL (usado pelo MaskEditor para subir o PNG). */
+  onUploadFile?: (file: File) => Promise<string | null>;
+  /** Toast helper. */
+  showToast?: (m: string) => void;
 };
 
 const EDIT_PROMPTS: Record<string, string> = {
@@ -140,7 +147,8 @@ function NumInput({ val, onChange, min, max, step = 1, ph }: {
   );
 }
 
-export function ToolOptionsBar({ tab, value, onChange, extra, onSuggestPrompt }: Props) {
+export function ToolOptionsBar({ tab, value, onChange, extra, onSuggestPrompt, sourceImageUrl, onUploadFile, showToast }: Props) {
+  const [maskOpen, setMaskOpen] = useState(false);
   const setExtra = (patch: Partial<ToolExtras>) =>
     onChange({ extras: { ...(value.extras || {}), ...patch } });
   const suggest = (text?: string) => { if (text && onSuggestPrompt) onSuggestPrompt(text); };
@@ -182,13 +190,43 @@ export function ToolOptionsBar({ tab, value, onChange, extra, onSuggestPrompt }:
         />
         {op === "ideogram-edit" && (
           <>
-            <span style={label}>Mask URL</span>
+            <span style={label}>Máscara</span>
             <input
               type="url" placeholder="https://… (branco = editar)"
               value={value.extras?.mask_url || ""}
               onChange={(e) => setExtra({ mask_url: e.target.value })}
               style={inputStyle}
             />
+            <button
+              type="button"
+              onClick={() => {
+                if (!sourceImageUrl) { showToast?.("Anexe uma imagem fonte primeiro"); return; }
+                if (!onUploadFile) { showToast?.("Upload indisponível"); return; }
+                setMaskOpen(true);
+              }}
+              style={{
+                all: "unset", cursor: "pointer", padding: "6px 12px", fontSize: 11.5,
+                background: "rgba(255,106,26,.14)", color: "#ff8a3d",
+                border: "1px solid rgba(255,106,26,.35)", borderRadius: 8,
+              }}
+            >
+              ✎ Desenhar máscara
+            </button>
+            {value.extras?.mask_url && (
+              <span style={{ fontSize: 10, color: "rgba(120,255,150,.8)" }}>✓ máscara pronta</span>
+            )}
+            {sourceImageUrl && onUploadFile && (
+              <MaskEditor
+                open={maskOpen}
+                imageUrl={sourceImageUrl}
+                onClose={() => setMaskOpen(false)}
+                onSave={async (file) => {
+                  const url = await onUploadFile(file);
+                  if (url) { setExtra({ mask_url: url }); showToast?.("Máscara salva"); }
+                  else showToast?.("Falha ao salvar máscara");
+                }}
+              />
+            )}
           </>
         )}
         {op === "change-camera" && (

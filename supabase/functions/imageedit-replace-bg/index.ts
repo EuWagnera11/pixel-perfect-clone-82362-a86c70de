@@ -50,6 +50,6 @@ Deno.serve(async (req) => {
       aspect_ratio: body?.aspect_ratio || "1:1",
     },
     inputUrls: [imageUrl],
-    metadata: { user_prompt: s.text },
+    metadata: { user_prompt: s.text, aspect_ratio: body?.aspect_ratio || "1:1" },
   });
 });

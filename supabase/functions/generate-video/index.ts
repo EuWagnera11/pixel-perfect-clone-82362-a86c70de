@@ -43,6 +43,15 @@ Deno.serve(async (req) => {
     });
   }
 
+  // Video upscaler aceita video como ref
+  if (engineId === "video-upscaler" || engineId === "video-upscaler-turbo") {
+    const v = body.video_url || body.image_url || refs[0];
+    if (!v) return json({ error: "video_url required for video upscaler" }, 400);
+    return await startGeneration({
+      auth, engineId, tool: "video", op: "upscale", mediaType: "video",
+      input: { prompt: "", aspect: "16:9", refs: [v], num: 1, extra: extras },
+    });
+
   // Most engines are i2v; LTX/Wan-t2v are pure t2v; Seedance 1.5 + Omnihuman live under /video/ and accept both
   const isT2V = engine.path.includes("/text-to-video/");
   const isFlexible = engine.path.startsWith("/v1/ai/video/"); // seedance-1-5-pro-* / omnihuman / video-upscaler / lip-sync

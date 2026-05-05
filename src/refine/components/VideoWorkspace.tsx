@@ -565,15 +565,28 @@ export function VideoWorkspace({
             <div className="oc-section">
               <div className="oc-section-head">
                 <span className="oc-label">Qualidade</span>
-                <span className="oc-meta">{qMult}× créditos</span>
+                {!hasResolutionVariants && <span className="oc-meta">{qMult}× créditos</span>}
+                {hasResolutionVariants && <span className="oc-meta">troca a versão do modelo</span>}
               </div>
               <div className="oc-segmented">
-                {QUALITIES.map((q) => (
-                  <button key={q.id} className={"oc-seg" + (quality === q.id ? " active" : "")} onClick={() => setQuality(q.id)}>
-                    <span className="oc-seg-num">{q.id}</span>
-                    <span className="oc-seg-mult">{q.mult}×</span>
-                  </button>
-                ))}
+                {hasResolutionVariants
+                  ? resolutionVariants.map((v) => (
+                      <button
+                        key={v.id}
+                        className={"oc-seg" + (currentVariantId === v.id ? " active" : "")}
+                        onClick={() => setModelLabel(v.modelLabel)}
+                        title={v.modelLabel}
+                      >
+                        <span className="oc-seg-num">{v.label}</span>
+                        <span className="oc-seg-mult">{v.modelLabel.replace(RES_RE, "").trim()}</span>
+                      </button>
+                    ))
+                  : QUALITIES.map((q) => (
+                      <button key={q.id} className={"oc-seg" + (quality === q.id ? " active" : "")} onClick={() => setQuality(q.id)}>
+                        <span className="oc-seg-num">{q.id}</span>
+                        <span className="oc-seg-mult">{q.mult}×</span>
+                      </button>
+                    ))}
               </div>
             </div>
 

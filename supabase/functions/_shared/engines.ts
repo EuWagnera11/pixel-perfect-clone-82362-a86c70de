@@ -344,10 +344,10 @@ const IMAGE: Record<string, EngineEntry> = {
       num_images: i.num,
     }),
   },
-  // Reimagine Flux (variation from a single ref image)
+  // Reimagine Flux (variation from a single ref image) — síncrono
   "reimagine-flux": {
     id: "reimagine-flux", kind: "image",
-    path: "/v1/ai/text-to-image/reimagine-flux", aspectStyle: "magnific",
+    path: "/v1/ai/beta/text-to-image/reimagine-flux", aspectStyle: "magnific",
     build: (i) => ({
       prompt: i.prompt,
       image: i.refs[0],

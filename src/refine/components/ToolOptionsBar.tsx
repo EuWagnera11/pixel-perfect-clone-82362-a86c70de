@@ -47,6 +47,12 @@ type Props = {
   extra?: React.ReactNode;
   /** Quando o usuário escolhe uma operação, sugerimos um prompt pronto. */
   onSuggestPrompt?: (text: string) => void;
+  /** URL da imagem-fonte (para Inpaint desenhar máscara em cima). */
+  sourceImageUrl?: string | null;
+  /** Upload de arquivo → URL (usado pelo MaskEditor para subir o PNG). */
+  onUploadFile?: (file: File) => Promise<string | null>;
+  /** Toast helper. */
+  showToast?: (m: string) => void;
 };
 
 const EDIT_PROMPTS: Record<string, string> = {

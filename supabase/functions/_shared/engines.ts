@@ -334,6 +334,27 @@ const IMAGE: Record<string, EngineEntry> = {
       ratio: FP_TO_RUNWAY[i.aspect] ?? "1024:1024",
     }),
   },
+  // Classic Fast (legacy Freepik t2i)
+  "classic-fast": {
+    id: "classic-fast", kind: "image",
+    path: "/v1/ai/text-to-image", aspectStyle: "magnific",
+    build: (i) => ({
+      prompt: i.prompt,
+      image: { size: toMagnificAspect(i.aspect) },
+      num_images: i.num,
+    }),
+  },
+  // Reimagine Flux (variation from a single ref image)
+  "reimagine-flux": {
+    id: "reimagine-flux", kind: "image",
+    path: "/v1/ai/text-to-image/reimagine-flux", aspectStyle: "magnific",
+    build: (i) => ({
+      prompt: i.prompt,
+      image: i.refs[0],
+      imagination: 50,
+      aspect_ratio: toMagnificAspect(i.aspect),
+    }),
+  },
 };
 
 // =========== VIDEO engines (image-to-video unless noted) ===========

@@ -207,7 +207,15 @@ export function ToolWorkspace({
   const [libraryOpen, setLibraryOpen] = useState(false);
   const [libraryCategory, setLibraryCategory] = useState<"estilo" | "personagem" | "elemento" | "cor" | "efeitos" | "camera" | "stock">("estilo");
   const [libraryQuery, setLibraryQuery] = useState("");
+  const [preview, setPreview] = useState<{ url: string; kind: MediaKind } | null>(null);
   const promptRef = useRef<PromptInputHandle>(null);
+
+  useEffect(() => {
+    if (!preview) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setPreview(null); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [preview]);
 
   // Reseta ao trocar de tab
   useEffect(() => {

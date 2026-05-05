@@ -44,6 +44,43 @@ type Props = {
   onChange: (patch: Partial<ToolOptions>) => void;
   /** Conteúdo extra renderizado à direita (ex.: upload de último frame). */
   extra?: React.ReactNode;
+  /** Quando o usuário escolhe uma operação, sugerimos um prompt pronto. */
+  onSuggestPrompt?: (text: string) => void;
+};
+
+const EDIT_PROMPTS: Record<string, string> = {
+  "replace-bg": "Substitua o fundo por um cenário cinematográfico coerente com o sujeito. Mantenha pose, iluminação no sujeito, cores e bordas intactas; ajuste a luz do novo fundo de forma realista.",
+  "remove-bg": "Remova o fundo da imagem deixando apenas o sujeito principal com bordas limpas e fundo transparente.",
+  "relight": "Reilumine a cena com luz suave de estúdio vinda da esquerda, sombras naturais e contraste cinematográfico, preservando o sujeito.",
+  "expand": "Expanda a imagem mantendo a continuidade do cenário, perspectiva e iluminação originais, sem distorcer o sujeito.",
+  "style-transfer": "Aplique o estilo visual da referência ao sujeito, preservando identidade e composição. Combine cores, textura e atmosfera da referência.",
+  "ideogram-edit": "Edite apenas a região marcada pela máscara branca, mantendo o restante da imagem inalterado e integrando textura, luz e cor.",
+  "change-camera": "Recrie a cena a partir de um novo ângulo de câmera, mantendo o sujeito, proporções e iluminação consistentes.",
+  "reimagine-flux": "Reimagine a cena com nova composição cinematográfica, mantendo o sujeito reconhecível e o clima geral da imagem.",
+  "skin-enhancer-creative": "Aprimore a pele do sujeito com acabamento editorial: textura realista, brilho controlado e tom uniforme, sem perder traços naturais.",
+  "skin-enhancer-faithful": "Aprimore a pele preservando 100% dos traços, marcas e identidade. Apenas suavize ruído e uniformize tom.",
+  "skin-enhancer-flexible": "Aprimore a pele de forma equilibrada conforme o alvo selecionado, mantendo aparência natural.",
+};
+
+const R3D_PROMPTS: Record<string, string> = {
+  figurine: "Transforme o sujeito em uma figurine de colecionador estilo PVC, base circular, iluminação de estúdio, alta fidelidade.",
+  toy: "Transforme em um brinquedo de plástico estilizado, cores vibrantes, acabamento brilhante, fundo neutro.",
+  sculpture: "Transforme em uma escultura de mármore detalhada, iluminação dramática, fundo escuro de museu.",
+  clay: "Transforme em uma figura de argila modelada à mão, textura visível, iluminação suave.",
+};
+
+const ASSETS_PROMPTS: Record<string, string> = {
+  icon: "Ícone vetorial minimalista, traço uniforme, fundo transparente, estilo flat moderno.",
+  sprite: "Sprite de jogo 2D em pixel art, pose clara, paleta limitada, fundo transparente.",
+  prop: "Prop 3D estilizado para jogo, render isométrico, iluminação suave, fundo neutro.",
+  ui: "Elemento de UI moderno, glassmorphism sutil, cantos arredondados, paleta escura.",
+};
+
+const AUDIO_PROMPTS: Record<string, string> = {
+  music: "Trilha cinematográfica épica, build-up gradual, percussão orquestral e cordas, 60s.",
+  sfx: "Efeito sonoro curto, impacto grave seguido de reverb metálico, 2s.",
+  voiceover: "Narração calma e profissional em português, tom acolhedor.",
+  "audio-isolation": "Isolar a voz principal removendo ruído de fundo e música.",
 };
 
 const wrap: CSSProperties = {
@@ -103,9 +140,10 @@ function NumInput({ val, onChange, min, max, step = 1, ph }: {
   );
 }
 
-export function ToolOptionsBar({ tab, value, onChange, extra }: Props) {
+export function ToolOptionsBar({ tab, value, onChange, extra, onSuggestPrompt }: Props) {
   const setExtra = (patch: Partial<ToolExtras>) =>
     onChange({ extras: { ...(value.extras || {}), ...patch } });
+  const suggest = (text?: string) => { if (text && onSuggestPrompt) onSuggestPrompt(text); };
 
   if (tab === "video") {
     return (
@@ -140,7 +178,7 @@ export function ToolOptionsBar({ tab, value, onChange, extra }: Props) {
             { id: "skin-enhancer-flexible", label: "Skin·Flexible" },
           ]}
           value={op}
-          onChange={(v) => onChange({ editOp: v })}
+          onChange={(v) => { onChange({ editOp: v }); suggest(EDIT_PROMPTS[v]); }}
         />
         {op === "ideogram-edit" && (
           <>
@@ -211,7 +249,7 @@ export function ToolOptionsBar({ tab, value, onChange, extra }: Props) {
             { id: "audio-isolation", label: "Isolar" },
           ]}
           value={kind}
-          onChange={(v) => onChange({ audioKind: v })}
+          onChange={(v) => { onChange({ audioKind: v }); suggest(AUDIO_PROMPTS[v]); }}
         />
         {kind === "voiceover" && (
           <>
@@ -250,7 +288,7 @@ export function ToolOptionsBar({ tab, value, onChange, extra }: Props) {
             { id: "clay", label: "Argila" },
           ]}
           value={value.r3dStyle || "figurine"}
-          onChange={(v) => onChange({ r3dStyle: v })}
+          onChange={(v) => { onChange({ r3dStyle: v }); suggest(R3D_PROMPTS[v]); }}
         />
       </div>
     );
@@ -267,7 +305,7 @@ export function ToolOptionsBar({ tab, value, onChange, extra }: Props) {
             { id: "ui", label: "UI" },
           ]}
           value={value.assetsKind || "icon"}
-          onChange={(v) => onChange({ assetsKind: v })}
+          onChange={(v) => { onChange({ assetsKind: v }); suggest(ASSETS_PROMPTS[v]); }}
         />
       </div>
     );

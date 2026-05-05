@@ -43,6 +43,7 @@ Deno.serve(async (req) => {
     tool: "replace-bg",
     model: model.id,
     endpoint: model.endpoint,
+    aspectStyle: "freepik",
     body: {
       prompt: finalPrompt,
       reference_images: refsB64,

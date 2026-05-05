@@ -46,6 +46,7 @@ Deno.serve(async (req) => {
       tool: "replace-bg",
       model: model.id,
       endpoint: model.endpoint,
+      aspectStyle: "freepik",
       body: {
         prompt:
           `Replace the background of the reference image with: ${s.text}. ` +

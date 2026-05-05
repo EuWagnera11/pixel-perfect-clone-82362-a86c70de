@@ -126,19 +126,23 @@ export async function startVideo(input: {
 }
 
 export async function startEdit(input: {
-  op: "remove-bg" | "replace-bg" | "relight" | "expand" | "style-transfer";
+  op: string;
   image_url: string; prompt?: string; style_url?: string;
+  extras?: Record<string, unknown>;
 }) {
   return await invokeFn<Created>("edit-image", { method: "POST", body: input });
 }
 
 export async function startUpscale(input: {
-  image_url: string; engine?: "magnific-creative" | "magnific-precision";
+  image_url?: string; video_url?: string; engine?: string;
 }) {
   return await invokeFn<Created>("upscale-image", { method: "POST", body: input });
 }
 
-export async function startAudio(input: { prompt: string; kind: "music" | "sfx" }) {
+export async function startAudio(input: {
+  prompt?: string; kind: "music" | "sfx" | "voiceover" | "audio-isolation";
+  extras?: Record<string, unknown>;
+}) {
   return await invokeFn<Created>("generate-audio", { method: "POST", body: input });
 }
 

@@ -66,7 +66,7 @@ function Seg<T extends string>({
   );
 }
 
-export function ToolOptionsBar({ tab, value, onChange }: Props) {
+export function ToolOptionsBar({ tab, value, onChange, extra }: Props) {
   if (tab === "video") {
     return (
       <div style={wrap}>
@@ -76,6 +76,7 @@ export function ToolOptionsBar({ tab, value, onChange }: Props) {
           value={value.videoDuration || "5s"}
           onChange={(v) => onChange({ videoDuration: v })}
         />
+        {extra}
       </div>
     );
   }

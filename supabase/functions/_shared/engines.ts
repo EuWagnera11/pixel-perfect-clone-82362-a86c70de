@@ -534,7 +534,7 @@ const EDIT: Record<string, EngineEntry> = {
   },
   "replace-bg": {
     id: "replace-bg", kind: "image", path: "/v1/ai/image-style-transfer", aspectStyle: "none",
-    build: (i) => ({ image: i.refs[0], prompt: i.prompt }),
+    build: (i) => ({ image: i.refs[0], reference_image: i.refs[1], prompt: i.prompt }),
   },
   "relight": {
     id: "relight", kind: "image", path: "/v1/ai/image-relight", aspectStyle: "none",

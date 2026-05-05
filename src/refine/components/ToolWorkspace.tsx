@@ -424,6 +424,37 @@ export function ToolWorkspace({
           setRefs((p) => [...p, { url: item.avatarSrc!, source: "library", name: item.name }]);
         }}
       />
+
+      {preview && (
+        <div
+          onClick={() => setPreview(null)}
+          style={{
+            position: "fixed", inset: 0, background: "rgba(0,0,0,0.92)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            zIndex: 9999, cursor: "zoom-out", padding: 24,
+          }}
+        >
+          <button
+            onClick={(e) => { e.stopPropagation(); setPreview(null); }}
+            style={{
+              position: "absolute", top: 16, right: 16, width: 40, height: 40,
+              borderRadius: 999, border: "1px solid rgba(255,255,255,0.2)",
+              background: "rgba(0,0,0,0.5)", color: "#fff", cursor: "pointer",
+              fontSize: 20, lineHeight: 1,
+            }}
+            aria-label="Fechar"
+          >×</button>
+          {preview.kind === "image" && (
+            <img src={preview.url} alt="" style={{ maxWidth: "95vw", maxHeight: "95vh", objectFit: "contain" }} onClick={(e) => e.stopPropagation()} />
+          )}
+          {preview.kind === "video" && (
+            <video src={preview.url} controls autoPlay style={{ maxWidth: "95vw", maxHeight: "95vh" }} onClick={(e) => e.stopPropagation()} />
+          )}
+          {preview.kind === "audio" && (
+            <audio src={preview.url} controls autoPlay onClick={(e) => e.stopPropagation()} />
+          )}
+        </div>
+      )}
     </div>
   );
 }

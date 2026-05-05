@@ -497,12 +497,13 @@ function SimpleModelPicker({ value, onChange }: { value: string; onChange: (v: s
 /* ─────────────── ResultCard (image / video / audio) ─────────────── */
 
 function ResultCard({
-  gen, output, onDelete, onToggleFav,
+  gen, output, onDelete, onToggleFav, onOpen,
 }: {
   gen: Generation;
   output: MediaKind;
   onDelete: () => void;
   onToggleFav: () => void;
+  onOpen: (url: string) => void;
 }) {
   const fav = !!(gen as any).metadata?.favorite;
   const url =
@@ -513,10 +514,10 @@ function ResultCard({
 
   return (
     <div className="tw-card">
-      <div className="tw-card-media">
+      <div className="tw-card-media" onClick={() => onOpen(url)} style={{ cursor: output === "audio" ? "default" : "zoom-in" }}>
         {output === "image" && <img src={url} alt="" />}
         {output === "video" && <video src={url} muted loop playsInline preload="metadata" onMouseEnter={(e) => e.currentTarget.play()} onMouseLeave={(e) => e.currentTarget.pause()} />}
-        {output === "audio" && <audio src={url} controls style={{ width: "100%" }} />}
+        {output === "audio" && <audio src={url} controls style={{ width: "100%" }} onClick={(e) => e.stopPropagation()} />}
       </div>
       <div className="tw-card-actions">
         <button className={"vc-act" + (fav ? " active" : "")} onClick={onToggleFav} title="Favoritar">

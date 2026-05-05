@@ -51,6 +51,7 @@ Deno.serve(async (req) => {
       auth, engineId, tool: "video", op: "upscale", mediaType: "video",
       input: { prompt: "", aspect: "16:9", refs: [v], num: 1, extra: extras },
     });
+  }
 
   // Most engines are i2v; LTX/Wan-t2v are pure t2v; Seedance 1.5 + Omnihuman live under /video/ and accept both
   const isT2V = engine.path.includes("/text-to-video/");

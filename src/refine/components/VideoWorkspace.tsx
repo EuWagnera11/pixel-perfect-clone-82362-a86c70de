@@ -345,7 +345,35 @@ export function VideoWorkspace({
             </div>
           )}
 
-          {/* PROMPT */}
+          {modelId === "latent-sync" && (
+            <div className="vid-panel">
+              <div className="vid-panel-head">
+                <div className="vid-panel-title"><span className="vid-dot" /> Áudio (lip-sync)</div>
+              </div>
+              <button
+                type="button"
+                className={"video-source-slot" + (lipSyncAudioUrl ? " filled" : "")}
+                onClick={() => lipSyncAudioInputRef.current?.click()}
+                style={{ minHeight: 80 }}
+              >
+                {lipSyncAudioUrl ? (
+                  <audio src={lipSyncAudioUrl} controls style={{ width: "100%" }} onClick={(e) => e.stopPropagation()} />
+                ) : (
+                  <div className="vss-empty">
+                    <Icon d="M9 18V5l12-2v13 M9 18a3 3 0 1 1-6 0 3 3 0 0 1 6 0z M21 16a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />
+                    <span>Clique para enviar áudio</span>
+                  </div>
+                )}
+              </button>
+              <input ref={lipSyncAudioInputRef} type="file" accept="audio/*" hidden
+                onChange={async (e) => {
+                  const f = e.target.files?.[0]; if (!f) return;
+                  const url = await onUploadRef(f);
+                  if (url) setLipSyncAudioUrl(url);
+                  e.currentTarget.value = "";
+                }} />
+            </div>
+          )}
           <div className="vid-panel">
             <div className="vid-panel-head">
               <div className="vid-panel-title">Prompt</div>

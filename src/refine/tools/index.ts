@@ -93,6 +93,12 @@ export async function runEdit(opts: {
   const op = opts.op || "replace-bg";
   const needsPrompt = ["replace-bg", "relight", "expand", "style-transfer", "ideogram-edit", "reimagine-flux"];
   if (needsPrompt.includes(op) && !opts.prompt.trim()) throw new Error("Descreva a edição");
+  if (op === "replace-bg") {
+    return runReplaceBg({ sourceUrl: opts.sourceUrl, prompt: opts.prompt });
+  }
+  if (op === "style-transfer") {
+    return runStyleTransferTool({ sourceUrl: opts.sourceUrl, styleUrl: opts.styleUrl, prompt: opts.prompt });
+  }
   if (op === "ideogram-edit" && !(opts.extras as any)?.mask_url) {
     throw new Error("Inpaint exige uma máscara (URL)");
   }
@@ -229,13 +235,14 @@ export async function dispatchTool(input: DispatchInput): Promise<EnqueueResult>
   const refs = input.sourceUrl ? [input.sourceUrl] : [];
   const model = input.model || undefined;
   const p = applyStyle(input.prompt, input.stylePack);
+  const styleUrl = typeof input.extras?.style_url === "string" ? input.extras.style_url : undefined;
   const num = input.numVariations ?? 1;
   switch (input.tab) {
     case "image":      return runImage({ prompt: p, aspect: input.aspect, refs, model, numVariations: num, quality: input.quality });
     case "cinema":     return runCinema({ prompt: p, aspect: input.aspect, refs, model });
     case "video":      return runVideo({ prompt: p, sourceUrl: input.sourceUrl!, model: model!, aspect: input.aspect, duration: input.duration, lastImageUrl: input.lastImageUrl || undefined });
     case "audio":      return runAudio({ prompt: p, kind: input.audioKind, extras: input.extras });
-    case "edit":       return runEdit({ prompt: p, sourceUrl: input.sourceUrl!, op: input.editOp, extras: input.extras });
+    case "edit":       return runEdit({ prompt: p, sourceUrl: input.sourceUrl!, op: input.editOp, styleUrl, extras: input.extras });
     case "upscale":    return runUpscale({ sourceUrl: input.sourceUrl!, engine: input.upscaleEngine });
     case "product":    return runProduct({ prompt: p, aspect: input.aspect, sourceUrl: input.sourceUrl, model });
     case "ecommerce":  return runEcommerce({ prompt: p, aspect: input.aspect, sourceUrl: input.sourceUrl, model });

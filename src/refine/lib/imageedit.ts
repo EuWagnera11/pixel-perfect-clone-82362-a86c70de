@@ -94,7 +94,7 @@ export async function fetchImageEditStatus(generationId: string): Promise<ImageE
   return await call<ImageEditStatus>(`imageedit-status?generation_id=${encodeURIComponent(generationId)}`, undefined, "GET");
 }
 
-export async function pollImageEdit(generationId: string, maxMs = 300_000): Promise<ImageEditStatus> {
+export async function pollImageEdit(generationId: string, maxMs = 600_000): Promise<ImageEditStatus> {
   const start = Date.now();
   while (Date.now() - start < maxMs) {
     await new Promise((r) => setTimeout(r, 4000));

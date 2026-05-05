@@ -218,7 +218,7 @@ export async function dispatchTool(input: DispatchInput): Promise<EnqueueResult>
   switch (input.tab) {
     case "image":      return runImage({ prompt: p, aspect: input.aspect, refs, model, numVariations: num, quality: input.quality });
     case "cinema":     return runCinema({ prompt: p, aspect: input.aspect, refs, model });
-    case "video":      return runVideo({ prompt: p, sourceUrl: input.sourceUrl!, model: model!, aspect: input.aspect, duration: input.duration });
+    case "video":      return runVideo({ prompt: p, sourceUrl: input.sourceUrl!, model: model!, aspect: input.aspect, duration: input.duration, lastImageUrl: input.lastImageUrl || undefined });
     case "audio":      return runAudio({ prompt: p, kind: input.audioKind });
     case "edit":       return runEdit({ prompt: p, sourceUrl: input.sourceUrl!, op: input.editOp });
     case "upscale":    return runUpscale({ sourceUrl: input.sourceUrl!, engine: input.upscaleEngine });

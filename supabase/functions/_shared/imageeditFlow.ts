@@ -92,9 +92,26 @@ export async function startImageEditJob(args: StartImageEditArgs): Promise<Respo
     }
   }
 
+  const isRemoveBg = args.endpoint === "/v1/ai/beta/remove-background";
+  let requestInit: RequestInit;
+  if (isRemoveBg) {
+    const form = new FormData();
+    for (const [key, value] of Object.entries(reqBody)) {
+      if (value !== undefined && value !== null) form.append(key, String(value));
+    }
+    requestInit = {
+      method: "POST",
+      body: form,
+    };
+  } else {
+    requestInit = {
+      method: "POST",
+      body: JSON.stringify(reqBody),
+    };
+  }
+
   const fp = await freepikFetch(args.endpoint, {
-    method: "POST",
-    body: JSON.stringify(reqBody),
+    ...requestInit,
     logCtx: { userId, generationId: gen.generation_id, endpointKey: args.endpoint },
   });
 
@@ -111,10 +128,38 @@ export async function startImageEditJob(args: StartImageEditArgs): Promise<Respo
 
   const taskId = extractTaskId(fp.body);
   if (!taskId) {
+    if (isRemoveBg) {
+      const d = fp.body?.data ?? fp.body ?? {};
+      const syncUrl: string | undefined =
+        d.high_resolution || d.url || d.original || d.preview ||
+        (Array.isArray(d.images) ? (d.images[0]?.url ?? d.images[0]) : undefined);
+
+      if (syncUrl) {
+        await sb.from("imageedit_generations").update({
+          status: "COMPLETED",
+          output_url: syncUrl,
+          completed_at: new Date().toISOString(),
+          metadata: {
+            ...(args.metadata ?? {}),
+            freepik_endpoint: args.endpoint,
+            freepik_response: fp.body,
+          },
+        }).eq("generation_id", gen.generation_id);
+
+        return json({
+          generation_id: gen.generation_id,
+          status: "COMPLETED",
+          output_url: syncUrl,
+          tool: args.tool,
+          model: args.model,
+        }, 200);
+      }
+    }
+
     await sb.from("imageedit_generations").update({
       status: "FAILED", error_message: "Sem task_id na resposta Freepik.",
       completed_at: new Date().toISOString(),
-      metadata: { ...(args.metadata ?? {}), freepik_response: fp.body },
+      metadata: { ...(args.metadata ?? {}), freepik_response: fp.body, freepik_endpoint: args.endpoint },
     }).eq("generation_id", gen.generation_id);
     return json({
       error: { code: "NO_TASK_ID", message: "Freepik não retornou task_id." },

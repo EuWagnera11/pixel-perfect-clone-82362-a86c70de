@@ -249,7 +249,7 @@ export function ToolOptionsBar({ tab, value, onChange, extra, onSuggestPrompt }:
             { id: "audio-isolation", label: "Isolar" },
           ]}
           value={kind}
-          onChange={(v) => onChange({ audioKind: v })}
+          onChange={(v) => { onChange({ audioKind: v }); suggest(AUDIO_PROMPTS[v]); }}
         />
         {kind === "voiceover" && (
           <>

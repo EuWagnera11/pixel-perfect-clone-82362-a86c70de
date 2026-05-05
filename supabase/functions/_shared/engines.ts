@@ -611,22 +611,22 @@ const UPSCALE: Record<string, EngineEntry> = {
     path: "/v1/ai/image-upscaler", aspectStyle: "none",
     build: (i) => ({
       image: i.refs[0],
-      scale_factor: 4,
+      scale_factor: "4x",
       optimized_for: "standard",
       creativity: 4,
       hdr: 4,
-      resemblance: 60,
+      resemblance: 6,
     }),
   },
   "magnific-precision": {
     id: "magnific-precision", kind: "image",
     path: "/v1/ai/image-upscaler-precision", aspectStyle: "none",
-    build: (i) => ({ image: i.refs[0], scale_factor: 4 }),
+    build: (i) => ({ image: i.refs[0], scale_factor: "4x" }),
   },
   "magnific-precision-v2": {
     id: "magnific-precision-v2", kind: "image",
     path: "/v1/ai/image-upscaler-precision-v2", aspectStyle: "none",
-    build: (i) => ({ image: i.refs[0], scale_factor: 4 }),
+    build: (i) => ({ image: i.refs[0], scale_factor: "4x" }),
   },
 };
 

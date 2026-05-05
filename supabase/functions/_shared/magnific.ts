@@ -61,7 +61,7 @@ export async function magnificFetch(
     // Send both header names so this works against api.magnific.com and legacy api.freepik.com
     headers.set("x-magnific-api-key", key);
     headers.set("x-freepik-api-key", key);
-    if (rest.body && !headers.has("Content-Type")) headers.set("Content-Type", "application/json");
+    if (rest.body && !headers.has("Content-Type") && !(rest.body instanceof FormData)) headers.set("Content-Type", "application/json");
     headers.set("Accept", "application/json");
 
     const t0 = Date.now();

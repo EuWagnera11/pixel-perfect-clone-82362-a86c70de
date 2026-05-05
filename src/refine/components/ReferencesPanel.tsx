@@ -296,7 +296,16 @@ export function ReferencesPanel({ refs, onChange, onUploadFile, modelId, modelLa
 /* ---------- URL dialog ---------- */
 function UrlDialog({ onCancel, onAdd }: { onCancel: () => void; onAdd: (url: string) => void }) {
   const [v, setV] = useState("");
-  const valid = useMemo(() => /^https?:\/\/.+\.(png|jpe?g|webp|gif)(\?.*)?$/i.test(v.trim()), [v]);
+  const valid = useMemo(() => {
+    const value = v.trim();
+    if (!/^https?:\/\//i.test(value)) return false;
+    try {
+      new URL(value);
+      return true;
+    } catch {
+      return false;
+    }
+  }, [v]);
   return (
     <div className="ref-modal-backdrop" onClick={onCancel}>
       <div className="ref-modal" onClick={(e) => e.stopPropagation()}>
@@ -307,12 +316,12 @@ function UrlDialog({ onCancel, onAdd }: { onCancel: () => void; onAdd: (url: str
         <input
           autoFocus
           className="ref-modal-input"
-          placeholder="https://…/imagem.jpg"
+          placeholder="https://…/imagem"
           value={v}
           onChange={(e) => setV(e.target.value)}
           onKeyDown={(e) => { if (e.key === "Enter" && valid) onAdd(v.trim()); }}
         />
-        {v && !valid && <p className="ref-modal-hint">URL deve terminar em .jpg, .png, .webp ou .gif</p>}
+        {v && !valid && <p className="ref-modal-hint">Cole uma URL completa começando com http:// ou https://</p>}
         <div className="ref-modal-actions">
           <button className="ref-btn-ghost" onClick={onCancel}>Cancelar</button>
           <button className="ref-btn-primary" disabled={!valid} onClick={() => onAdd(v.trim())}>Adicionar</button>

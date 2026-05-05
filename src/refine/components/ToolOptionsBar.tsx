@@ -141,8 +141,10 @@ function NumInput({ val, onChange, min, max, step = 1, ph }: {
 }
 
 export function ToolOptionsBar({ tab, value, onChange, extra }: Props) {
+export function ToolOptionsBar({ tab, value, onChange, extra, onSuggestPrompt }: Props) {
   const setExtra = (patch: Partial<ToolExtras>) =>
     onChange({ extras: { ...(value.extras || {}), ...patch } });
+  const suggest = (text?: string) => { if (text && onSuggestPrompt) onSuggestPrompt(text); };
 
   if (tab === "video") {
     return (

@@ -57,6 +57,22 @@ export const FREEPIK_EDITORS: FreepikModel[] = [
     maxRefs: 6,
     description: "Edição alternativa, fallback.",
   },
+  {
+    id: "seedream-v4-5-edit",
+    label: "Seedream V4.5 Edit",
+    endpoint: "/v1/ai/text-to-image/seedream-v4-5-edit",
+    kind: "editor",
+    maxRefs: 6,
+    description: "Versão mais recente do Seedream Edit.",
+  },
+  {
+    id: "nano-banana",
+    label: "Nano Banana",
+    endpoint: "/v1/ai/text-to-image/nano-banana",
+    kind: "editor",
+    maxRefs: 3,
+    description: "Edição rápida, mais barato.",
+  },
 ];
 
 // ───────── Geradores puros (sem referência) ─────────
@@ -66,7 +82,10 @@ export const FREEPIK_GENERATORS: FreepikModel[] = [
   { id: "imagen4-fast", label: "Imagen 4 Fast", endpoint: "/v1/ai/text-to-image/imagen4-fast", kind: "generator", verified: true, description: "Imagen 4 versão rápida." },
   { id: "flux-pro-1-1", label: "Flux Pro 1.1", endpoint: "/v1/ai/text-to-image/flux-pro-v1-1", kind: "generator", verified: true },
   { id: "flux-2-klein", label: "Flux 2 Klein", endpoint: "/v1/ai/text-to-image/flux-2-klein", kind: "generator", verified: true, description: "Tempo real." },
+  { id: "flux-2-pro", label: "Flux 2 Pro", endpoint: "/v1/ai/text-to-image/flux-2-pro", kind: "generator", description: "Flux 2 — qualidade premium." },
+  { id: "flux-2-turbo", label: "Flux 2 Turbo", endpoint: "/v1/ai/text-to-image/flux-2-turbo", kind: "generator", description: "Mais rápido, qualidade boa." },
   { id: "seedream-v4", label: "Seedream V4", endpoint: "/v1/ai/text-to-image/seedream-v4", kind: "generator", verified: true },
+  { id: "seedream-v4-5", label: "Seedream V4.5", endpoint: "/v1/ai/text-to-image/seedream-v4-5", kind: "generator", description: "Seedream geração — versão mais recente." },
 ];
 
 // ───────── Endpoints dedicados (não substituem editores) ─────────
@@ -74,7 +93,10 @@ export const FREEPIK_DEDICATED: FreepikModel[] = [
   { id: "freepik-style-transfer", label: "Style Transfer", endpoint: "/v1/ai/image-style-transfer", kind: "dedicated" },
   { id: "freepik-remove-bg", label: "Remove Background", endpoint: "/v1/ai/beta/remove-background", kind: "dedicated" },
   { id: "flux-pro-expand", label: "Expand (Flux Pro)", endpoint: "/v1/ai/image-expand/flux-pro", kind: "dedicated" },
+  { id: "ideogram-expand", label: "Expand (Ideogram)", endpoint: "/v1/ai/image-expand/ideogram", kind: "dedicated", description: "Outpainting via Ideogram." },
+  { id: "seedream-v4-5-expand", label: "Expand (Seedream V4.5)", endpoint: "/v1/ai/image-expand/seedream-v4-5", kind: "dedicated", description: "Outpainting via Seedream V4.5." },
   { id: "image-relight", label: "Relight", endpoint: "/v1/ai/image-relight", kind: "dedicated" },
+  { id: "image-change-camera", label: "Change Camera", endpoint: "/v1/ai/image-change-camera", kind: "dedicated", description: "Mudança de ângulo de câmera." },
 ];
 
 export const ALL_FREEPIK_MODELS: FreepikModel[] = [

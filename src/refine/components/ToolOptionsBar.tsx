@@ -2,7 +2,8 @@
  * ToolOptionsBar — barra de opções específicas por ferramenta,
  * renderizada acima do Dock. Cada tab mostra só os controles que fazem sentido.
  */
-import type { CSSProperties } from "react";
+import { useState, type CSSProperties } from "react";
+import { MaskEditor } from "./MaskEditor";
 
 export type ToolExtras = {
   mask_url?: string;

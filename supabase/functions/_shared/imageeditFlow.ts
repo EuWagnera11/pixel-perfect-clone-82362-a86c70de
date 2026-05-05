@@ -124,6 +124,7 @@ export async function startImageEditJob(args: StartImageEditArgs): Promise<Respo
 
   await sb.from("imageedit_generations").update({
     status: "IN_PROGRESS", task_id: taskId,
+    metadata: { ...(args.metadata ?? {}), freepik_endpoint: args.endpoint },
   }).eq("generation_id", gen.generation_id);
 
   return json({

@@ -396,6 +396,7 @@ export function ToolWorkspace({
                   key={g.id}
                   gen={g}
                   output={cfg.output}
+                  onOpen={(url) => setPreview({ url, kind: cfg.output })}
                   onDelete={async () => { if (confirm("Excluir?")) await onDeleteGeneration(g.id); }}
                   onToggleFav={async () => {
                     const fav = !!(g as any).metadata?.favorite;

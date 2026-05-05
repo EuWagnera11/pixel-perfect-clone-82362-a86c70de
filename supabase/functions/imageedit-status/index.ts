@@ -47,21 +47,29 @@ Deno.serve(async (req) => {
     return json({ generation_id: gen.generation_id, status: gen.status });
   }
 
-  // ─── Consulta Freepik ───
-  const taskUrl = `${FREEPIK_BASE}/v1/ai/tasks/${gen.task_id}`;
-  let fpRes: Response;
-  try {
-    fpRes = await fetch(taskUrl, {
-      headers: { "x-freepik-api-key": FREEPIK_KEY, "Accept": "application/json" },
-    });
-  } catch {
-    return json({ generation_id: gen.generation_id, status: gen.status });
-  }
+  // ─── Consulta Freepik (com rotação de chave) ───
+  // Usa o endpoint específico do modelo quando conhecido, com fallback genérico.
+  const endpointPath = (gen.metadata as any)?.freepik_endpoint;
+  const candidates: string[] = [];
+  if (endpointPath) candidates.push(`${endpointPath}/${gen.task_id}`);
+  candidates.push(`/v1/ai/tasks/${gen.task_id}`);
 
-  if (!fpRes.ok) {
+  let body: any = null;
+  let okStatus = 0;
+  for (const p of candidates) {
+    const fp = await magnificFetch(p, {
+      method: "GET",
+      logCtx: { userId, generationId, endpointKey: p.replace(gen.task_id, ":id") },
+    });
+    if (fp.status >= 200 && fp.status < 300 && fp.body) {
+      body = fp.body;
+      okStatus = fp.status;
+      break;
+    }
+  }
+  if (!body) {
     return json({ generation_id: gen.generation_id, status: gen.status });
   }
-  const body: any = await fpRes.json();
   const data = body?.data || body;
   const fpStatus = (data.status || "").toUpperCase();
 

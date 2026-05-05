@@ -69,10 +69,15 @@ export async function runVideo(opts: {
 
 // ───────── AUDIO ─────────
 export async function runAudio(opts: {
-  prompt: string; kind?: "music" | "sfx";
+  prompt: string; kind?: "music" | "sfx" | "voiceover" | "audio-isolation";
+  extras?: Record<string, unknown>;
 }): Promise<EnqueueResult> {
-  if (!opts.prompt.trim()) throw new Error("Descreva o áudio");
-  const r = await startAudio({ prompt: opts.prompt, kind: opts.kind || "music" });
+  const kind = opts.kind || "music";
+  if (kind !== "audio-isolation" && !opts.prompt.trim()) throw new Error("Descreva o áudio / texto");
+  if (kind === "audio-isolation" && !(opts.extras as any)?.audio_url) {
+    throw new Error("Audio isolation exige URL do áudio");
+  }
+  const r = await startAudio({ prompt: opts.prompt, kind, extras: opts.extras });
   return { generationId: r.id, mediaType: "audio", taskId: r.task_id };
 }
 
@@ -80,27 +85,35 @@ export async function runAudio(opts: {
 export async function runEdit(opts: {
   prompt: string;
   sourceUrl: string;
-  op?: "remove-bg" | "replace-bg" | "relight" | "expand" | "style-transfer";
+  op?: string;
   styleUrl?: string;
+  extras?: Record<string, unknown>;
 }): Promise<EnqueueResult> {
   if (!opts.sourceUrl) throw new Error("Anexe uma imagem para editar");
   const op = opts.op || "replace-bg";
-  if (op !== "remove-bg" && !opts.prompt.trim()) throw new Error("Descreva a edição");
+  const needsPrompt = ["replace-bg", "relight", "expand", "style-transfer", "ideogram-edit", "reimagine-flux"];
+  if (needsPrompt.includes(op) && !opts.prompt.trim()) throw new Error("Descreva a edição");
+  if (op === "ideogram-edit" && !(opts.extras as any)?.mask_url) {
+    throw new Error("Inpaint exige uma máscara (URL)");
+  }
   const r = await startEdit({
     op, image_url: opts.sourceUrl, prompt: opts.prompt, style_url: opts.styleUrl,
+    extras: opts.extras,
   });
   return { generationId: r.id, mediaType: "image", taskId: r.task_id };
 }
 
 // ───────── UPSCALE ─────────
 export async function runUpscale(opts: {
-  sourceUrl: string; engine?: "magnific-creative" | "magnific-precision";
+  sourceUrl: string; engine?: string;
 }): Promise<EnqueueResult> {
-  if (!opts.sourceUrl) throw new Error("Anexe uma imagem para upscale");
-  const r = await startUpscale({
-    image_url: opts.sourceUrl, engine: opts.engine || "magnific-creative",
-  });
-  return { generationId: r.id, mediaType: "image", taskId: r.task_id };
+  if (!opts.sourceUrl) throw new Error("Anexe um arquivo para upscale");
+  const engine = opts.engine || "magnific-creative";
+  const isVideo = engine.startsWith("video-upscaler");
+  const r = await startUpscale(
+    isVideo ? { video_url: opts.sourceUrl, engine } : { image_url: opts.sourceUrl, engine }
+  );
+  return { generationId: r.id, mediaType: isVideo ? "video" : "image", taskId: r.task_id };
 }
 
 // ───────── NOVAS TOOLS (imageedit_*) ─────────

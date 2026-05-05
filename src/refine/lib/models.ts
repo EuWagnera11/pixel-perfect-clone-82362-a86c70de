@@ -66,7 +66,6 @@ export const IMAGE_MODELS: ImageModel[] = [
   { label: "Z-Image Turbo",         id: "z-image",               family: "z-image", costHint: "Rápido" },
   { label: "RunWay T2I",            id: "runway-t2i",            family: "runway" },
   { label: "Classic Fast",          id: "classic-fast",          family: "flux", costHint: "Rápido" },
-  { label: "Reimagine Flux",        id: "reimagine-flux",        family: "flux" },
 ];
 
 export const VIDEO_MODELS: VideoModel[] = [

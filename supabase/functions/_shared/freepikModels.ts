@@ -109,16 +109,16 @@ export function getModel(id: string): FreepikModel | undefined {
 
 /** Modelos disponíveis pra cada tool da spec. */
 export const TOOL_MODEL_WHITELIST: Record<string, string[]> = {
-  "style-transfer":     ["nano-banana-pro", "nano-banana-pro-flash", "flux-kontext-pro", "seedream-v4-edit"],
-  "replace-bg":         ["nano-banana-pro", "nano-banana-pro-flash", "flux-kontext-pro", "seedream-v4-edit"],
+  "style-transfer":     ["nano-banana-pro", "nano-banana", "flux-kontext-pro", "seedream-v4-edit", "seedream-v4-5-edit"],
+  "replace-bg":         ["nano-banana-pro", "nano-banana-pro-flash", "nano-banana", "flux-kontext-pro", "seedream-v4-edit", "seedream-v4-5-edit"],
   "remove-bg":          ["freepik-remove-bg"],
-  "expand":             ["flux-pro-expand"],
-  "colorize":           ["nano-banana-pro", "flux-kontext-pro"],
+  "expand":             ["flux-pro-expand", "ideogram-expand", "seedream-v4-5-expand"],
+  "colorize":           ["nano-banana-pro", "nano-banana", "flux-kontext-pro", "seedream-v4-edit", "seedream-v4-5-edit"],
   "face-swap":          ["nano-banana-pro"],
   "cloth-swap":         ["nano-banana-pro"],
-  "realistic-3d":       ["nano-banana-pro", "flux-kontext-pro"],
-  "product-gen":        ["nano-banana-pro", "nano-banana-pro-flash", "seedream-v4-edit"],
-  "assets-gen":         ["nano-banana-pro", "nano-banana-pro-flash"],
+  "realistic-3d":       ["nano-banana-pro", "nano-banana", "flux-kontext-pro", "seedream-v4-edit", "seedream-v4-5-edit"],
+  "product-gen":        ["nano-banana-pro", "nano-banana", "flux-kontext-pro", "seedream-v4-edit", "seedream-v4-5-edit"],
+  "assets-gen":         ["nano-banana-pro", "nano-banana", "flux-kontext-pro", "seedream-v4-edit", "seedream-v4-5-edit"],
   "depth-map":          ["nano-banana-pro"],
 };
 

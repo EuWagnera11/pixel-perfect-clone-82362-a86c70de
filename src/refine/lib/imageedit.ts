@@ -28,9 +28,33 @@ export type ImageEditStatus = {
   model?: string;
 };
 
+async function ensureSignedSession() {
+  const { data } = await supabase.auth.getSession();
+  if (!data.session) throw new Error("Faça login com Google para usar esta ferramenta.");
+}
+
+async function extractFunctionError(error: any): Promise<string> {
+  try {
+    const response = error?.context;
+    if (response instanceof Response) {
+      const contentType = response.headers.get("content-type") || "";
+      if (contentType.includes("application/json")) {
+        const payload = await response.clone().json();
+        return payload?.error?.message || payload?.message || error?.message || "Falhou";
+      }
+      const text = await response.clone().text();
+      if (text) return text;
+    }
+  } catch {
+    // fallback abaixo
+  }
+  return error?.message || "Falhou";
+}
+
 async function call<T>(fn: string, body?: unknown, method: "GET" | "POST" = "POST"): Promise<T> {
+  await ensureSignedSession();
   const { data, error } = await supabase.functions.invoke<T>(fn, { method, body } as any);
-  if (error) throw error;
+  if (error) throw new Error(await extractFunctionError(error));
   return data as T;
 }
 

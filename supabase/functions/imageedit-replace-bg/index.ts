@@ -29,7 +29,7 @@ Deno.serve(async (req) => {
     `Keep the main subject perfectly intact — same pose, lighting on the subject, color, edges and proportions. ` +
     `Match the new background lighting to the subject realistically.`;
 
-  const requested = (body?.model || defaultModelForTool("replace-bg")).toString();
+  const requested = (body?.model || "nano-banana-pro-flash").toString();
   const allowed = TOOL_MODEL_WHITELIST["replace-bg"];
   const modelId = allowed.includes(requested) ? requested : defaultModelForTool("replace-bg");
   const model = getModel(modelId)!;

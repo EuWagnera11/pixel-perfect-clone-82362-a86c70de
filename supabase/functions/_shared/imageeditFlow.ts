@@ -13,14 +13,12 @@ import { freepikFetch } from "./freepik.ts";
 import { toMagnificAspect } from "./engines.ts";
 
 // Endpoints que exigem aspect no formato magnific (square_1_1, ...).
-// Mapeamos endpoint -> engine id para resolver o whitelist por motor.
+// Mantemos o mapeamento apenas para motores que realmente aceitam esses tokens.
 const MAGNIFIC_ASPECT_ENDPOINT_TO_ENGINE: Record<string, string> = {
   "/v1/ai/text-to-image/flux-kontext-pro": "flux-kontext-pro",
   "/v1/ai/text-to-image/flux-2-klein": "flux-2-klein",
   "/v1/ai/text-to-image/flux-dev": "flux-dev",
   "/v1/ai/text-to-image/hyperflux": "hyperflux",
-  "/v1/ai/text-to-image/nano-banana-pro": "nano-banana-pro",
-  "/v1/ai/text-to-image/nano-banana-pro-flash": "nano-banana-pro-flash",
   "/v1/ai/text-to-image/seedream-v4": "seedream-v4",
   "/v1/ai/text-to-image/seedream-v4-edit": "seedream-v4-edit",
   "/v1/ai/text-to-image/seedream-v4-5": "seedream-v4-5",

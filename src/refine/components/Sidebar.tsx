@@ -12,6 +12,7 @@ type SidebarProps = {
   onUpgrade: () => void;
   onSignInGoogle: () => void;
   onSignOut: () => void;
+  activeJobsCount?: number;
 };
 
 const LS_KEY = "sidebar-locked";
@@ -25,6 +26,7 @@ export function Sidebar({
   onUpgrade,
   onSignInGoogle,
   onSignOut,
+  activeJobsCount = 0,
 }: SidebarProps) {
   const [locked, setLocked] = useState<boolean>(() => {
     if (typeof window === "undefined") return false;
@@ -68,7 +70,17 @@ export function Sidebar({
           </span>
           <span className="sb-brand-info">
             <span className="sb-brand-name">refine<span className="sb-brand-dot">.</span></span>
-            <span className="sb-brand-status"><span className="sb-status-dot" />online</span>
+            {activeJobsCount > 0 ? (
+              <span className="sb-brand-status" style={{ color: "#ff8a3d" }}>
+                <span
+                  className="sb-status-dot"
+                  style={{ background: "#ff8a3d", boxShadow: "0 0 8px #ff8a3d", animation: "pulse 1.4s ease-in-out infinite" }}
+                />
+                {activeJobsCount} gerando…
+              </span>
+            ) : (
+              <span className="sb-brand-status"><span className="sb-status-dot" />online</span>
+            )}
           </span>
         </button>
 

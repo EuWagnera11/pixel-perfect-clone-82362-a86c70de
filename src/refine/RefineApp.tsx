@@ -301,6 +301,7 @@ function Workspace() {
           onUpgrade={() => upgradeTo("starter_monthly")}
           onSignInGoogle={signInWithGoogle}
           onSignOut={signOut}
+          activeJobsCount={activeJobsCount}
         />
 
         <section className="workspace">

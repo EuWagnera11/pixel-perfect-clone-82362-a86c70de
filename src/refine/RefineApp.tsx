@@ -295,7 +295,7 @@ function Workspace() {
       <div className="bg-aurora" />
       <div className="bg-grid" />
 
-      <div className={"app" + (noRail || currentTab === "image" || currentTab === "video" ? " no-rail" : "")} id="app">
+      <div className={"app" + (noRail || currentTab === "image" || currentTab === "video" || tabHasToolWorkspace(currentTab) ? " no-rail" : "")} id="app">
         <Sidebar
           currentTab={currentTab}
           onTabChange={(k) => navigate(`/${k}`)}

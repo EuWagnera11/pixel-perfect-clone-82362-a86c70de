@@ -71,6 +71,7 @@ function Workspace() {
   const [quality, setQuality] = useState("1K");
   const [variations, setVariations] = useState(1);
   const [stylePack, setStylePack] = useState<string | null>(null);
+  const [toolOptions, setToolOptions] = useState<ToolOptions>({});
   const viewRef = useRef<HTMLDivElement>(null);
 
   // Trocar de aba limpa upload (cada ferramenta tem seu fluxo independente)

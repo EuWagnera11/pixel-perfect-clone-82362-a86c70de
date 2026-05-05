@@ -305,7 +305,7 @@ export function ToolOptionsBar({ tab, value, onChange, extra, onSuggestPrompt }:
             { id: "ui", label: "UI" },
           ]}
           value={value.assetsKind || "icon"}
-          onChange={(v) => onChange({ assetsKind: v })}
+          onChange={(v) => { onChange({ assetsKind: v }); suggest(ASSETS_PROMPTS[v]); }}
         />
       </div>
     );

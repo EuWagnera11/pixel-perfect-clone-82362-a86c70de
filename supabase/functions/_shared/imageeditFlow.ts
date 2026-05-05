@@ -41,6 +41,7 @@ export type StartImageEditArgs = {
   inputUrls: string[];
   metadata?: Record<string, unknown>;
   requireTos?: boolean;
+  aspectStyle?: "auto" | "freepik" | "magnific";
 };
 
 function extractTaskId(body: any): string | null {
@@ -85,7 +86,8 @@ export async function startImageEditJob(args: StartImageEditArgs): Promise<Respo
 
   // Normaliza aspect_ratio pro formato esperado pelo endpoint
   const reqBody: Record<string, unknown> = { ...args.body };
-  if (typeof reqBody.aspect_ratio === "string" && /^\d+:\d+$/.test(reqBody.aspect_ratio as string)) {
+  const shouldNormalizeAspect = (args.aspectStyle ?? "auto") !== "freepik";
+  if (shouldNormalizeAspect && typeof reqBody.aspect_ratio === "string" && /^\d+:\d+$/.test(reqBody.aspect_ratio as string)) {
     const engineId = MAGNIFIC_ASPECT_ENDPOINT_TO_ENGINE[args.endpoint];
     if (engineId) {
       reqBody.aspect_ratio = toMagnificAspect(reqBody.aspect_ratio as string, engineId);

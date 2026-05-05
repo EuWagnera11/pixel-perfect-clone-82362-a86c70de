@@ -86,6 +86,8 @@ export function VideoWorkspace({
   const [framesStart, setFramesStart] = useState<string | null>(null);
   const [framesEnd, setFramesEnd] = useState<string | null>(null);
   const [videoSourceUrl, setVideoSourceUrl] = useState<string | null>(null);
+  const [lipSyncAudioUrl, setLipSyncAudioUrl] = useState<string | null>(null);
+  const lipSyncAudioInputRef = useRef<HTMLInputElement>(null);
 
   const [camera, setCamera] = useState<Camera>("static");
   const [intensity, setIntensity] = useState(50);
@@ -143,17 +145,23 @@ export function VideoWorkspace({
   const totalCost = variations * durSec * baseCost * qMult / 10;
 
   const handleGenerate = useCallback(async () => {
-    if (!prompt.trim() && mode !== "video") {
+    const isLipSync = modelId === "latent-sync";
+    const isVideoUpscaler = modelId === "video-upscaler" || modelId === "video-upscaler-turbo";
+    const needsVideoSrc = isLipSync || isVideoUpscaler || currentModel.requiresVideoSource;
+
+    if (!prompt.trim() && mode !== "video" && !needsVideoSrc) {
       showToast("Digite um prompt"); return;
     }
     let source: string | null = null;
-    if (mode === "image") source = refs[0]?.url || null;
+    if (needsVideoSrc) source = videoSourceUrl;
+    else if (mode === "image") source = refs[0]?.url || null;
     else if (mode === "frames") source = framesStart;
     else if (mode === "video") source = videoSourceUrl;
 
-    if (mode === "image" && !source) { showToast("Anexe uma imagem fonte"); return; }
+    if (mode === "image" && !needsVideoSrc && !source) { showToast("Anexe uma imagem fonte"); return; }
     if (mode === "frames" && (!framesStart || !framesEnd)) { showToast("Anexe os 2 frames"); return; }
-    if (mode === "video" && !source) { showToast("Anexe o vídeo fonte"); return; }
+    if (needsVideoSrc && !source) { showToast("Anexe o vídeo fonte"); return; }
+    if (isLipSync && !lipSyncAudioUrl) { showToast("Anexe o áudio para lip-sync"); return; }
 
     const camNote = camera !== "static"
       ? `, camera: ${camera.replace("-", " ")}, motion intensity ${intensity}%`
@@ -166,6 +174,9 @@ export function VideoWorkspace({
     const finalPrompt = (prompt.trim() + camNote + audioNote).trim();
 
     const n = Math.max(1, variations);
+    const extras: Record<string, unknown> = {};
+    if (isLipSync && lipSyncAudioUrl) extras.audio_url = lipSyncAudioUrl;
+
     const promises = Array.from({ length: n }).map(() =>
       enqueue({
         tab: "video",
@@ -176,14 +187,15 @@ export function VideoWorkspace({
         thumb: source || undefined,
         quality,
         numVariations: 1,
+        extras: Object.keys(extras).length ? extras : undefined,
       })
     );
     const results = await Promise.all(promises);
     const fail = results.find((r) => !r.ok);
     if (fail) showToast("Erro: " + (fail.error || "falha"));
     else showToast(n > 1 ? `${n} vídeos em paralelo` : "Geração iniciada");
-  }, [prompt, mode, refs, framesStart, framesEnd, videoSourceUrl, camera, intensity,
-      audioMode, audioPrompt, variations, ratio, modelId, quality, enqueue, showToast]);
+  }, [prompt, mode, refs, framesStart, framesEnd, videoSourceUrl, lipSyncAudioUrl, camera, intensity,
+      audioMode, audioPrompt, variations, ratio, modelId, currentModel, quality, enqueue, showToast]);
 
   // Frames upload helpers
   const pickFrame = (which: "start" | "end") => async (file: File) => {

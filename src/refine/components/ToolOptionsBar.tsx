@@ -25,6 +25,8 @@ type Props = {
   tab: string;
   value: ToolOptions;
   onChange: (patch: Partial<ToolOptions>) => void;
+  /** Conteúdo extra renderizado à direita (ex.: upload de último frame). */
+  extra?: React.ReactNode;
 };
 
 const wrap: CSSProperties = {
@@ -64,7 +66,7 @@ function Seg<T extends string>({
   );
 }
 
-export function ToolOptionsBar({ tab, value, onChange }: Props) {
+export function ToolOptionsBar({ tab, value, onChange, extra }: Props) {
   if (tab === "video") {
     return (
       <div style={wrap}>
@@ -74,6 +76,7 @@ export function ToolOptionsBar({ tab, value, onChange }: Props) {
           value={value.videoDuration || "5s"}
           onChange={(v) => onChange({ videoDuration: v })}
         />
+        {extra}
       </div>
     );
   }

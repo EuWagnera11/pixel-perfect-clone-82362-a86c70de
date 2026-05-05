@@ -27,10 +27,17 @@ Deno.serve(async (req) => {
       ? body.refs.map((r: any) => typeof r === "string" ? r : r?.url).filter(Boolean)
       : []
   );
+  const lastImageUrl: string | undefined =
+    body.last_image_url || body.lastImageUrl || undefined;
 
   // Most engines are i2v; only LTX/Wan-t2v are pure t2v
   const isT2V = engine.path.includes("/text-to-video/");
-  if (!isT2V && !refs[0]) {
+  const isTransition = engineId === "pixverse-v5-transition";
+
+  if (isTransition) {
+    if (!refs[0]) return json({ error: "first image (image_url) required for transition" }, 400);
+    if (!lastImageUrl) return json({ error: "last_image_url required for transition" }, 400);
+  } else if (!isT2V && !refs[0]) {
     return json({ error: "image_url required for image-to-video engines" }, 400);
   }
   if (!prompt && isT2V) {
@@ -41,7 +48,7 @@ Deno.serve(async (req) => {
     auth,
     engineId,
     tool: "video",
-    op: isT2V ? "t2v" : "i2v",
+    op: isTransition ? "frames" : (isT2V ? "t2v" : "i2v"),
     mediaType: "video",
     input: {
       prompt,
@@ -49,6 +56,7 @@ Deno.serve(async (req) => {
       refs,
       num: 1,
       duration: body.duration || (engineId.startsWith("hailuo") ? "6" : "5"),
+      lastImageUrl,
     },
   });
 });

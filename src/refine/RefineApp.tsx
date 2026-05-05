@@ -68,6 +68,7 @@ function Workspace() {
   const [modelLabel, setModelLabel] = useState("Nano-Banana Pro");
   const [ratio, setRatio] = useState<AspectRatio>("16:9");
   const [sourceUrl, setSourceUrl] = useState<string | null>(null);
+  const [lastFrameUrl, setLastFrameUrl] = useState<string | null>(null);
   const [quality, setQuality] = useState("1K");
   const [variations, setVariations] = useState(1);
   const [stylePack, setStylePack] = useState<string | null>(null);
@@ -75,7 +76,7 @@ function Workspace() {
   const viewRef = useRef<HTMLDivElement>(null);
 
   // Trocar de aba limpa upload (cada ferramenta tem seu fluxo independente)
-  useEffect(() => { setSourceUrl(null); }, [currentTab]);
+  useEffect(() => { setSourceUrl(null); setLastFrameUrl(null); }, [currentTab]);
 
   const tabConfig = TAB_CONFIG[currentTab] || TAB_CONFIG.home;
   const noDock = (MOCKUP_TAB_CFG as any)[currentTab]?.noDock;
@@ -246,6 +247,7 @@ function Workspace() {
         editOp: toolOptions.editOp,
         upscaleEngine: toolOptions.upscaleEngine,
         audioKind: toolOptions.audioKind,
+        lastImageUrl: lastFrameUrl,
       })
     );
     const results = await Promise.all(promises);
@@ -253,7 +255,7 @@ function Workspace() {
     if (fail) { showToast("Erro: " + (fail.error || "falha")); return; }
     showToast(n > 1 ? `${n} gerações iniciadas em paralelo` : "Geração iniciada");
     setPrompt("");
-  }, [prompt, ratio, modelLabel, currentTab, sourceUrl, enqueue, showToast, quality, variations, stylePack, toolOptions]);
+  }, [prompt, ratio, modelLabel, currentTab, sourceUrl, enqueue, showToast, quality, variations, stylePack, toolOptions, lastFrameUrl]);
 
   // Quando um job completa, mostra no stage + adiciona ao history + toast
   const handleJobOpen = useCallback((job: Job) => {

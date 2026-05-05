@@ -50,15 +50,19 @@ export async function runCinema(opts: {
 
 // ───────── VIDEO ─────────
 export async function runVideo(opts: {
-  prompt: string; sourceUrl: string; model: string; aspect?: string; duration?: string;
+  prompt: string; sourceUrl: string; model: string; aspect?: string; duration?: string; lastImageUrl?: string;
 }): Promise<EnqueueResult> {
   if (!opts.sourceUrl) throw new Error("Anexe uma imagem inicial");
+  if (opts.model === "pixverse-v5-transition" && !opts.lastImageUrl) {
+    throw new Error("Pixverse Transition exige imagem final (último frame)");
+  }
   const r = await startVideo({
     prompt: opts.prompt,
     image_url: opts.sourceUrl,
     model: opts.model || "kling-v2-5-pro",
     aspect_ratio: opts.aspect,
     duration: opts.duration,
+    last_image_url: opts.lastImageUrl,
   });
   return { generationId: r.id, mediaType: "video", taskId: r.task_id };
 }
@@ -191,6 +195,8 @@ export type DispatchInput = {
   quality?: string;
   numVariations?: number;
   stylePack?: string | null;
+  /** Segundo frame (último) para motores de transição (pixverse-v5-transition). */
+  lastImageUrl?: string | null;
 };
 
 const STYLE_PACK_SUFFIX: Record<string, string> = {
@@ -212,7 +218,7 @@ export async function dispatchTool(input: DispatchInput): Promise<EnqueueResult>
   switch (input.tab) {
     case "image":      return runImage({ prompt: p, aspect: input.aspect, refs, model, numVariations: num, quality: input.quality });
     case "cinema":     return runCinema({ prompt: p, aspect: input.aspect, refs, model });
-    case "video":      return runVideo({ prompt: p, sourceUrl: input.sourceUrl!, model: model!, aspect: input.aspect, duration: input.duration });
+    case "video":      return runVideo({ prompt: p, sourceUrl: input.sourceUrl!, model: model!, aspect: input.aspect, duration: input.duration, lastImageUrl: input.lastImageUrl || undefined });
     case "audio":      return runAudio({ prompt: p, kind: input.audioKind });
     case "edit":       return runEdit({ prompt: p, sourceUrl: input.sourceUrl!, op: input.editOp });
     case "upscale":    return runUpscale({ sourceUrl: input.sourceUrl!, engine: input.upscaleEngine });

@@ -46,6 +46,8 @@ export type BuildInput = {
   num: number;
   duration?: string; // "5" | "6" | "10"
   resolution?: string; // "1k" | "2k" | "4k"
+  /** Optional second-frame URL for transition engines (e.g. pixverse-v5-transition). */
+  lastImageUrl?: string;
   extra?: Record<string, unknown>;
 };
 
@@ -363,7 +365,20 @@ const VIDEO: Record<string, EngineEntry> = {
   "seedance-pro-720p":     { id: "seedance-pro-720p",     kind: "video", path: "/v1/ai/image-to-video/seedance-pro-720p",      aspectStyle: "none" },
   // Pixverse
   "pixverse-v5":           { id: "pixverse-v5",           kind: "video", path: "/v1/ai/image-to-video/pixverse-v5",            aspectStyle: "none" },
-  "pixverse-v5-transition":{ id: "pixverse-v5-transition",kind: "video", path: "/v1/ai/image-to-video/pixverse-v5-transition", aspectStyle: "none" },
+  "pixverse-v5-transition":{
+    id: "pixverse-v5-transition", kind: "video",
+    path: "/v1/ai/image-to-video/pixverse-v5-transition", aspectStyle: "none",
+    build: (i) => {
+      const body: Record<string, unknown> = {
+        prompt: i.prompt,
+        first_image_url: i.refs[0],
+        last_image_url: i.lastImageUrl || i.refs[1],
+        duration: Number(i.duration || "5"),
+      };
+      if (i.resolution) body.resolution = i.resolution;
+      return body;
+    },
+  },
   // LTX (text-to-video)
   "ltx-2-pro":             { id: "ltx-2-pro",             kind: "video", path: "/v1/ai/text-to-video/ltx-2-pro",               aspectStyle: "none" },
   // Wan

@@ -248,6 +248,7 @@ function Workspace() {
         upscaleEngine: toolOptions.upscaleEngine,
         audioKind: toolOptions.audioKind,
         lastImageUrl: lastFrameUrl,
+        extras: toolOptions.extras,
       })
     );
     const results = await Promise.all(promises);

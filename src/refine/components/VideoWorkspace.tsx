@@ -371,10 +371,10 @@ export function VideoWorkspace({
             </div>
           )}
 
-          {modelId === "latent-sync" && (
+          {(modelId === "latent-sync" || modelId === "omnihuman-1-5") && (
             <div className="vid-panel">
               <div className="vid-panel-head">
-                <div className="vid-panel-title"><span className="vid-dot" /> Áudio (lip-sync)</div>
+                <div className="vid-panel-title"><span className="vid-dot" /> Áudio ({modelId === "omnihuman-1-5" ? "OmniHuman" : "lip-sync"})</div>
               </div>
               <button
                 type="button"

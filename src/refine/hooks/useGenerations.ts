@@ -118,7 +118,7 @@ export async function startImage(input: {
 
 export async function startVideo(input: {
   prompt: string; image_url?: string; model: string;
-  duration?: string; aspect_ratio?: string;
+  duration?: string; aspect_ratio?: string; last_image_url?: string;
 }) {
   return await invokeFn<Created>("generate-video", {
     method: "POST", body: input,

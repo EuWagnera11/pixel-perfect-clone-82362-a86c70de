@@ -68,6 +68,7 @@ function Workspace() {
   const [modelLabel, setModelLabel] = useState("Nano-Banana Pro");
   const [ratio, setRatio] = useState<AspectRatio>("16:9");
   const [sourceUrl, setSourceUrl] = useState<string | null>(null);
+  const [lastFrameUrl, setLastFrameUrl] = useState<string | null>(null);
   const [quality, setQuality] = useState("1K");
   const [variations, setVariations] = useState(1);
   const [stylePack, setStylePack] = useState<string | null>(null);

@@ -229,17 +229,50 @@ Deno.serve(async (req) => {
     // Timeouts por modelo para replace-bg (Freepik às vezes trava o task indefinidamente)
     let timeoutMs = 0;
     if (gen.tool === "replace-bg") {
-      if (gen.model === "nano-banana-pro-flash") timeoutMs = 5 * 60_000;
-      else if (gen.model === "nano-banana-pro") timeoutMs = 10 * 60_000;
+      timeoutMs = REPLACE_BG_TIMEOUT_MS[gen.model] ?? 0;
     }
 
     if (timeoutMs > 0 && ageMs > timeoutMs) {
-      const errorMessage = "A troca de fundo demorou demais no provedor. Tente novamente em alguns instantes.";
+      const errorMessage = "A troca de fundo demorou demais no provedor. Trocando automaticamente para um modelo mais estável.";
       await sb.from("imageedit_generations").update({
         status: "FAILED",
+        task_id: null,
         error_message: errorMessage,
         completed_at: new Date().toISOString(),
       }).eq("generation_id", generationId);
+
+      const timedOutGen = {
+        ...gen,
+        status: "FAILED",
+        task_id: null,
+        error_message: errorMessage,
+      };
+
+      try {
+        const retried = await retryReplaceBgGeneration(sb, userId, timedOutGen);
+        if (retried?.kind === "completed") {
+          return json({ generation_id: generationId, status: "COMPLETED", output_url: retried.outputUrl, model: retried.model });
+        }
+        if (retried?.kind === "restarted") {
+          return json({ generation_id: generationId, status: "IN_PROGRESS", model: retried.model });
+        }
+        if (retried?.kind === "error") {
+          await sb.from("imageedit_generations").update({
+            status: "FAILED",
+            error_message: retried.message,
+            completed_at: new Date().toISOString(),
+          }).eq("generation_id", generationId);
+          return json({ generation_id: generationId, status: "FAILED", error: retried.message });
+        }
+      } catch (e) {
+        const retryError = (e as Error).message || errorMessage;
+        await sb.from("imageedit_generations").update({
+          status: "FAILED",
+          error_message: retryError,
+          completed_at: new Date().toISOString(),
+        }).eq("generation_id", generationId);
+        return json({ generation_id: generationId, status: "FAILED", error: retryError });
+      }
 
       return json({ generation_id: generationId, status: "FAILED", error: errorMessage });
     }

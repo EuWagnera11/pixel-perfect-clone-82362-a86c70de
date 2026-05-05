@@ -195,6 +195,8 @@ export type DispatchInput = {
   quality?: string;
   numVariations?: number;
   stylePack?: string | null;
+  /** Segundo frame (último) para motores de transição (pixverse-v5-transition). */
+  lastImageUrl?: string | null;
 };
 
 const STYLE_PACK_SUFFIX: Record<string, string> = {

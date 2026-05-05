@@ -323,6 +323,7 @@ Deno.serve(async (req) => {
   await sb.from("imageedit_generations").update({
     status: "COMPLETED",
     output_url: outputUrl,
+    error_message: null,
     completed_at: new Date().toISOString(),
   }).eq("generation_id", generationId);
 

@@ -5,9 +5,7 @@
 //   atualiza tabela e devolve URL final.
 import { corsHeaders, json } from "../_shared/cors.ts";
 import { adminClient, requireUserId } from "../_shared/gates.ts";
-
-const FREEPIK_BASE = Deno.env.get("FREEPIK_API_BASE") || "https://api.freepik.com";
-const FREEPIK_KEY = Deno.env.get("FREEPIK_API_KEY") || "";
+import { magnificFetch } from "../_shared/magnific.ts";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });

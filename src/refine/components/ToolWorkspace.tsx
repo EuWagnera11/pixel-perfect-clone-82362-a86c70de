@@ -317,6 +317,9 @@ export function ToolWorkspace({
                 value={toolOptions}
                 onChange={(patch) => setToolOptions((prev) => ({ ...prev, ...patch }))}
                 onSuggestPrompt={(text) => setPrompt((cur) => (cur.trim() ? cur : text))}
+                sourceImageUrl={refs[0]?.url || null}
+                onUploadFile={onUploadRef}
+                showToast={showToast}
               />
             </div>
           )}

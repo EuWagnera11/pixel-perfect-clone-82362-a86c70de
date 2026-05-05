@@ -84,6 +84,29 @@ export async function startGeneration(args: StartArgs): Promise<Response> {
 
   const taskId = extractTaskId(fp.body);
   if (!taskId) {
+    // Some endpoints (e.g. /v1/ai/beta/remove-background) respond synchronously
+    // with image URLs and no task_id. Treat as completed.
+    if (isRemoveBg) {
+      const d = fp.body?.data ?? fp.body ?? {};
+      const syncUrl: string | undefined =
+        d.high_resolution || d.url || d.original || d.preview ||
+        (Array.isArray(d.images) ? (d.images[0]?.url ?? d.images[0]) : undefined);
+      if (syncUrl) {
+        await args.auth.admin.from("generations").update({
+          status: "completed",
+          completed_at: new Date().toISOString(),
+          image_urls: [syncUrl],
+          metadata: { magnific_response: fp.body, magnific_path: engine.path },
+        }).eq("id", gen.id);
+        return json({
+          id: gen.id,
+          status: "completed",
+          media_type: args.mediaType,
+          created_at: gen.created_at,
+          image_urls: [syncUrl],
+        }, 200);
+      }
+    }
     await args.auth.admin.from("generations").update({
       status: "failed",
       error_message: "Magnific did not return a task id",

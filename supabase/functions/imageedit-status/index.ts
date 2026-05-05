@@ -86,12 +86,16 @@ Deno.serve(async (req) => {
   if (fpStatus !== "COMPLETED" && fpStatus !== "DONE" && fpStatus !== "SUCCESS") {
     const createdAtMs = gen.created_at ? new Date(gen.created_at).getTime() : Date.now();
     const ageMs = Date.now() - createdAtMs;
-    const stuckReplaceBgNanoBanana = gen.tool === "replace-bg"
-      && gen.model === "nano-banana-pro"
-      && ageMs > 10 * 60_000;
 
-    if (stuckReplaceBgNanoBanana) {
-      const errorMessage = "Troca de fundo expirou neste modelo. Tente novamente — o fluxo agora usa um modelo mais rápido para essa ferramenta.";
+    // Timeouts por modelo para replace-bg (Freepik às vezes trava o task indefinidamente)
+    let timeoutMs = 0;
+    if (gen.tool === "replace-bg") {
+      if (gen.model === "nano-banana-pro-flash") timeoutMs = 5 * 60_000;
+      else if (gen.model === "nano-banana-pro") timeoutMs = 10 * 60_000;
+    }
+
+    if (timeoutMs > 0 && ageMs > timeoutMs) {
+      const errorMessage = "A troca de fundo demorou demais no provedor. Tente novamente em alguns instantes.";
       await sb.from("imageedit_generations").update({
         status: "FAILED",
         error_message: errorMessage,

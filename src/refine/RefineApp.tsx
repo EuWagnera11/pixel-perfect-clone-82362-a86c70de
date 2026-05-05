@@ -16,6 +16,7 @@ import { JobsPanel } from "./components/JobsPanel";
 import { ToolOptionsBar, tabHasOptions, type ToolOptions } from "./components/ToolOptionsBar";
 import { ImageWorkspace } from "./components/ImageWorkspace";
 import { VideoWorkspace } from "./components/VideoWorkspace";
+import { ToolWorkspace, tabHasToolWorkspace } from "./components/ToolWorkspace";
 import { JobsProvider, useJobs, type Job } from "./lib/jobs";
 import { TAB_CONFIG } from "./lib/nav";
 import {
@@ -294,7 +295,7 @@ function Workspace() {
       <div className="bg-aurora" />
       <div className="bg-grid" />
 
-      <div className={"app" + (noRail || currentTab === "image" || currentTab === "video" ? " no-rail" : "")} id="app">
+      <div className={"app" + (noRail || currentTab === "image" || currentTab === "video" || tabHasToolWorkspace(currentTab) ? " no-rail" : "")} id="app">
         <Sidebar
           currentTab={currentTab}
           onTabChange={(k) => navigate(`/${k}`)}
@@ -309,7 +310,8 @@ function Workspace() {
 
         <section className="workspace">
           {(() => {
-            if (currentTab !== "image" && currentTab !== "video") return null;
+            const useWorkspace = currentTab === "image" || currentTab === "video" || tabHasToolWorkspace(currentTab);
+            if (!useWorkspace) return null;
             const wsProps = {
               history,
               onUploadRef: async (file: File) => {
@@ -350,11 +352,11 @@ function Workspace() {
                 setHistory((p) => p.map((g: any) => g.id === id ? { ...g, metadata: md } : g));
               },
             };
-            return currentTab === "image"
-              ? <ImageWorkspace {...wsProps} />
-              : <VideoWorkspace {...wsProps} />;
+            if (currentTab === "image") return <ImageWorkspace {...wsProps} />;
+            if (currentTab === "video") return <VideoWorkspace {...wsProps} />;
+            return <ToolWorkspace tab={currentTab} {...wsProps} />;
           })()}
-          {currentTab !== "image" && currentTab !== "video" && (
+          {!(currentTab === "image" || currentTab === "video" || tabHasToolWorkspace(currentTab)) && (
             <>
               <div className={"canvas" + (noDock ? " no-dock" : "")}>
                 <div ref={viewRef} dangerouslySetInnerHTML={{ __html: viewHtml }} />
@@ -394,12 +396,12 @@ function Workspace() {
           )}
         </section>
 
-        {!noRail && currentTab !== "image" && currentTab !== "video" && (
+        {!noRail && !(currentTab === "image" || currentTab === "video" || tabHasToolWorkspace(currentTab)) && (
           <Rail generations={history} onItemClick={handleHistoryClick} />
         )}
       </div>
 
-      {currentTab !== "image" && currentTab !== "video" && <JobsPanel onOpenResult={handleJobOpen} />}
+      {!(currentTab === "image" || currentTab === "video" || tabHasToolWorkspace(currentTab)) && <JobsPanel onOpenResult={handleJobOpen} />}
       <Toast msg={msg} show={show} />
     </>
   );

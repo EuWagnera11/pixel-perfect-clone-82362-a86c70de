@@ -54,9 +54,22 @@ export async function startGeneration(args: StartArgs): Promise<Response> {
 
   const body = buildBody(engine, args.input);
 
+  // Freepik's /v1/ai/beta/remove-background endpoint requires multipart/form-data
+  // (it does not accept JSON). Use form encoding for it specifically.
+  const isRemoveBg = engine.path === "/v1/ai/beta/remove-background";
+  let reqInit: RequestInit;
+  if (isRemoveBg) {
+    const form = new FormData();
+    for (const [k, v] of Object.entries(body)) {
+      if (v !== undefined && v !== null) form.append(k, String(v));
+    }
+    reqInit = { method: "POST", body: form };
+  } else {
+    reqInit = { method: "POST", body: JSON.stringify(body) };
+  }
+
   const fp = await magnificFetch(engine.path, {
-    method: "POST",
-    body: JSON.stringify(body),
+    ...reqInit,
     logCtx: { userId: args.auth.userId, generationId: gen.id, endpointKey: engine.path },
   });
 

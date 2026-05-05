@@ -294,6 +294,109 @@ Deno.serve(async (req) => {
     return json({ generation_id: generationId, status: "FAILED", error: "Sem URL." });
   }
 
+  // ─── Assets-gen pipeline 2-passos: dispara remove-background na etapa 1 ───
+  const meta = (gen.metadata || {}) as any;
+  if (gen.tool === "assets-gen" && meta.pipeline_step === "generation" && meta.background === "transparente") {
+    try {
+      // Salva intermediário (output-step1) para referência
+      try {
+        const r1 = await fetch(cdnUrl);
+        if (r1.ok) {
+          const b1 = new Uint8Array(await r1.arrayBuffer());
+          await sb.storage.from("imageedit-outputs")
+            .upload(`${userId}/${gen.tool}/${generationId}/output-step1.png`, b1, { contentType: "image/png", upsert: true });
+        }
+      } catch { /* ignore intermediate */ }
+
+      // Dispara remove-bg via FormData (mesmo padrão do imageedit-remove-bg)
+      const form = new FormData();
+      form.append("image_url", cdnUrl);
+      const fpRb = await freepikFetch("/v1/ai/beta/remove-background", {
+        method: "POST",
+        body: form,
+        logCtx: { userId, generationId, endpointKey: "/v1/ai/beta/remove-background" },
+      });
+
+      if (fpRb.status >= 400 || !fpRb.body) {
+        const msg = `Remove-bg falhou: ${typeof fpRb.body === "string" ? fpRb.body : JSON.stringify(fpRb.body).slice(0, 300)}`;
+        await sb.from("imageedit_generations").update({
+          status: "PARTIAL_COMPLETED",
+          output_url: cdnUrl,
+          error_message: msg,
+          completed_at: new Date().toISOString(),
+          metadata: { ...meta, pipeline_step: "failed_remove_bg", freepik_endpoint: "/v1/ai/beta/remove-background" },
+        }).eq("generation_id", generationId);
+        return json({
+          generation_id: generationId,
+          status: "PARTIAL_COMPLETED",
+          output_url: cdnUrl,
+          warning: "Remoção de fundo falhou. Você pode baixar a versão com fundo branco e remover manualmente.",
+        });
+      }
+
+      const d = fpRb.body?.data ?? fpRb.body ?? {};
+      const syncUrl: string | undefined =
+        d.high_resolution || d.url || d.original || d.preview ||
+        (Array.isArray(d.images) ? (d.images[0]?.url ?? d.images[0]) : undefined);
+      const rbTaskId = d.task_id ?? d.id ?? null;
+
+      // remove-bg costuma ser síncrono → finaliza imediatamente
+      if (syncUrl) {
+        let finalUrl = syncUrl;
+        try {
+          const r2 = await fetch(syncUrl);
+          if (r2.ok) {
+            const b2 = new Uint8Array(await r2.arrayBuffer());
+            const path = `${userId}/${gen.tool}/${generationId}/output.png`;
+            const up = await sb.storage.from("imageedit-outputs")
+              .upload(path, b2, { contentType: "image/png", upsert: true });
+            if (!up.error) {
+              const { data: pub } = sb.storage.from("imageedit-outputs").getPublicUrl(path);
+              finalUrl = pub.publicUrl;
+            }
+          }
+        } catch { /* ignore */ }
+        await sb.from("imageedit_generations").update({
+          status: "COMPLETED",
+          output_url: finalUrl,
+          error_message: null,
+          completed_at: new Date().toISOString(),
+          metadata: { ...meta, pipeline_step: "done", freepik_endpoint: "/v1/ai/beta/remove-background" },
+        }).eq("generation_id", generationId);
+        return json({ generation_id: generationId, status: "COMPLETED", output_url: finalUrl });
+      }
+
+      if (rbTaskId) {
+        await sb.from("imageedit_generations").update({
+          status: "IN_PROGRESS",
+          task_id: rbTaskId,
+          metadata: { ...meta, pipeline_step: "remove_bg", remove_bg_task_id: rbTaskId, freepik_endpoint: "/v1/ai/beta/remove-background", step1_url: cdnUrl },
+        }).eq("generation_id", generationId);
+        return json({ generation_id: generationId, status: "IN_PROGRESS" });
+      }
+
+      // Fallback: sem URL nem task → trata como parcial
+      await sb.from("imageedit_generations").update({
+        status: "PARTIAL_COMPLETED",
+        output_url: cdnUrl,
+        error_message: "Remove-bg não retornou URL nem task.",
+        completed_at: new Date().toISOString(),
+        metadata: { ...meta, pipeline_step: "failed_remove_bg" },
+      }).eq("generation_id", generationId);
+      return json({ generation_id: generationId, status: "PARTIAL_COMPLETED", output_url: cdnUrl });
+    } catch (e) {
+      const msg = (e as Error).message || "Falha ao iniciar remove-bg.";
+      await sb.from("imageedit_generations").update({
+        status: "PARTIAL_COMPLETED",
+        output_url: cdnUrl,
+        error_message: msg,
+        completed_at: new Date().toISOString(),
+        metadata: { ...meta, pipeline_step: "failed_remove_bg" },
+      }).eq("generation_id", generationId);
+      return json({ generation_id: generationId, status: "PARTIAL_COMPLETED", output_url: cdnUrl, warning: msg });
+    }
+  }
+
   let outputUrl = cdnUrl;
   try {
     const imgRes = await fetch(cdnUrl);
@@ -320,11 +423,17 @@ Deno.serve(async (req) => {
     console.warn("[imageedit-status] storage upload failed:", e);
   }
 
+  // Marca pipeline como done se for assets-gen finalizando etapa 2
+  const finalMeta = gen.tool === "assets-gen" && meta.pipeline_step === "remove_bg"
+    ? { ...meta, pipeline_step: "done" }
+    : undefined;
+
   await sb.from("imageedit_generations").update({
     status: "COMPLETED",
     output_url: outputUrl,
     error_message: null,
     completed_at: new Date().toISOString(),
+    ...(finalMeta ? { metadata: finalMeta } : {}),
   }).eq("generation_id", generationId);
 
   return json({ generation_id: generationId, status: "COMPLETED", output_url: outputUrl });

@@ -361,11 +361,11 @@ const IMAGE: Record<string, EngineEntry> = {
 const VIDEO: Record<string, EngineEntry> = {
   // Kling V3
   "kling-v3-pro":          { id: "kling-v3-pro",          kind: "video", path: "/v1/ai/video/kling-v3-pro",                aspectStyle: "none" },
-  "kling-v3-std":          { id: "kling-v3-std",          kind: "video", path: "/v1/ai/image-to-video/kling-v3-std",          aspectStyle: "none" },
-  "kling-v3-motion-pro":   { id: "kling-v3-motion-pro",   kind: "video", path: "/v1/ai/image-to-video/kling-v3-motion-pro",   aspectStyle: "none" },
-  "kling-v3-motion-std":   { id: "kling-v3-motion-std",   kind: "video", path: "/v1/ai/image-to-video/kling-v3-motion-std",   aspectStyle: "none" },
-  "kling-v3-omni-pro":     { id: "kling-v3-omni-pro",     kind: "video", path: "/v1/ai/image-to-video/kling-v3-omni-pro",     aspectStyle: "none" },
-  "kling-v3-omni-std":     { id: "kling-v3-omni-std",     kind: "video", path: "/v1/ai/image-to-video/kling-v3-omni-std",     aspectStyle: "none" },
+  "kling-v3-std":          { id: "kling-v3-std",          kind: "video", path: "/v1/ai/video/kling-v3-std",                aspectStyle: "none" },
+  "kling-v3-motion-pro":   { id: "kling-v3-motion-pro",   kind: "video", path: "/v1/ai/video/kling-v3-motion-control-pro",  aspectStyle: "none" },
+  "kling-v3-motion-std":   { id: "kling-v3-motion-std",   kind: "video", path: "/v1/ai/video/kling-v3-motion-control-std",  aspectStyle: "none" },
+  "kling-v3-omni-pro":     { id: "kling-v3-omni-pro",     kind: "video", path: "/v1/ai/video/kling-v3-omni-pro",            aspectStyle: "none" },
+  "kling-v3-omni-std":     { id: "kling-v3-omni-std",     kind: "video", path: "/v1/ai/video/kling-v3-omni-std",            aspectStyle: "none" },
   // Kling O1 + 2.x
   "kling-o1-pro":          { id: "kling-o1-pro",          kind: "video", path: "/v1/ai/image-to-video/kling-o1-pro",          aspectStyle: "none" },
   "kling-o1-std":          { id: "kling-o1-std",          kind: "video", path: "/v1/ai/image-to-video/kling-o1-std",          aspectStyle: "none" },

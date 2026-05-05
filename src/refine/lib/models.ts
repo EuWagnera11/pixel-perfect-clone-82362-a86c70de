@@ -113,6 +113,11 @@ export const VIDEO_MODELS: VideoModel[] = [
   { label: "Wan 2.5 t2v 720p",      id: "wan-2-5-t2v-720p",      family: "wan", defaultDuration: "5s", textToVideo: true },
   // Omnihuman (audio→video)
   { label: "Omni Human 1.5",        id: "omnihuman-1-5",         family: "omnihuman", defaultDuration: "5s" },
+  // Lip Sync (vídeo + áudio)
+  { label: "Latent Sync (Lip Sync)", id: "latent-sync",          family: "lipsync", defaultDuration: "5s", modes: ["video"], requiresAudio: true, requiresVideoSource: true },
+  // Video Upscaler (Magnific)
+  { label: "Video Upscaler",        id: "video-upscaler",        family: "upscaler", defaultDuration: "5s", modes: ["video"], requiresVideoSource: true },
+  { label: "Video Upscaler Turbo",  id: "video-upscaler-turbo",  family: "upscaler", defaultDuration: "5s", modes: ["video"], requiresVideoSource: true, costHint: "Rápido" },
 ];
 
 export function modelListForTab(tab: string): { type: "image" | "video" | "audio" | "none"; models: (ImageModel | VideoModel)[] } {

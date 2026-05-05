@@ -19,14 +19,41 @@ Deno.serve(async (req) => {
 
   if (req.method === "GET" && !id) {
     const limit = Math.min(parseInt(url.searchParams.get("limit") || "30"), 100);
-    const { data, error } = await auth.admin
-      .from("generations")
-      .select("id,status,prompt,image_urls,video_urls,credits_used,media_type,error_message,created_at,completed_at,model,tool")
-      .eq("user_id", auth.userId)
-      .order("created_at", { ascending: false })
-      .limit(limit);
-    if (error) return json({ error: "DB error", detail: error.message }, 500);
-    return json(data);
+    const [genRes, editRes] = await Promise.all([
+      auth.admin
+        .from("generations")
+        .select("id,status,prompt,image_urls,video_urls,credits_used,media_type,error_message,created_at,completed_at,model,tool")
+        .eq("user_id", auth.userId)
+        .order("created_at", { ascending: false })
+        .limit(limit),
+      auth.admin
+        .from("imageedit_generations")
+        .select("generation_id,status,output_url,error_message,created_at,completed_at,model,tool,metadata")
+        .eq("user_id", auth.userId)
+        .order("created_at", { ascending: false })
+        .limit(limit),
+    ]);
+    if (genRes.error) return json({ error: "DB error", detail: genRes.error.message }, 500);
+
+    const editRows = (editRes.data || []).map((r: any) => ({
+      id: r.generation_id,
+      status: r.status === "COMPLETED" ? "completed" : r.status === "FAILED" ? "failed" : "processing",
+      prompt: r.metadata?.user_prompt || "",
+      image_urls: r.output_url ? [r.output_url] : [],
+      video_urls: [],
+      credits_used: 0,
+      media_type: "image",
+      error_message: r.error_message,
+      created_at: r.created_at,
+      completed_at: r.completed_at,
+      model: r.model,
+      tool: r.tool,
+    }));
+
+    const merged = [...(genRes.data || []), ...editRows]
+      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+      .slice(0, limit);
+    return json(merged);
   }
 
   if (req.method === "GET" && id) {

@@ -201,15 +201,17 @@ export type DispatchInput = {
   aspect: string;
   sourceUrl?: string | null;
   model?: string | null;
-  editOp?: "remove-bg" | "replace-bg" | "relight" | "expand" | "style-transfer";
-  upscaleEngine?: "magnific-creative" | "magnific-precision";
-  audioKind?: "music" | "sfx";
+  editOp?: string;
+  upscaleEngine?: string;
+  audioKind?: "music" | "sfx" | "voiceover" | "audio-isolation";
   duration?: string;
   quality?: string;
   numVariations?: number;
   stylePack?: string | null;
   /** Segundo frame (último) para motores de transição (pixverse-v5-transition). */
   lastImageUrl?: string | null;
+  /** Campos arbitrários (mask_url, audio_url, voice, sliders…) */
+  extras?: Record<string, unknown>;
 };
 
 const STYLE_PACK_SUFFIX: Record<string, string> = {

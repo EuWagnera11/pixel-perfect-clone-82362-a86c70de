@@ -144,6 +144,30 @@ export function VideoWorkspace({
   const qMult = QUALITIES.find((q) => q.id === quality)?.mult || 1;
   const totalCost = variations * durSec * baseCost * qMult / 10;
 
+  // Variantes do modelo atual por resolução (ex: Seedance 1.5 Pro 720p / 1080p / 480p).
+  // Agrupa pelo "base label" (label sem o sufixo de resolução).
+  const RES_RE = /\s*(480p|720p|1080p|2160p|4K)\s*$/i;
+  const baseLabel = currentModel.label.replace(RES_RE, "").trim();
+  const resolutionVariants = useMemo(() => {
+    const list = VIDEO_MODELS
+      .filter((m) => m.label.replace(RES_RE, "").trim() === baseLabel && RES_RE.test(m.label))
+      .map((m) => ({
+        id: (m.label.match(RES_RE)?.[1] || m.resolution || "").toLowerCase(),
+        label: m.label.match(RES_RE)?.[1] || m.resolution || "",
+        modelLabel: m.label,
+      }));
+    // ordena 480 < 720 < 1080 < 4K
+    const order = (s: string) => {
+      const n = parseInt(s);
+      if (!Number.isNaN(n)) return n;
+      if (/4k/i.test(s)) return 2160;
+      return 9999;
+    };
+    return list.sort((a, b) => order(a.id) - order(b.id));
+  }, [baseLabel]);
+  const hasResolutionVariants = resolutionVariants.length > 1;
+  const currentVariantId = (currentModel.label.match(RES_RE)?.[1] || currentModel.resolution || "").toLowerCase();
+
   const handleGenerate = useCallback(async () => {
     const isLipSync = modelId === "latent-sync";
     const isVideoUpscaler = modelId === "video-upscaler" || modelId === "video-upscaler-turbo";
@@ -541,15 +565,28 @@ export function VideoWorkspace({
             <div className="oc-section">
               <div className="oc-section-head">
                 <span className="oc-label">Qualidade</span>
-                <span className="oc-meta">{qMult}× créditos</span>
+                {!hasResolutionVariants && <span className="oc-meta">{qMult}× créditos</span>}
+                {hasResolutionVariants && <span className="oc-meta">troca a versão do modelo</span>}
               </div>
               <div className="oc-segmented">
-                {QUALITIES.map((q) => (
-                  <button key={q.id} className={"oc-seg" + (quality === q.id ? " active" : "")} onClick={() => setQuality(q.id)}>
-                    <span className="oc-seg-num">{q.id}</span>
-                    <span className="oc-seg-mult">{q.mult}×</span>
-                  </button>
-                ))}
+                {hasResolutionVariants
+                  ? resolutionVariants.map((v) => (
+                      <button
+                        key={v.id}
+                        className={"oc-seg" + (currentVariantId === v.id ? " active" : "")}
+                        onClick={() => setModelLabel(v.modelLabel)}
+                        title={v.modelLabel}
+                      >
+                        <span className="oc-seg-num">{v.label}</span>
+                        <span className="oc-seg-mult">{v.modelLabel.replace(RES_RE, "").trim()}</span>
+                      </button>
+                    ))
+                  : QUALITIES.map((q) => (
+                      <button key={q.id} className={"oc-seg" + (quality === q.id ? " active" : "")} onClick={() => setQuality(q.id)}>
+                        <span className="oc-seg-num">{q.id}</span>
+                        <span className="oc-seg-mult">{q.mult}×</span>
+                      </button>
+                    ))}
               </div>
             </div>
 

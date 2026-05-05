@@ -373,9 +373,29 @@ const VIDEO: Record<string, EngineEntry> = {
   "kling-v2-1-master":     { id: "kling-v2-1-master",     kind: "video", path: "/v1/ai/image-to-video/kling-v2-1-master",     aspectStyle: "none" },
   "kling-v2-1-pro":        { id: "kling-v2-1-pro",        kind: "video", path: "/v1/ai/image-to-video/kling-v2-1-pro",        aspectStyle: "none" },
   "kling-v2-1-std":        { id: "kling-v2-1-std",        kind: "video", path: "/v1/ai/image-to-video/kling-v2-1-std",        aspectStyle: "none" },
-  // Veo
-  "veo-3-1":               { id: "veo-3-1",               kind: "video", path: "/v1/ai/image-to-video/veo-3-1",               aspectStyle: "none" },
-  "veo-3-1-fast":          { id: "veo-3-1-fast",          kind: "video", path: "/v1/ai/image-to-video/veo-3-1-fast",          aspectStyle: "none" },
+  // Veo — duration must be 4, 6 or 8
+  "veo-3-1": {
+    id: "veo-3-1", kind: "video", path: "/v1/ai/image-to-video/veo-3-1", aspectStyle: "none",
+    build: (i) => {
+      const d = Number(i.duration || "6");
+      const dur = [4, 6, 8].includes(d) ? d : 6;
+      const body: Record<string, unknown> = { prompt: i.prompt, duration: dur };
+      if (i.refs[0]) body.image = i.refs[0];
+      if (i.aspect) body.aspect_ratio = i.aspect;
+      return body;
+    },
+  },
+  "veo-3-1-fast": {
+    id: "veo-3-1-fast", kind: "video", path: "/v1/ai/image-to-video/veo-3-1-fast", aspectStyle: "none",
+    build: (i) => {
+      const d = Number(i.duration || "6");
+      const dur = [4, 6, 8].includes(d) ? d : 6;
+      const body: Record<string, unknown> = { prompt: i.prompt, duration: dur };
+      if (i.refs[0]) body.image = i.refs[0];
+      if (i.aspect) body.aspect_ratio = i.aspect;
+      return body;
+    },
+  },
   // Hailuo
   "hailuo-02-1080p":       { id: "hailuo-02-1080p",       kind: "video", path: "/v1/ai/image-to-video/minimax-hailuo-02-1080p",   aspectStyle: "none" },
   "hailuo-2-3-1080p":      { id: "hailuo-2-3-1080p",      kind: "video", path: "/v1/ai/image-to-video/minimax-hailuo-2-3-1080p",  aspectStyle: "none" },

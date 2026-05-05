@@ -14,7 +14,9 @@ const REPLACE_BG_TIMEOUT_MS: Record<string, number> = {
   "nano-banana-pro": 10 * 60_000,
 };
 
-const REPLACE_BG_RETRY_CHAIN = ["nano-banana-pro-flash", "nano-banana-pro"] as const;
+const REPLACE_BG_FALLBACK_MODEL: Record<string, string | undefined> = {
+  "nano-banana-pro-flash": "nano-banana-pro",
+};
 
 function extractTaskId(body: any): string | null {
   return body?.data?.task_id ?? body?.task_id ?? body?.data?.id ?? body?.id ?? null;
@@ -46,7 +48,8 @@ async function retryReplaceBgGeneration(sb: ReturnType<typeof adminClient>, user
     ? (gen.metadata as any).replace_bg_tried_models.filter((value: unknown): value is string => typeof value === "string")
     : [];
   const seen = new Set<string>([...triedModels, gen.model].filter(Boolean));
-  const nextModel = REPLACE_BG_RETRY_CHAIN.find((model) => !seen.has(model));
+  const preferredModel = REPLACE_BG_FALLBACK_MODEL[gen.model];
+  const nextModel = preferredModel && !seen.has(preferredModel) ? preferredModel : null;
   if (!nextModel) return null;
 
   const referenceImage = await urlToRefObject(imageUrl);

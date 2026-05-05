@@ -83,19 +83,33 @@ export async function startGeneration(args: StartArgs): Promise<Response> {
   }
 
   const taskId = extractTaskId(fp.body);
+  const isSync = isRemoveBg || engine.path === "/v1/ai/beta/text-to-image/reimagine-flux";
   if (!taskId) {
-    // Some endpoints (e.g. /v1/ai/beta/remove-background) respond synchronously
-    // with image URLs and no task_id. Treat as completed.
-    if (isRemoveBg) {
+    // Endpoints síncronos respondem com URL(s) sem task_id.
+    if (isSync) {
       const d = fp.body?.data ?? fp.body ?? {};
-      const syncUrl: string | undefined =
+      const syncUrls: string[] = [];
+      const single =
         d.high_resolution || d.url || d.original || d.preview ||
-        (Array.isArray(d.images) ? (d.images[0]?.url ?? d.images[0]) : undefined);
-      if (syncUrl) {
+        (typeof d === "string" ? d : undefined);
+      if (single) syncUrls.push(single);
+      if (Array.isArray(d.images)) {
+        for (const it of d.images) {
+          const u = typeof it === "string" ? it : (it?.url ?? it?.high_resolution);
+          if (u) syncUrls.push(u);
+        }
+      }
+      if (Array.isArray(d.generated)) {
+        for (const it of d.generated) {
+          const u = typeof it === "string" ? it : (it?.url ?? it?.high_resolution);
+          if (u) syncUrls.push(u);
+        }
+      }
+      if (syncUrls.length > 0) {
         await args.auth.admin.from("generations").update({
           status: "completed",
           completed_at: new Date().toISOString(),
-          image_urls: [syncUrl],
+          image_urls: syncUrls,
           metadata: { magnific_response: fp.body, magnific_path: engine.path },
         }).eq("id", gen.id);
         return json({
@@ -103,7 +117,7 @@ export async function startGeneration(args: StartArgs): Promise<Response> {
           status: "completed",
           media_type: args.mediaType,
           created_at: gen.created_at,
-          image_urls: [syncUrl],
+          image_urls: syncUrls,
         }, 200);
       }
     }

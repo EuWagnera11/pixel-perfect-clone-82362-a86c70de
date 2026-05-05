@@ -55,7 +55,9 @@ export async function freepikFetch(
 
     const headers = new Headers(rest.headers || {});
     headers.set("x-freepik-api-key", key);
-    if (rest.body && !headers.has("Content-Type")) headers.set("Content-Type", "application/json");
+    if (rest.body && !headers.has("Content-Type") && !(rest.body instanceof FormData)) {
+      headers.set("Content-Type", "application/json");
+    }
     headers.set("Accept", "application/json");
 
     const t0 = Date.now();

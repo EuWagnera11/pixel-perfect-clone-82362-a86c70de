@@ -355,6 +355,13 @@ function Workspace() {
               <div className={"canvas" + (noDock ? " no-dock" : "")}>
                 <div ref={viewRef} dangerouslySetInnerHTML={{ __html: viewHtml }} />
               </div>
+              {!noDock && tabHasOptions(currentTab) && (
+                <ToolOptionsBar
+                  tab={currentTab}
+                  value={toolOptions}
+                  onChange={(patch) => setToolOptions((prev) => ({ ...prev, ...patch }))}
+                />
+              )}
               {!noDock && (
                 <Dock
                   prompt={prompt}

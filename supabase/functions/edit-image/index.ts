@@ -56,7 +56,7 @@ Deno.serve(async (req) => {
         aspect_ratio: body.aspect_ratio || "1:1",
       },
       inputUrls: [body.image_url],
-      metadata: { user_prompt: s.text },
+      metadata: { user_prompt: s.text, aspect_ratio: body.aspect_ratio || "1:1" },
     });
   }
   if ((op === "replace-bg" || op === "style-transfer") && !body.style_url) {

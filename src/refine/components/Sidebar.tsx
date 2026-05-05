@@ -26,6 +26,7 @@ export function Sidebar({
   onUpgrade,
   onSignInGoogle,
   onSignOut,
+  activeJobsCount = 0,
 }: SidebarProps) {
   const [locked, setLocked] = useState<boolean>(() => {
     if (typeof window === "undefined") return false;

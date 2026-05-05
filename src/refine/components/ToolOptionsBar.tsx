@@ -288,7 +288,7 @@ export function ToolOptionsBar({ tab, value, onChange, extra, onSuggestPrompt }:
             { id: "clay", label: "Argila" },
           ]}
           value={value.r3dStyle || "figurine"}
-          onChange={(v) => onChange({ r3dStyle: v })}
+          onChange={(v) => { onChange({ r3dStyle: v }); suggest(R3D_PROMPTS[v]); }}
         />
       </div>
     );

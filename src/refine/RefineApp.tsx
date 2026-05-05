@@ -247,6 +247,7 @@ function Workspace() {
         editOp: toolOptions.editOp,
         upscaleEngine: toolOptions.upscaleEngine,
         audioKind: toolOptions.audioKind,
+        lastImageUrl: lastFrameUrl,
       })
     );
     const results = await Promise.all(promises);
@@ -254,7 +255,7 @@ function Workspace() {
     if (fail) { showToast("Erro: " + (fail.error || "falha")); return; }
     showToast(n > 1 ? `${n} gerações iniciadas em paralelo` : "Geração iniciada");
     setPrompt("");
-  }, [prompt, ratio, modelLabel, currentTab, sourceUrl, enqueue, showToast, quality, variations, stylePack, toolOptions]);
+  }, [prompt, ratio, modelLabel, currentTab, sourceUrl, enqueue, showToast, quality, variations, stylePack, toolOptions, lastFrameUrl]);
 
   // Quando um job completa, mostra no stage + adiciona ao history + toast
   const handleJobOpen = useCallback((job: Job) => {

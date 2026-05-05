@@ -30,14 +30,15 @@ Deno.serve(async (req) => {
   const lastImageUrl: string | undefined =
     body.last_image_url || body.lastImageUrl || undefined;
 
-  // Most engines are i2v; only LTX/Wan-t2v are pure t2v
+  // Most engines are i2v; LTX/Wan-t2v are pure t2v; Seedance 1.5 + Omnihuman live under /video/ and accept both
   const isT2V = engine.path.includes("/text-to-video/");
+  const isFlexible = engine.path.startsWith("/v1/ai/video/"); // seedance-1-5-pro-* / omnihuman / video-upscaler / lip-sync
   const isTransition = engineId === "pixverse-v5-transition";
 
   if (isTransition) {
     if (!refs[0]) return json({ error: "first image (image_url) required for transition" }, 400);
     if (!lastImageUrl) return json({ error: "last_image_url required for transition" }, 400);
-  } else if (!isT2V && !refs[0]) {
+  } else if (!isT2V && !isFlexible && !refs[0]) {
     return json({ error: "image_url required for image-to-video engines" }, 400);
   }
   if (!prompt && isT2V) {

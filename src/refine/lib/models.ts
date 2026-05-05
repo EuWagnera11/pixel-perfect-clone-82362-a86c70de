@@ -61,6 +61,8 @@ export const IMAGE_MODELS: ImageModel[] = [
   { label: "Hyperflux",             id: "hyperflux",             family: "hyperflux", costHint: "Premium" },
   { label: "Z-Image Turbo",         id: "z-image",               family: "z-image", costHint: "Rápido" },
   { label: "RunWay T2I",            id: "runway-t2i",            family: "runway" },
+  { label: "Classic Fast",          id: "classic-fast",          family: "flux", costHint: "Rápido" },
+  { label: "Reimagine Flux",        id: "reimagine-flux",        family: "flux" },
 ];
 
 export const VIDEO_MODELS: VideoModel[] = [
@@ -87,9 +89,13 @@ export const VIDEO_MODELS: VideoModel[] = [
   { label: "Hailuo 2.3 1080p",      id: "hailuo-2-3-1080p",      family: "hailuo", defaultDuration: "6s", resolution: "1080p" },
   // Runway
   { label: "Runway 4.5",            id: "runway-4-5",            family: "runway", defaultDuration: "5s" },
-  // Seedance
-  { label: "Seedance Pro 1080p",    id: "seedance-pro-1080p",    family: "seedance", defaultDuration: "5s", resolution: "1080p" },
-  { label: "Seedance Pro 720p",     id: "seedance-pro-720p",     family: "seedance", defaultDuration: "5s" },
+  // Seedance 1.0 Pro
+  { label: "Seedance 1.0 Pro 1080p", id: "seedance-pro-1080p",   family: "seedance", defaultDuration: "5s", resolution: "1080p" },
+  { label: "Seedance 1.0 Pro 720p",  id: "seedance-pro-720p",    family: "seedance", defaultDuration: "5s" },
+  // Seedance 1.5 Pro (t2v + i2v + lip-sync/áudio)
+  { label: "Seedance 1.5 Pro 1080p", id: "seedance-1-5-pro-1080p", family: "seedance", defaultDuration: "5s", resolution: "1080p", costHint: "Premium", modes: ["text","image"] },
+  { label: "Seedance 1.5 Pro 720p",  id: "seedance-1-5-pro-720p",  family: "seedance", defaultDuration: "5s", resolution: "720p",  modes: ["text","image"] },
+  { label: "Seedance 1.5 Pro 480p",  id: "seedance-1-5-pro-480p",  family: "seedance", defaultDuration: "5s", resolution: "480p",  costHint: "Rápido", modes: ["text","image"] },
   // Pixverse
   { label: "Pixverse v5",           id: "pixverse-v5",           family: "pixverse", defaultDuration: "5s" },
   { label: "Pixverse v5 Transition",id: "pixverse-v5-transition",family: "pixverse", defaultDuration: "5s" },

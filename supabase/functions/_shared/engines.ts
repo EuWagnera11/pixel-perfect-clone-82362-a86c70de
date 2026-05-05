@@ -334,6 +334,27 @@ const IMAGE: Record<string, EngineEntry> = {
       ratio: FP_TO_RUNWAY[i.aspect] ?? "1024:1024",
     }),
   },
+  // Classic Fast (legacy Freepik t2i)
+  "classic-fast": {
+    id: "classic-fast", kind: "image",
+    path: "/v1/ai/text-to-image", aspectStyle: "magnific",
+    build: (i) => ({
+      prompt: i.prompt,
+      image: { size: toMagnificAspect(i.aspect) },
+      num_images: i.num,
+    }),
+  },
+  // Reimagine Flux (variation from a single ref image)
+  "reimagine-flux": {
+    id: "reimagine-flux", kind: "image",
+    path: "/v1/ai/text-to-image/reimagine-flux", aspectStyle: "magnific",
+    build: (i) => ({
+      prompt: i.prompt,
+      image: i.refs[0],
+      imagination: 50,
+      aspect_ratio: toMagnificAspect(i.aspect),
+    }),
+  },
 };
 
 // =========== VIDEO engines (image-to-video unless noted) ===========
@@ -389,6 +410,54 @@ const VIDEO: Record<string, EngineEntry> = {
   "wan-2-5-t2v-720p":      { id: "wan-2-5-t2v-720p",      kind: "video", path: "/v1/ai/text-to-video/wan-2-5-t2v-720p",        aspectStyle: "none" },
   // Omnihuman
   "omnihuman-1-5":         { id: "omnihuman-1-5",         kind: "video", path: "/v1/ai/video/omni-human-1-5",                  aspectStyle: "none" },
+  // Seedance 1.5 Pro (text-to-video + image-to-video, with audio/lip-sync)
+  "seedance-1-5-pro-480p": {
+    id: "seedance-1-5-pro-480p", kind: "video",
+    path: "/v1/ai/video/seedance-1-5-pro-480p", aspectStyle: "none",
+    build: (i) => {
+      const body: Record<string, unknown> = { prompt: i.prompt, duration: Number(i.duration || "5") };
+      if (i.refs[0]) body.image = i.refs[0];
+      return body;
+    },
+  },
+  "seedance-1-5-pro-720p": {
+    id: "seedance-1-5-pro-720p", kind: "video",
+    path: "/v1/ai/video/seedance-1-5-pro-720p", aspectStyle: "none",
+    build: (i) => {
+      const body: Record<string, unknown> = { prompt: i.prompt, duration: Number(i.duration || "5") };
+      if (i.refs[0]) body.image = i.refs[0];
+      return body;
+    },
+  },
+  "seedance-1-5-pro-1080p": {
+    id: "seedance-1-5-pro-1080p", kind: "video",
+    path: "/v1/ai/video/seedance-1-5-pro-1080p", aspectStyle: "none",
+    build: (i) => {
+      const body: Record<string, unknown> = { prompt: i.prompt, duration: Number(i.duration || "5") };
+      if (i.refs[0]) body.image = i.refs[0];
+      return body;
+    },
+  },
+  // Video Upscaler (Magnific)
+  "video-upscaler": {
+    id: "video-upscaler", kind: "video",
+    path: "/v1/ai/video-upscaler", aspectStyle: "none",
+    build: (i) => ({ video: i.refs[0], resolution: i.resolution || "2k" }),
+  },
+  "video-upscaler-turbo": {
+    id: "video-upscaler-turbo", kind: "video",
+    path: "/v1/ai/video-upscaler/turbo", aspectStyle: "none",
+    build: (i) => ({ video: i.refs[0], resolution: i.resolution || "2k" }),
+  },
+  // Lip Sync (Latent Sync) — needs video_url + audio_url
+  "latent-sync": {
+    id: "latent-sync", kind: "video",
+    path: "/v1/ai/lip-sync/latent-sync", aspectStyle: "none",
+    build: (i) => ({
+      video_url: i.refs[0],
+      audio_url: (i.extra?.audio_url as string) || i.refs[1],
+    }),
+  },
 };
 
 // Default video body builder if none provided
@@ -423,6 +492,60 @@ const EDIT: Record<string, EngineEntry> = {
     id: "style-transfer", kind: "image", path: "/v1/ai/image-style-transfer", aspectStyle: "none",
     build: (i) => ({ image: i.refs[0], style_reference: i.refs[1], prompt: i.prompt }),
   },
+  // Skin Enhancer (3 modes)
+  "skin-enhancer-creative": {
+    id: "skin-enhancer-creative", kind: "image", path: "/v1/ai/skin-enhancer/creative", aspectStyle: "none",
+    build: (i) => ({ image: i.refs[0], sharpen: 30, smart_grain: 5 }),
+  },
+  "skin-enhancer-faithful": {
+    id: "skin-enhancer-faithful", kind: "image", path: "/v1/ai/skin-enhancer/faithful", aspectStyle: "none",
+    build: (i) => ({ image: i.refs[0], sharpen: 20, smart_grain: 2, skin_detail_preservation: 50 }),
+  },
+  "skin-enhancer-flexible": {
+    id: "skin-enhancer-flexible", kind: "image", path: "/v1/ai/skin-enhancer/flexible", aspectStyle: "none",
+    build: (i) => ({
+      image: i.refs[0],
+      optimization_target: (i.extra?.target as string) || "enhance_everything",
+      sharpen: 25,
+    }),
+  },
+  // Inpainting (Ideogram Image Edit) — needs mask
+  "ideogram-edit": {
+    id: "ideogram-edit", kind: "image", path: "/v1/ai/ideogram-image-edit", aspectStyle: "none",
+    build: (i) => ({
+      image: i.refs[0],
+      mask: i.refs[1] || (i.extra?.mask_url as string),
+      prompt: i.prompt,
+      rendering_speed: (i.extra?.speed as string) || "DEFAULT",
+    }),
+  },
+  // Change Camera
+  "change-camera": {
+    id: "change-camera", kind: "image", path: "/v1/ai/image-change-camera", aspectStyle: "none",
+    build: (i) => ({
+      image: i.refs[0],
+      horizontal_rotation: Number(i.extra?.horizontal_rotation ?? 30),
+      vertical_tilt: Number(i.extra?.vertical_tilt ?? 0),
+      zoom: Number(i.extra?.zoom ?? 0),
+    }),
+  },
+  // Image Expand variants
+  "expand-seedream-v4-5": {
+    id: "expand-seedream-v4-5", kind: "image", path: "/v1/ai/image-expand/seedream-v4-5", aspectStyle: "none",
+    build: (i) => ({
+      image: i.refs[0], prompt: i.prompt,
+      left: Number(i.extra?.left ?? 0), right: Number(i.extra?.right ?? 0),
+      top: Number(i.extra?.top ?? 0), bottom: Number(i.extra?.bottom ?? 0),
+    }),
+  },
+  "expand-ideogram": {
+    id: "expand-ideogram", kind: "image", path: "/v1/ai/image-expand/ideogram", aspectStyle: "none",
+    build: (i) => ({
+      image: i.refs[0], prompt: i.prompt,
+      left: Number(i.extra?.left ?? 0), right: Number(i.extra?.right ?? 0),
+      top: Number(i.extra?.top ?? 0), bottom: Number(i.extra?.bottom ?? 0),
+    }),
+  },
 };
 
 // =========== UPSCALE engines ===========
@@ -444,6 +567,11 @@ const UPSCALE: Record<string, EngineEntry> = {
     path: "/v1/ai/image-upscaler-precision", aspectStyle: "none",
     build: (i) => ({ image: i.refs[0], scale_factor: 4 }),
   },
+  "magnific-precision-v2": {
+    id: "magnific-precision-v2", kind: "image",
+    path: "/v1/ai/image-upscaler-precision-v2", aspectStyle: "none",
+    build: (i) => ({ image: i.refs[0], scale_factor: 4 }),
+  },
 };
 
 // =========== AUDIO engines ===========
@@ -455,6 +583,17 @@ const AUDIO: Record<string, EngineEntry> = {
   "sfx": {
     id: "sfx", kind: "audio", path: "/v1/ai/sound-effects", aspectStyle: "none",
     build: (i) => ({ prompt: i.prompt, duration: 5 }),
+  },
+  "audio-isolation": {
+    id: "audio-isolation", kind: "audio", path: "/v1/ai/audio-isolation", aspectStyle: "none",
+    build: (i) => ({ audio: (i.extra?.audio_url as string) || i.refs[0] }),
+  },
+  "voiceover": {
+    id: "voiceover", kind: "audio", path: "/v1/ai/text-to-speech", aspectStyle: "none",
+    build: (i) => ({
+      text: i.prompt,
+      voice: (i.extra?.voice as string) || "default",
+    }),
   },
 };
 

@@ -185,7 +185,9 @@ export function VideoWorkspace({
     if (mode === "image" && !needsVideoSrc && !source) { showToast("Anexe uma imagem fonte"); return; }
     if (mode === "frames" && (!framesStart || !framesEnd)) { showToast("Anexe os 2 frames"); return; }
     if (needsVideoSrc && !source) { showToast("Anexe o vídeo fonte"); return; }
+    const isOmniHuman = modelId === "omnihuman-1-5";
     if (isLipSync && !lipSyncAudioUrl) { showToast("Anexe o áudio para lip-sync"); return; }
+    if (isOmniHuman && !lipSyncAudioUrl) { showToast("Anexe o áudio (OmniHuman é audio-driven)"); return; }
 
     const camNote = camera !== "static"
       ? `, camera: ${camera.replace("-", " ")}, motion intensity ${intensity}%`
@@ -199,7 +201,7 @@ export function VideoWorkspace({
 
     const n = Math.max(1, variations);
     const extras: Record<string, unknown> = {};
-    if (isLipSync && lipSyncAudioUrl) extras.audio_url = lipSyncAudioUrl;
+    if ((isLipSync || isOmniHuman) && lipSyncAudioUrl) extras.audio_url = lipSyncAudioUrl;
 
     const promises = Array.from({ length: n }).map(() =>
       enqueue({

@@ -69,10 +69,15 @@ export async function runVideo(opts: {
 
 // ───────── AUDIO ─────────
 export async function runAudio(opts: {
-  prompt: string; kind?: "music" | "sfx";
+  prompt: string; kind?: "music" | "sfx" | "voiceover" | "audio-isolation";
+  extras?: Record<string, unknown>;
 }): Promise<EnqueueResult> {
-  if (!opts.prompt.trim()) throw new Error("Descreva o áudio");
-  const r = await startAudio({ prompt: opts.prompt, kind: opts.kind || "music" });
+  const kind = opts.kind || "music";
+  if (kind !== "audio-isolation" && !opts.prompt.trim()) throw new Error("Descreva o áudio / texto");
+  if (kind === "audio-isolation" && !(opts.extras as any)?.audio_url) {
+    throw new Error("Audio isolation exige URL do áudio");
+  }
+  const r = await startAudio({ prompt: opts.prompt, kind, extras: opts.extras });
   return { generationId: r.id, mediaType: "audio", taskId: r.task_id };
 }
 
@@ -80,27 +85,35 @@ export async function runAudio(opts: {
 export async function runEdit(opts: {
   prompt: string;
   sourceUrl: string;
-  op?: "remove-bg" | "replace-bg" | "relight" | "expand" | "style-transfer";
+  op?: string;
   styleUrl?: string;
+  extras?: Record<string, unknown>;
 }): Promise<EnqueueResult> {
   if (!opts.sourceUrl) throw new Error("Anexe uma imagem para editar");
   const op = opts.op || "replace-bg";
-  if (op !== "remove-bg" && !opts.prompt.trim()) throw new Error("Descreva a edição");
+  const needsPrompt = ["replace-bg", "relight", "expand", "style-transfer", "ideogram-edit", "reimagine-flux"];
+  if (needsPrompt.includes(op) && !opts.prompt.trim()) throw new Error("Descreva a edição");
+  if (op === "ideogram-edit" && !(opts.extras as any)?.mask_url) {
+    throw new Error("Inpaint exige uma máscara (URL)");
+  }
   const r = await startEdit({
     op, image_url: opts.sourceUrl, prompt: opts.prompt, style_url: opts.styleUrl,
+    extras: opts.extras,
   });
   return { generationId: r.id, mediaType: "image", taskId: r.task_id };
 }
 
 // ───────── UPSCALE ─────────
 export async function runUpscale(opts: {
-  sourceUrl: string; engine?: "magnific-creative" | "magnific-precision";
+  sourceUrl: string; engine?: string;
 }): Promise<EnqueueResult> {
-  if (!opts.sourceUrl) throw new Error("Anexe uma imagem para upscale");
-  const r = await startUpscale({
-    image_url: opts.sourceUrl, engine: opts.engine || "magnific-creative",
-  });
-  return { generationId: r.id, mediaType: "image", taskId: r.task_id };
+  if (!opts.sourceUrl) throw new Error("Anexe um arquivo para upscale");
+  const engine = opts.engine || "magnific-creative";
+  const isVideo = engine.startsWith("video-upscaler");
+  const r = await startUpscale(
+    isVideo ? { video_url: opts.sourceUrl, engine } : { image_url: opts.sourceUrl, engine }
+  );
+  return { generationId: r.id, mediaType: isVideo ? "video" : "image", taskId: r.task_id };
 }
 
 // ───────── NOVAS TOOLS (imageedit_*) ─────────
@@ -188,15 +201,17 @@ export type DispatchInput = {
   aspect: string;
   sourceUrl?: string | null;
   model?: string | null;
-  editOp?: "remove-bg" | "replace-bg" | "relight" | "expand" | "style-transfer";
-  upscaleEngine?: "magnific-creative" | "magnific-precision";
-  audioKind?: "music" | "sfx";
+  editOp?: string;
+  upscaleEngine?: string;
+  audioKind?: "music" | "sfx" | "voiceover" | "audio-isolation";
   duration?: string;
   quality?: string;
   numVariations?: number;
   stylePack?: string | null;
   /** Segundo frame (último) para motores de transição (pixverse-v5-transition). */
   lastImageUrl?: string | null;
+  /** Campos arbitrários (mask_url, audio_url, voice, sliders…) */
+  extras?: Record<string, unknown>;
 };
 
 const STYLE_PACK_SUFFIX: Record<string, string> = {
@@ -219,8 +234,8 @@ export async function dispatchTool(input: DispatchInput): Promise<EnqueueResult>
     case "image":      return runImage({ prompt: p, aspect: input.aspect, refs, model, numVariations: num, quality: input.quality });
     case "cinema":     return runCinema({ prompt: p, aspect: input.aspect, refs, model });
     case "video":      return runVideo({ prompt: p, sourceUrl: input.sourceUrl!, model: model!, aspect: input.aspect, duration: input.duration, lastImageUrl: input.lastImageUrl || undefined });
-    case "audio":      return runAudio({ prompt: p, kind: input.audioKind });
-    case "edit":       return runEdit({ prompt: p, sourceUrl: input.sourceUrl!, op: input.editOp });
+    case "audio":      return runAudio({ prompt: p, kind: input.audioKind, extras: input.extras });
+    case "edit":       return runEdit({ prompt: p, sourceUrl: input.sourceUrl!, op: input.editOp, extras: input.extras });
     case "upscale":    return runUpscale({ sourceUrl: input.sourceUrl!, engine: input.upscaleEngine });
     case "product":    return runProduct({ prompt: p, aspect: input.aspect, sourceUrl: input.sourceUrl, model });
     case "ecommerce":  return runEcommerce({ prompt: p, aspect: input.aspect, sourceUrl: input.sourceUrl, model });

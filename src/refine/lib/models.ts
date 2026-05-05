@@ -17,7 +17,7 @@ export type VideoMode = "text" | "image" | "frames" | "video";
 export type VideoModel = {
   label: string;
   id: string;
-  family: "kling" | "veo" | "hailuo" | "runway" | "seedance" | "pixverse" | "ltx" | "wan" | "omnihuman";
+  family: "kling" | "veo" | "hailuo" | "runway" | "seedance" | "pixverse" | "ltx" | "wan" | "omnihuman" | "lipsync" | "upscaler";
   defaultDuration: "5s" | "6s" | "10s";
   resolution?: string;
   costHint?: "Premium" | "Rápido" | "Padrão";
@@ -25,6 +25,10 @@ export type VideoModel = {
   textToVideo?: boolean;
   /** Modos suportados (default: ["image"] para i2v; ["text"] para t2v) */
   modes?: VideoMode[];
+  /** Se true, exige upload de áudio (lip-sync). */
+  requiresAudio?: boolean;
+  /** Se true, exige upload de vídeo fonte ao invés de imagem (upscaler/lip-sync). */
+  requiresVideoSource?: boolean;
 };
 
 export function getVideoModelModes(m: VideoModel): VideoMode[] {
@@ -109,6 +113,11 @@ export const VIDEO_MODELS: VideoModel[] = [
   { label: "Wan 2.5 t2v 720p",      id: "wan-2-5-t2v-720p",      family: "wan", defaultDuration: "5s", textToVideo: true },
   // Omnihuman (audio→video)
   { label: "Omni Human 1.5",        id: "omnihuman-1-5",         family: "omnihuman", defaultDuration: "5s" },
+  // Lip Sync (vídeo + áudio)
+  { label: "Latent Sync (Lip Sync)", id: "latent-sync",          family: "lipsync", defaultDuration: "5s", modes: ["video"], requiresAudio: true, requiresVideoSource: true },
+  // Video Upscaler (Magnific)
+  { label: "Video Upscaler",        id: "video-upscaler",        family: "upscaler", defaultDuration: "5s", modes: ["video"], requiresVideoSource: true },
+  { label: "Video Upscaler Turbo",  id: "video-upscaler-turbo",  family: "upscaler", defaultDuration: "5s", modes: ["video"], requiresVideoSource: true, costHint: "Rápido" },
 ];
 
 export function modelListForTab(tab: string): { type: "image" | "video" | "audio" | "none"; models: (ImageModel | VideoModel)[] } {

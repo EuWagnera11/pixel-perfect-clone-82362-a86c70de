@@ -29,6 +29,29 @@ Deno.serve(async (req) => {
   );
   const lastImageUrl: string | undefined =
     body.last_image_url || body.lastImageUrl || undefined;
+  const extras = body.extras || {};
+
+  // Lip-sync usa video_url no lugar de image_url
+  if (engineId === "latent-sync") {
+    const v = body.video_url || body.image_url || refs[0];
+    const a = body.audio_url || extras.audio_url;
+    if (!v) return json({ error: "video_url required for lip-sync" }, 400);
+    if (!a) return json({ error: "audio_url required for lip-sync" }, 400);
+    return await startGeneration({
+      auth, engineId, tool: "video", op: "lip-sync", mediaType: "video",
+      input: { prompt: "", aspect: "16:9", refs: [v], num: 1, extra: { audio_url: a } },
+    });
+  }
+
+  // Video upscaler aceita video como ref
+  if (engineId === "video-upscaler" || engineId === "video-upscaler-turbo") {
+    const v = body.video_url || body.image_url || refs[0];
+    if (!v) return json({ error: "video_url required for video upscaler" }, 400);
+    return await startGeneration({
+      auth, engineId, tool: "video", op: "upscale", mediaType: "video",
+      input: { prompt: "", aspect: "16:9", refs: [v], num: 1, extra: extras },
+    });
+  }
 
   // Most engines are i2v; LTX/Wan-t2v are pure t2v; Seedance 1.5 + Omnihuman live under /video/ and accept both
   const isT2V = engine.path.includes("/text-to-video/");
@@ -58,6 +81,7 @@ Deno.serve(async (req) => {
       num: 1,
       duration: body.duration || (engineId.startsWith("hailuo") ? "6" : "5"),
       lastImageUrl,
+      extra: extras,
     },
   });
 });

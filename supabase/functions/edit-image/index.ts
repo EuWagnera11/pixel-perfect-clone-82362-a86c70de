@@ -1,5 +1,7 @@
 // POST /edit-image
-// Body: { image_url, prompt?, op: "remove-bg"|"replace-bg"|"relight"|"expand"|"style-transfer", style_url? }
+// Body: { image_url, prompt?, op, style_url?, extras? }
+// op pode ser qualquer engine de edição: remove-bg, replace-bg, relight, expand,
+// style-transfer, ideogram-edit, change-camera, reimagine-flux, skin-enhancer-*
 import { corsHeaders, json } from "../_shared/cors.ts";
 import { requireAuth } from "../_shared/auth.ts";
 import { startGeneration } from "../_shared/generation-flow.ts";
@@ -17,8 +19,11 @@ Deno.serve(async (req) => {
   const op = body.op || "replace-bg";
   if (!body.image_url) return json({ error: "image_url required" }, 400);
 
-  const refs = [body.image_url];
+  const refs: string[] = [body.image_url];
   if (body.style_url) refs.push(body.style_url);
+  // Inpaint usa máscara como segundo ref
+  const mask = body.extras?.mask_url || body.mask_url;
+  if (op === "ideogram-edit" && mask) refs.push(mask);
 
   return await startGeneration({
     auth,
@@ -31,6 +36,7 @@ Deno.serve(async (req) => {
       aspect: body.aspect_ratio || "1:1",
       refs,
       num: 1,
+      extra: body.extras || {},
     },
   });
 });

@@ -4,21 +4,38 @@
  */
 import type { CSSProperties } from "react";
 
+export type ToolExtras = {
+  mask_url?: string;
+  audio_url?: string;
+  voice?: string;
+  horizontal_rotation?: number;
+  vertical_tilt?: number;
+  zoom?: number;
+  skin_target?: "enhance_everything" | "smooth_skin" | "remove_blemishes";
+};
+
 export type ToolOptions = {
   // video
   videoDuration?: "5s" | "6s" | "10s";
   // edit
-  editOp?: "remove-bg" | "replace-bg" | "relight" | "expand" | "style-transfer";
+  editOp?:
+    | "remove-bg" | "replace-bg" | "relight" | "expand" | "style-transfer"
+    | "ideogram-edit" | "change-camera" | "reimagine-flux"
+    | "skin-enhancer-creative" | "skin-enhancer-faithful" | "skin-enhancer-flexible";
   // upscale
-  upscaleEngine?: "magnific-creative" | "magnific-precision";
+  upscaleEngine?:
+    | "magnific-creative" | "magnific-precision" | "magnific-precision-v2"
+    | "video-upscaler" | "video-upscaler-turbo";
   // audio
-  audioKind?: "music" | "sfx";
+  audioKind?: "music" | "sfx" | "voiceover" | "audio-isolation";
   // r3d
   r3dStyle?: "figurine" | "toy" | "sculpture" | "clay";
   // assets
   assetsKind?: "icon" | "sprite" | "prop" | "ui";
   // depth
   depthMode?: "grayscale" | "colored";
+  // generic extras (mask url, audio url, voice, sliders…)
+  extras?: ToolExtras;
 };
 
 type Props = {
@@ -36,6 +53,11 @@ const wrap: CSSProperties = {
 const label: CSSProperties = {
   fontSize: 10, textTransform: "uppercase", letterSpacing: 1,
   color: "rgba(255,255,255,.45)", marginRight: 4,
+};
+const inputStyle: CSSProperties = {
+  background: "rgba(255,255,255,.04)", border: "1px solid rgba(255,255,255,.12)",
+  borderRadius: 8, color: "rgba(255,255,255,.85)", padding: "6px 10px",
+  fontSize: 11.5, minWidth: 160,
 };
 
 function Seg<T extends string>({
@@ -66,7 +88,23 @@ function Seg<T extends string>({
   );
 }
 
+function NumInput({ val, onChange, min, max, step = 1, ph }: {
+  val?: number; onChange: (n: number) => void; min: number; max: number; step?: number; ph: string;
+}) {
+  return (
+    <input
+      type="number" value={val ?? ""} placeholder={ph}
+      min={min} max={max} step={step}
+      onChange={(e) => onChange(Number(e.target.value))}
+      style={{ ...inputStyle, minWidth: 80 }}
+    />
+  );
+}
+
 export function ToolOptionsBar({ tab, value, onChange, extra }: Props) {
+  const setExtra = (patch: Partial<ToolExtras>) =>
+    onChange({ extras: { ...(value.extras || {}), ...patch } });
+
   if (tab === "video") {
     return (
       <div style={wrap}>
@@ -81,6 +119,7 @@ export function ToolOptionsBar({ tab, value, onChange, extra }: Props) {
     );
   }
   if (tab === "edit") {
+    const op = value.editOp || "replace-bg";
     return (
       <div style={wrap}>
         <span style={label}>Operação</span>
@@ -91,10 +130,51 @@ export function ToolOptionsBar({ tab, value, onChange, extra }: Props) {
             { id: "relight", label: "Reiluminar" },
             { id: "expand", label: "Expandir" },
             { id: "style-transfer", label: "Style" },
+            { id: "ideogram-edit", label: "Inpaint" },
+            { id: "change-camera", label: "Câmera" },
+            { id: "reimagine-flux", label: "Reimagine" },
+            { id: "skin-enhancer-creative", label: "Skin·Creative" },
+            { id: "skin-enhancer-faithful", label: "Skin·Faithful" },
+            { id: "skin-enhancer-flexible", label: "Skin·Flexible" },
           ]}
-          value={value.editOp || "replace-bg"}
+          value={op}
           onChange={(v) => onChange({ editOp: v })}
         />
+        {op === "ideogram-edit" && (
+          <>
+            <span style={label}>Mask URL</span>
+            <input
+              type="url" placeholder="https://… (branco = editar)"
+              value={value.extras?.mask_url || ""}
+              onChange={(e) => setExtra({ mask_url: e.target.value })}
+              style={inputStyle}
+            />
+          </>
+        )}
+        {op === "change-camera" && (
+          <>
+            <span style={label}>Rotação</span>
+            <NumInput val={value.extras?.horizontal_rotation} onChange={(n) => setExtra({ horizontal_rotation: n })} min={-90} max={90} ph="±deg" />
+            <span style={label}>Tilt</span>
+            <NumInput val={value.extras?.vertical_tilt} onChange={(n) => setExtra({ vertical_tilt: n })} min={-45} max={45} ph="±deg" />
+            <span style={label}>Zoom</span>
+            <NumInput val={value.extras?.zoom} onChange={(n) => setExtra({ zoom: n })} min={-100} max={100} ph="%" />
+          </>
+        )}
+        {op === "skin-enhancer-flexible" && (
+          <>
+            <span style={label}>Alvo</span>
+            <Seg
+              options={[
+                { id: "enhance_everything", label: "Tudo" },
+                { id: "smooth_skin", label: "Suavizar" },
+                { id: "remove_blemishes", label: "Manchas" },
+              ]}
+              value={value.extras?.skin_target || "enhance_everything"}
+              onChange={(v) => setExtra({ skin_target: v as any })}
+            />
+          </>
+        )}
       </div>
     );
   }
@@ -106,6 +186,9 @@ export function ToolOptionsBar({ tab, value, onChange, extra }: Props) {
           options={[
             { id: "magnific-creative", label: "Creative" },
             { id: "magnific-precision", label: "Precision" },
+            { id: "magnific-precision-v2", label: "Precision v2" },
+            { id: "video-upscaler", label: "Vídeo" },
+            { id: "video-upscaler-turbo", label: "Vídeo Turbo" },
           ]}
           value={value.upscaleEngine || "magnific-creative"}
           onChange={(v) => onChange({ upscaleEngine: v })}
@@ -114,14 +197,42 @@ export function ToolOptionsBar({ tab, value, onChange, extra }: Props) {
     );
   }
   if (tab === "audio") {
+    const kind = value.audioKind || "music";
     return (
       <div style={wrap}>
         <span style={label}>Tipo</span>
         <Seg
-          options={[{ id: "music", label: "Música" }, { id: "sfx", label: "SFX" }]}
-          value={value.audioKind || "music"}
+          options={[
+            { id: "music", label: "Música" },
+            { id: "sfx", label: "SFX" },
+            { id: "voiceover", label: "Voiceover" },
+            { id: "audio-isolation", label: "Isolar" },
+          ]}
+          value={kind}
           onChange={(v) => onChange({ audioKind: v })}
         />
+        {kind === "voiceover" && (
+          <>
+            <span style={label}>Voz</span>
+            <input
+              type="text" placeholder="default / nome da voz"
+              value={value.extras?.voice || ""}
+              onChange={(e) => setExtra({ voice: e.target.value })}
+              style={inputStyle}
+            />
+          </>
+        )}
+        {kind === "audio-isolation" && (
+          <>
+            <span style={label}>Áudio URL</span>
+            <input
+              type="url" placeholder="https://… arquivo de áudio"
+              value={value.extras?.audio_url || ""}
+              onChange={(e) => setExtra({ audio_url: e.target.value })}
+              style={inputStyle}
+            />
+          </>
+        )}
       </div>
     );
   }

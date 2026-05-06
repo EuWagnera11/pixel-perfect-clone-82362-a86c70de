@@ -452,37 +452,55 @@ export function ToolOptionsBar({ tab, value, onChange, extra, onSuggestPrompt, s
     );
   }
   if (tab === "styletransfer") {
+    const stackWrap: CSSProperties = {
+      display: "flex", flexDirection: "column", gap: 8,
+      padding: "10px 14px", width: "100%", boxSizing: "border-box",
+      maxHeight: "50vh", overflowY: "auto",
+    };
+    const row: CSSProperties = { display: "flex", flexDirection: "column", gap: 4, width: "100%" };
+    const fullInput: CSSProperties = { ...inputStyle, minWidth: 0, width: "100%", boxSizing: "border-box" };
     return (
-      <div style={wrap}>
-        <span style={label}>Preset</span>
-        <select
-          value={(value.extras?.style_preset as string) || ""}
-          onChange={(e) => setExtra({ style_preset: e.target.value || undefined })}
-          style={{ ...inputStyle, minWidth: 220 }}
-        >
-          <option value="">— sem preset —</option>
-          {Object.entries(
-            STYLE_PRESETS.reduce<Record<string, typeof STYLE_PRESETS>>((acc, p) => {
-              (acc[p.category] ||= []).push(p);
-              return acc;
-            }, {}),
-          ).map(([cat, list]) => (
-            <optgroup key={cat} label={cat}>
-              {list.map((p) => (
-                <option key={p.id} value={p.id}>{p.display_name}</option>
-              ))}
-            </optgroup>
-          ))}
-        </select>
-        <span style={label}>Força</span>
-        <NumInput val={value.extras?.style_strength} onChange={(n) => setExtra({ style_strength: n })} min={0.1} max={1} step={0.05} ph="0.7" />
-        <span style={label}>Ref. estilo (URL opcional)</span>
-        <input
-          type="url" placeholder="https://… imagem de estilo"
-          value={(value.extras as any)?.style_url || ""}
-          onChange={(e) => setExtra({ style_url: e.target.value || undefined } as any)}
-          style={inputStyle}
-        />
+      <div style={stackWrap}>
+        <div style={row}>
+          <span style={label}>Preset</span>
+          <select
+            value={(value.extras?.style_preset as string) || ""}
+            onChange={(e) => setExtra({ style_preset: e.target.value || undefined })}
+            style={fullInput}
+          >
+            <option value="">— sem preset —</option>
+            {Object.entries(
+              STYLE_PRESETS.reduce<Record<string, typeof STYLE_PRESETS>>((acc, p) => {
+                (acc[p.category] ||= []).push(p);
+                return acc;
+              }, {}),
+            ).map(([cat, list]) => (
+              <optgroup key={cat} label={cat}>
+                {list.map((p) => (
+                  <option key={p.id} value={p.id}>{p.display_name}</option>
+                ))}
+              </optgroup>
+            ))}
+          </select>
+        </div>
+        <div style={row}>
+          <span style={label}>Força</span>
+          <input
+            type="number" value={value.extras?.style_strength ?? ""} placeholder="0.7"
+            min={0.1} max={1} step={0.05}
+            onChange={(e) => setExtra({ style_strength: Number(e.target.value) })}
+            style={fullInput}
+          />
+        </div>
+        <div style={row}>
+          <span style={label}>Ref. estilo (URL opcional)</span>
+          <input
+            type="url" placeholder="https://… imagem de estilo"
+            value={(value.extras as any)?.style_url || ""}
+            onChange={(e) => setExtra({ style_url: e.target.value || undefined } as any)}
+            style={fullInput}
+          />
+        </div>
       </div>
     );
   }

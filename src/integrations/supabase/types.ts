@@ -649,6 +649,20 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_dashboard_stats: { Args: { p_days?: number }; Returns: Json }
+      admin_recent_users: {
+        Args: { p_limit?: number }
+        Returns: {
+          billing_cycle: string
+          created_at: string
+          credits: number
+          full_name: string
+          id: string
+          plan_id: string
+          status: string
+          tier: string
+        }[]
+      }
       credit_user_credits: {
         Args: {
           p_amount: number

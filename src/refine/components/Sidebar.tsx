@@ -141,19 +141,31 @@ export function Sidebar({
       <div className="sb-foot">
         <div className="sb-credits">
           <div className="sb-credits-head">
-            <span className="sb-credits-plan">Plano {tier.toUpperCase()}</span>
+            <button
+              className="sb-credits-plan sb-credits-plan-btn"
+              onClick={() => onOpenAccount("plan")}
+              title="Ver plano e créditos"
+            >
+              Plano {tier.toUpperCase()}
+            </button>
             <span className="sb-credits-count">
-              <span className="current">{credits}</span>
+              <span className="current">{credits.toLocaleString("pt-BR")}</span>
               <span className="separator">/</span>
-              <span className="max">{capacity}</span>
+              <span className="max">{capacity.toLocaleString("pt-BR")}</span>
             </span>
           </div>
           <div className="sb-credits-bar"><i style={{ width: `${pct}%` }} /></div>
           <span className="sb-credits-renewal">Renova em 30 dias</span>
-          <button className="sb-upgrade" onClick={onUpgrade}>Upgrade Pro</button>
+          <button className="sb-upgrade" onClick={() => onOpenAccount("plan")}>
+            {tier === "free" ? "Fazer upgrade" : "Gerenciar plano"}
+          </button>
         </div>
 
-        <button className="sb-credits-mini" onClick={onUpgrade} title={`Créditos: ${credits}/${capacity}`}>
+        <button
+          className="sb-credits-mini"
+          onClick={() => onOpenAccount("plan")}
+          title={`Créditos: ${credits}/${capacity}`}
+        >
           <span className="sb-credits-mini-text">{Math.round(pct)}%</span>
           <span className="sb-credits-mini-bar" style={{ width: `${pct}%` }} />
         </button>
@@ -170,17 +182,41 @@ export function Sidebar({
           </button>
         ) : null}
 
-        <button
-          className="sb-profile"
-          onClick={isAnonymous ? undefined : onSignOut}
-          title={isAnonymous ? "" : "Clique pra sair"}
-        >
-          <span className="sb-avatar">{initial}</span>
-          <span className="sb-profile-info">
-            <span className="sb-profile-name">{userName}</span>
-            <span className="sb-profile-email">{email || "Anônimo"}</span>
-          </span>
-        </button>
+        <div className="sb-profile-wrap" ref={menuRef}>
+          <button
+            className={"sb-profile" + (menuOpen ? " open" : "")}
+            onClick={() => setMenuOpen((v) => !v)}
+            title="Conta"
+          >
+            <span className="sb-avatar">{initial}</span>
+            <span className="sb-profile-info">
+              <span className="sb-profile-name">{userName}</span>
+              <span className="sb-profile-email">{email || "Anônimo"}</span>
+            </span>
+          </button>
+
+          {menuOpen && (
+            <div className="sb-menu" role="menu">
+              <button className="sb-menu-item" onClick={() => { setMenuOpen(false); onOpenAccount("profile"); }}>
+                <User size={14} weight="bold" /> Minha conta
+              </button>
+              <button className="sb-menu-item" onClick={() => { setMenuOpen(false); onOpenAccount("plan"); }}>
+                <CreditCard size={14} weight="bold" /> Plano e créditos
+              </button>
+              <button className="sb-menu-item" onClick={() => { setMenuOpen(false); onOpenAccount("usage"); }}>
+                <Gear size={14} weight="bold" /> Uso recente
+              </button>
+              {!isAnonymous && (
+                <>
+                  <div className="sb-menu-sep" />
+                  <button className="sb-menu-item sb-menu-danger" onClick={() => { setMenuOpen(false); onSignOut(); }}>
+                    <SignOut size={14} weight="bold" /> Sair
+                  </button>
+                </>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </aside>
   );

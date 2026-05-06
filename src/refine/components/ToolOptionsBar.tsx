@@ -452,49 +452,47 @@ export function ToolOptionsBar({ tab, value, onChange, extra, onSuggestPrompt, s
     );
   }
   if (tab === "styletransfer") {
-    const stackWrap: CSSProperties = {
-      display: "flex", flexDirection: "column", gap: 8,
-      padding: "10px 14px", width: "100%", boxSizing: "border-box",
-      maxHeight: "50vh", overflowY: "auto",
-    };
-    const row: CSSProperties = { display: "flex", flexDirection: "column", gap: 4, width: "100%" };
-    const fullInput: CSSProperties = { ...inputStyle, minWidth: 0, width: "100%", boxSizing: "border-box" };
     return (
-      <div style={stackWrap}>
-        <div style={row}>
-          <span style={label}>Preset</span>
-          <select
-            value={(value.extras?.style_preset as string) || ""}
-            onChange={(e) => setExtra({ style_preset: e.target.value || undefined })}
-            style={fullInput}
-          >
-            <option value="">— sem preset —</option>
-            {Object.entries(
-              STYLE_PRESETS.reduce<Record<string, typeof STYLE_PRESETS>>((acc, p) => {
-                (acc[p.category] ||= []).push(p);
-                return acc;
-              }, {}),
-            ).map(([cat, list]) => (
-              <optgroup key={cat} label={cat}>
-                {list.map((p) => (
-                  <option key={p.id} value={p.id}>{p.display_name}</option>
-                ))}
-              </optgroup>
-            ))}
-          </select>
+      <div className="st-opts">
+        <div className="st-opts-row">
+          <span className="st-opts-label">Preset</span>
+          <div className="st-opts-select">
+            <select
+              value={(value.extras?.style_preset as string) || ""}
+              onChange={(e) => setExtra({ style_preset: e.target.value || undefined })}
+            >
+              <option value="">— sem preset —</option>
+              {Object.entries(
+                STYLE_PRESETS.reduce<Record<string, typeof STYLE_PRESETS>>((acc, p) => {
+                  (acc[p.category] ||= []).push(p);
+                  return acc;
+                }, {}),
+              ).map(([cat, list]) => (
+                <optgroup key={cat} label={cat}>
+                  {list.map((p) => (
+                    <option key={p.id} value={p.id}>{p.display_name}</option>
+                  ))}
+                </optgroup>
+              ))}
+            </select>
+            <svg className="st-opts-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M6 9l6 6 6-6" />
+            </svg>
+          </div>
         </div>
-        <div style={row}>
-          <span style={label}>Força</span>
+        <div className="st-opts-row">
+          <span className="st-opts-label">Força</span>
           <input
+            className="st-opts-input"
             type="number" value={value.extras?.style_strength ?? ""} placeholder="0.7"
             min={0.1} max={1} step={0.05}
             onChange={(e) => setExtra({ style_strength: Number(e.target.value) })}
-            style={fullInput}
           />
         </div>
-        <div style={row}>
-          <span style={label}>Ref. estilo (URL opcional)</span>
+        <div className="st-opts-row">
+          <span className="st-opts-label">Ref. estilo (URL opcional)</span>
           <input
+            className="st-opts-input"
             type="url" placeholder="https://… imagem de estilo"
             value={(value.extras as any)?.style_url || ""}
             onChange={(e) => setExtra({ style_url: e.target.value || undefined } as any)}

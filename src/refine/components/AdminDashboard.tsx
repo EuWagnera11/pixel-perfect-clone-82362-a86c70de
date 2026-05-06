@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Loader2, Users, TrendingUp, Zap, AlertTriangle, RefreshCw, ShieldAlert } from "lucide-react";
+import { ArrowLeft, Loader2, Users, TrendingUp, Zap, AlertTriangle, RefreshCw, ShieldAlert, Undo2, Check } from "lucide-react";
 import { AdminCoupons } from "./AdminCoupons";
 
 type Stats = {
@@ -12,7 +13,7 @@ type Stats = {
   credits: { credits_spent: number; credits_topup: number; credits_reset: number; debit_tx_count: number };
   generations_by_status: Record<string, number>;
   top_consumers: { user_id: string; name: string | null; spent: number }[];
-  recent_errors: { id: string; user_id: string; tool: string | null; model: string | null; error: string | null; at: string }[];
+  recent_errors: { id: string; user_id: string; tool: string | null; model: string | null; error: string | null; at: string; credits_used: number; refunded: boolean }[];
 };
 
 type RecentUser = {
@@ -163,21 +164,14 @@ export function AdminDashboard() {
 
           <div className="account-card" style={{ marginTop: 16 }}>
             <h2>Erros recentes</h2>
-            <p className="account-card-sub">Últimas 20 gerações com falha.</p>
+            <p className="account-card-sub">Últimas 30 gerações com falha. Reembolse créditos cobrados indevidamente.</p>
             <div className="usage-table">
-              <div className="usage-row usage-head">
-                <span>Quando</span><span>Ferramenta</span><span>Modelo</span><span>Mensagem</span>
+              <div className="usage-row usage-head" style={{ gridTemplateColumns: "120px 100px 120px 1fr 80px 110px" }}>
+                <span>Quando</span><span>Ferramenta</span><span>Modelo</span><span>Mensagem</span><span className="right">Créditos</span><span></span>
               </div>
               {stats.recent_errors.length === 0 && <div className="account-empty">Sem erros 🎉</div>}
               {stats.recent_errors.map((e) => (
-                <div className="usage-row" key={e.id}>
-                  <span className="muted">{new Date(e.at).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" })}</span>
-                  <span>{e.tool || "—"}</span>
-                  <span className="muted">{e.model || "—"}</span>
-                  <span className="muted" style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={e.error || ""}>
-                    {e.error || "—"}
-                  </span>
-                </div>
+                <ErrorRow key={e.id} err={e} onRefunded={() => load(days)} />
               ))}
             </div>
           </div>

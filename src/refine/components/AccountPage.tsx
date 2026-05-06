@@ -145,21 +145,31 @@ function ProfileTab({
 }
 
 function PlanTab({
-  tier, meta, credits, capacity, pct, onUpgrade,
+  planName, cycle, priceM, credits, capacity, pct, periodEnd,
+  rolloverCredits, topupCredits, topupEnabled, onUpgrade, onOpenTopup,
 }: {
-  tier: string;
-  meta: { name: string; credits: number; priceM: number; priceY: number };
+  planName: string;
+  cycle: "monthly" | "yearly";
+  priceM: number;
   credits: number; capacity: number; pct: number;
+  periodEnd?: string;
+  rolloverCredits: number;
+  topupCredits: number;
+  topupEnabled: boolean;
   onUpgrade: () => void;
+  onOpenTopup?: () => void;
 }) {
-  const isPaid = tier !== "free";
+  const isPaid = priceM > 0;
+  const renewLabel = periodEnd
+    ? new Date(periodEnd).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" })
+    : "—";
   return (
     <div className="account-grid">
       <div className="account-card account-card-feature">
-        <div className="account-pill">Plano atual</div>
-        <h2>{meta.name}</h2>
+        <div className="account-pill">Plano atual · {cycle === "yearly" ? "Anual" : "Mensal"}</div>
+        <h2>{planName}</h2>
         <p className="account-card-sub">
-          {meta.priceM > 0 ? `R$ ${meta.priceM} / mês` : "Grátis"}
+          {priceM > 0 ? `R$ ${priceM} / mês` : "Grátis"}
         </p>
 
         <div className="account-credits">
@@ -171,7 +181,11 @@ function PlanTab({
             </span>
           </div>
           <div className="account-credits-bar"><i style={{ width: `${pct}%` }} /></div>
-          <span className="account-credits-foot">Renovação automática a cada 30 dias</span>
+          <span className="account-credits-foot">
+            Renova em {renewLabel}
+            {rolloverCredits > 0 && ` · ${rolloverCredits.toLocaleString("pt-BR")} de rollover`}
+            {topupCredits > 0 && ` · ${topupCredits.toLocaleString("pt-BR")} avulsos`}
+          </span>
         </div>
 
         <button className="btn-primary block" onClick={onUpgrade}>
@@ -193,7 +207,13 @@ function PlanTab({
             </div>
           ))}
         </div>
-        <p className="account-note">Disponível para Creator, Pro e Studio.</p>
+        {topupEnabled ? (
+          <button className="btn-primary block" onClick={onOpenTopup} style={{ marginTop: 12 }}>
+            Comprar créditos
+          </button>
+        ) : (
+          <p className="account-note">Disponível a partir do plano Creator.</p>
+        )}
       </div>
     </div>
   );

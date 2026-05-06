@@ -31,6 +31,7 @@ import {
   MODEL_ID_TO_LABEL,
   DEFAULT_MODEL_BY_TAB,
 } from "./lib/models";
+import { calculateCost } from "./lib/credits";
 import { tabRequiresUpload, tabPromptOptional } from "./tools";
 // @ts-ignore — mockup-views.ts tem ts-nocheck (JS bruto)
 import { VIEWS, TAB_CONFIG as MOCKUP_TAB_CFG } from "./lib/mockup-views";

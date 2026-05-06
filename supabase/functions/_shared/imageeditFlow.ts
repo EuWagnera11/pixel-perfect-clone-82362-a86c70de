@@ -11,6 +11,7 @@ import { json } from "./cors.ts";
 import { adminClient, requireUserId, checkRateLimit, checkTosAccepted } from "./gates.ts";
 import { freepikFetch } from "./freepik.ts";
 import { toMagnificAspect } from "./engines.ts";
+import { calculateCost, debitCredits, refundCredits } from "./credits.ts";
 
 // Endpoints que exigem aspect no formato magnific (square_1_1, ...).
 // Mantemos o mapeamento apenas para motores que realmente aceitam esses tokens.

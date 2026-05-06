@@ -158,9 +158,20 @@ export async function runDepth(o: { sourceUrl?: string | null; mode?: "grayscale
   const r = await startDepthMap({ image_url: o.sourceUrl, mode: o.mode || "grayscale" });
   return ie(r.generation_id);
 }
-export async function runAssets(o: { prompt: string; aspect: string; refs?: string[]; kind?: "icon"|"sprite"|"prop"|"ui" }) {
+export async function runAssets(o: {
+  prompt: string; aspect: string; refs?: string[];
+  kind?: "icon"|"sprite"|"prop"|"ui";
+  background?: "transparente"|"branco"|"preto";
+  style_mode?: "preset"|"reference";
+  style_preset?: string;
+  style_image?: string;
+}) {
   if (!o.prompt.trim()) throw new Error("Descreva o asset");
-  const r = await startAssetsGen({ prompt: o.prompt, refs: o.refs, kind: o.kind || "icon", aspect_ratio: o.aspect });
+  const r = await startAssetsGen({
+    prompt: o.prompt, refs: o.refs, kind: o.kind || "icon", aspect_ratio: o.aspect,
+    background: o.background, style_mode: o.style_mode,
+    style_preset: o.style_preset, style_image: o.style_image,
+  });
   return ie(r.generation_id);
 }
 export async function runMarketing(o: { prompt: string; aspect: string; refs?: string[]; model?: string }) {

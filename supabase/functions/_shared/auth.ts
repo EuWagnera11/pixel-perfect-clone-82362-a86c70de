@@ -1,6 +1,8 @@
 // Auth helper: validates Supabase JWT and returns the user_id.
+// Optional rate limiting via Postgres tumbling window.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
-import { json } from "./cors.ts";
+import { json, corsHeaders } from "./cors.ts";
+import { checkRateLimit, rateLimitResponse, type RateLimitConfig } from "./rate-limit.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
@@ -13,7 +15,15 @@ export type AuthCtx = {
   admin: ReturnType<typeof createClient>;
 };
 
-export async function requireAuth(req: Request): Promise<AuthCtx | Response> {
+export type RateLimitOption = {
+  /** Identifier for the bucket (e.g. function name). */
+  bucket: string;
+} & RateLimitConfig;
+
+export async function requireAuth(
+  req: Request,
+  opts?: { rateLimit?: RateLimitOption }
+): Promise<AuthCtx | Response> {
   const authHeader = req.headers.get("Authorization");
   if (!authHeader?.startsWith("Bearer ")) {
     return json({ error: "Unauthorized" }, 401);
@@ -32,5 +42,15 @@ export async function requireAuth(req: Request): Promise<AuthCtx | Response> {
     auth: { persistSession: false, autoRefreshToken: false },
   });
 
+  if (opts?.rateLimit) {
+    const { bucket, limit, windowSeconds } = opts.rateLimit;
+    const rl = await checkRateLimit(admin, data.user.id, bucket, { limit, windowSeconds });
+    if (!rl.allowed) {
+      console.warn(`[rate-limit] blocked ${data.user.id} on ${bucket}`, rl);
+      return rateLimitResponse(rl, corsHeaders);
+    }
+  }
+
   return { userId: data.user.id, jwt, admin };
 }
+

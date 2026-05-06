@@ -9,7 +9,7 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
   if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
 
-  const auth = await requireAuth(req);
+  const auth = await requireAuth(req, { rateLimit: { bucket: "generate-video:min", limit: 6, windowSeconds: 60 } });
   if (auth instanceof Response) return auth;
 
   let body: any;

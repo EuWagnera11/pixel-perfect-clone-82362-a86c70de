@@ -1,8 +1,9 @@
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
-  ArrowRight, ArrowUpRight, Sparkles, Video, Users, MapPin, Shirt,
-  FolderInput, Brain, Layers, RefreshCw, Play, Check, Zap, Star,
+  ArrowRight, ArrowUpRight, Image as ImageIcon, Video, Film, Pencil,
+  AudioWaveform, ArrowUpToLine, ShoppingBag, Box, Boxes, Layers,
+  UserCircle2, Send, Play, Check, Star, Zap,
 } from "lucide-react";
 import { CuboLogo } from "@/components/CuboLogo";
 import { useAuth } from "@/lib/auth";
@@ -19,15 +20,18 @@ import tplOotd from "@/assets/template-ootd.jpg";
    ============================================================ */
 
 const tools = [
-  { icon: Sparkles, title: "Image Generation", desc: "Editorial 4K em 3 minutos, identidade fixa garantida.", tag: "Core", media: tplCafe },
-  { icon: Video, title: "Video Generation", desc: "Reels cinematográficos 9:16 com motion control.", tag: "New", media: tplOotd },
-  { icon: Users, title: "Face Swap", desc: "Troque rostos preservando expressão e iluminação.", tag: "Pro", media: tplStudio },
-  { icon: MapPin, title: "Scene Swap", desc: "Mesma persona, qualquer cenário do mundo.", tag: "Core", media: tplMediterranean },
-  { icon: Shirt, title: "Cloth Swap", desc: "Troque outfits sem perder a pose original.", tag: "Pro", media: tplBeach },
-  { icon: FolderInput, title: "Bulk Import", desc: "Importe centenas de imagens via URLs ou upload em lote.", tag: "Workflow", media: tplRooftop },
-  { icon: Brain, title: "Style Learning", desc: "Descreva seu estilo + suba refs e a IA replica.", tag: "Custom", media: tplCafe },
-  { icon: Layers, title: "Batch Mass", desc: "Gere 100+ imagens em paralelo. Templates curados.", tag: "Scale", media: tplOotd },
-  { icon: RefreshCw, title: "Recreate", desc: "Recrie qualquer foto com sua persona.", tag: "Magic", media: tplBeach },
+  { icon: ImageIcon, title: "Image", desc: "Geração de imagem com Nano-Banana Pro, Seedream e Flux. Variações em paralelo, até 4K.", tag: "Core", media: tplCafe },
+  { icon: Video, title: "Video", desc: "Image-to-video com Kling 2.5 Pro e Pixverse v5. Até 10s, 9:16 ou 16:9.", tag: "New", media: tplOotd },
+  { icon: Film, title: "Cinema", desc: "Stills cinematográficos 21:9, anamórfico, lente longa e color grading editorial.", tag: "Pro", media: tplStudio },
+  { icon: Pencil, title: "Edit Image", desc: "Remove/replace BG, expand, style transfer, inpaint, colorize, face e cloth swap.", tag: "Core", media: tplMediterranean },
+  { icon: ArrowUpToLine, title: "Upscale", desc: "Magnific Creative e video upscaler até 4K com detalhe coerente.", tag: "Pro", media: tplBeach },
+  { icon: AudioWaveform, title: "Audio", desc: "Música (Suno V4), SFX, voiceover TTS e isolamento de áudio.", tag: "New", media: tplRooftop },
+  { icon: ShoppingBag, title: "E-commerce & Product", desc: "Product photography studio: fundo branco, packshot e cenas de produto.", tag: "Workflow", media: tplCafe },
+  { icon: Box, title: "Realistic 3D", desc: "Converte qualquer referência em figurine, toy, escultura ou clay 3D.", tag: "New", media: tplOotd },
+  { icon: Boxes, title: "Assets Gen", desc: "Ícones, sprites, props e UI assets com fundo transparente sob demanda.", tag: "New", media: tplBeach },
+  { icon: Layers, title: "Depth Map", desc: "Extrai mapa de profundidade (grayscale/colored) pronto pra ControlNet.", tag: "Beta", media: tplStudio },
+  { icon: UserCircle2, title: "Character", desc: "Persona consistente: mesmo rosto e identidade em qualquer cena ou pose.", tag: "Core", media: tplMediterranean },
+  { icon: Send, title: "Marketing", desc: "Campanhas hero shot, mockups e variações para anúncios em 1 clique.", tag: "Workflow", media: tplRooftop },
 ];
 
 const templates = [
@@ -116,16 +120,16 @@ const tiers = [
 const trustBrands = ["CUBO", "SOPHIA", "LUMEN", "ATELIER", "NORTE", "VERBO", "COSTA", "EFEMERA", "MIRA", "STUDIO 21"];
 
 const stats = [
-  { num: "4K", label: "Resolução editorial" },
-  { num: "3min", label: "Geração média" },
-  { num: "59+", label: "Templates curados" },
-  { num: "100%", label: "Identidade fixa" },
+  { num: "12", label: "Ferramentas no studio" },
+  { num: "4K", label: "Resolução máxima" },
+  { num: "20+", label: "Modelos integrados" },
+  { num: "∞", label: "Jobs em paralelo" },
 ];
 
 const stepsProcess = [
-  { num: "01", title: "Crie sua persona", desc: "Upload de 8-12 fotos. A IA aprende seu rosto, ângulo, expressão." },
-  { num: "02", title: "Escolha um template", desc: "59+ cenários: lifestyle, travel, fashion, editorial. Ou crie do zero." },
-  { num: "03", title: "Gere em massa", desc: "1 clique → 12 fotos coerentes. Carrossel pronto em minutos." },
+  { num: "01", title: "Escolha a ferramenta", desc: "Image, Video, Edit, Upscale, Audio, 3D, Assets, Depth — tudo num só studio." },
+  { num: "02", title: "Descreva ou anexe", desc: "Prompt + referências, ou suba a imagem base. Modelo e aspect ratio são automáticos por aba." },
+  { num: "03", title: "Dispara em paralelo", desc: "A fila roda jobs simultâneos sem travar a UI. Você acompanha tudo no painel." },
 ];
 
 export default function Landing() {
@@ -193,17 +197,15 @@ export default function Landing() {
             </div>
 
             <h1 className="display-hero">
-              Crie influencers de IA com
+              Toda a criação visual com IA,
               <br />
-              <span className="text-gradient-copper">qualidade editorial</span>
-              <br />
-              em minutos.
+              <span className="text-gradient-copper">num só studio</span>.
             </h1>
 
             <p className="lead mt-7 text-foreground-dim">
-              Pipeline 4K. Identidade fixa garantida. Carrosséis automáticos.
+              Imagem, vídeo, edição, upscale, áudio, 3D e assets — com os melhores modelos do mercado.
               <br className="hidden md:block" />
-              A suite completa que rivaliza Aitana e Olivia Roa.
+              Nano-Banana Pro, Kling 2.5, Magnific, Suno V4 e mais. Jobs rodam em paralelo.
             </p>
 
             <div className="mt-9 flex flex-wrap items-center gap-3">
@@ -294,13 +296,13 @@ export default function Landing() {
             <div className="max-w-2xl">
               <div className="eyebrow eyebrow-dot mb-4">A Suite Refine</div>
               <h2 className="display-1">
-                9 ferramentas. <span className="text-gradient-copper">Uma suite.</span>
+                12 ferramentas. <span className="text-gradient-copper">Uma suite.</span>
                 <br />
-                O que estúdios usam — sem o estúdio.
+                O stack completo de criação visual.
               </h2>
             </div>
             <p className="lead lg:max-w-sm lg:text-right">
-              Imagem, vídeo, face swap, drive import. Toda criação de IA influencer num só lugar.
+              Image, Video, Cinema, Edit, Upscale, Audio, E-commerce, 3D, Assets, Depth, Character e Marketing.
             </p>
           </div>
 
@@ -366,11 +368,11 @@ export default function Landing() {
         <div className="container-suite">
           <div className="mb-14 flex flex-col items-start justify-between gap-6 lg:flex-row lg:items-end">
             <div className="max-w-2xl">
-              <div className="eyebrow eyebrow-dot mb-4">Templates curados</div>
+              <div className="eyebrow eyebrow-dot mb-4">Galeria de exemplos</div>
               <h2 className="display-1">
-                59+ cenários <span className="text-gradient-copper">clusterizados</span>.
+                Resultados <span className="text-gradient-copper">reais</span>.
                 <br />
-                Geradas em 1 clique.
+                Gerados na própria suite.
               </h2>
             </div>
             <Link to={ctaTo} className="btn-pill-ghost">
@@ -430,7 +432,7 @@ export default function Landing() {
             <div className="lg:py-8">
               <div className="eyebrow eyebrow-dot mb-4">Como funciona</div>
               <h2 className="display-1 mb-10">
-                Da persona ao carrossel
+                Do prompt ao resultado
                 <br />
                 em <span className="text-gradient-copper">3 passos</span>.
               </h2>
@@ -533,12 +535,12 @@ export default function Landing() {
             <div className="relative">
               <div className="eyebrow eyebrow-dot mx-auto mb-5 inline-flex">Pronto para criar?</div>
               <h2 className="display-1 mx-auto max-w-3xl">
-                Transforme sua próxima ideia
+                Pare de pular entre apps.
                 <br />
-                em uma <span className="text-gradient-copper">IA influencer</span>.
+                Tudo num <span className="text-gradient-copper">só studio</span>.
               </h2>
               <p className="lead mx-auto mt-5">
-                3 gerações grátis. Veja a qualidade antes de assinar.
+                Comece grátis e teste cada ferramenta da suite.
               </p>
               <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
                 <Link to={ctaTo} className="btn-pill-primary px-8 py-4 text-base">
@@ -559,7 +561,7 @@ export default function Landing() {
           <div className="lg:col-span-2">
             <CuboLogo />
             <p className="mt-5 max-w-sm text-sm leading-relaxed text-foreground-muted">
-              A suite premium de IA influencer com qualidade editorial. Feita por <a href="https://refinecubo.com.br" className="text-foreground underline-offset-2 hover:underline">Cubo</a> em São Paulo.
+              A suite premium de criação visual com IA. Imagem, vídeo, edição, áudio e 3D num só lugar. Feita por <a href="https://refinecubo.com.br" className="text-foreground underline-offset-2 hover:underline">Cubo</a> em São Paulo.
             </p>
             <div className="mt-6 flex gap-3 font-mono text-[10px] uppercase tracking-wider text-foreground-muted">
               <a href="https://soph.ia.com.br" className="hover:text-foreground">Sophia ↗</a>

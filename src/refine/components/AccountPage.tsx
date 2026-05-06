@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { User, CreditCard, Activity, ArrowLeft, Check, Sparkles, Loader2 } from "lucide-react";
+import { User, CreditCard, Activity, ArrowLeft, Check, Sparkles, Loader2, Receipt, ExternalLink } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Profile } from "../hooks/useAuth";
 import { useBilling } from "../hooks/useBilling";
 import pricing from "@/config/pricing.json";
 
-type Tab = "profile" | "plan" | "usage";
+type Tab = "profile" | "plan" | "usage" | "transactions";
 
 type Props = {
   profile: Profile | null;
@@ -58,6 +58,9 @@ export function AccountPage({ profile, userId, email, isAnonymous, onUpgrade, on
         <button className={"account-tab" + (tab === "usage" ? " active" : "")} onClick={() => setTab("usage")}>
           <Activity size={14} /> Uso recente
         </button>
+        <button className={"account-tab" + (tab === "transactions" ? " active" : "")} onClick={() => setTab("transactions")}>
+          <Receipt size={14} /> Transações
+        </button>
       </div>
 
       {tab === "profile" && (
@@ -75,11 +78,15 @@ export function AccountPage({ profile, userId, email, isAnonymous, onUpgrade, on
           rolloverCredits={billing.credits?.rollover_credits ?? 0}
           topupCredits={billing.credits?.topup_credits ?? 0}
           topupEnabled={billing.currentPlan?.features?.topup_enabled === true}
+          isPaidSubscription={!!billing.subscription?.stripe_customer_id || (billing.currentPlan?.price_monthly_brl ?? 0) > 0}
+          cancelAtPeriodEnd={!!(billing.subscription as any)?.cancel_at_period_end}
           onUpgrade={onUpgrade}
           onOpenTopup={onOpenTopup}
+          onRefresh={billing.refresh}
         />
       )}
       {tab === "usage" && <UsageTab />}
+      {tab === "transactions" && <TransactionsTab />}
     </div>
   );
 }
@@ -146,7 +153,8 @@ function ProfileTab({
 
 function PlanTab({
   planName, cycle, priceM, credits, capacity, pct, periodEnd,
-  rolloverCredits, topupCredits, topupEnabled, onUpgrade, onOpenTopup,
+  rolloverCredits, topupCredits, topupEnabled, isPaidSubscription, cancelAtPeriodEnd,
+  onUpgrade, onOpenTopup, onRefresh,
 }: {
   planName: string;
   cycle: "monthly" | "yearly";
@@ -156,13 +164,45 @@ function PlanTab({
   rolloverCredits: number;
   topupCredits: number;
   topupEnabled: boolean;
+  isPaidSubscription: boolean;
+  cancelAtPeriodEnd: boolean;
   onUpgrade: () => void;
   onOpenTopup?: () => void;
+  onRefresh: () => void | Promise<void>;
 }) {
+  const [portalLoading, setPortalLoading] = useState(false);
+  const [syncing, setSyncing] = useState(false);
   const isPaid = priceM > 0;
   const renewLabel = periodEnd
     ? new Date(periodEnd).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" })
     : "—";
+
+  const openPortal = async () => {
+    setPortalLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("customer-portal");
+      if (error) throw error;
+      if ((data as any)?.url) window.open((data as any).url, "_blank");
+    } catch (e) {
+      console.error("[customer-portal]", e);
+      alert("Não foi possível abrir o portal de assinatura.");
+    } finally {
+      setPortalLoading(false);
+    }
+  };
+
+  const sync = async () => {
+    setSyncing(true);
+    try {
+      await supabase.functions.invoke("check-subscription");
+      await onRefresh();
+    } catch (e) {
+      console.error("[sync]", e);
+    } finally {
+      setSyncing(false);
+    }
+  };
+
   return (
     <div className="account-grid">
       <div className="account-card account-card-feature">
@@ -170,6 +210,7 @@ function PlanTab({
         <h2>{planName}</h2>
         <p className="account-card-sub">
           {priceM > 0 ? `R$ ${priceM} / mês` : "Grátis"}
+          {cancelAtPeriodEnd && <span className="account-warn"> · cancela em {renewLabel}</span>}
         </p>
 
         <div className="account-credits">
@@ -182,15 +223,27 @@ function PlanTab({
           </div>
           <div className="account-credits-bar"><i style={{ width: `${pct}%` }} /></div>
           <span className="account-credits-foot">
-            Renova em {renewLabel}
+            {cancelAtPeriodEnd ? "Termina" : "Renova"} em {renewLabel}
             {rolloverCredits > 0 && ` · ${rolloverCredits.toLocaleString("pt-BR")} de rollover`}
             {topupCredits > 0 && ` · ${topupCredits.toLocaleString("pt-BR")} avulsos`}
           </span>
         </div>
 
-        <button className="btn-primary block" onClick={onUpgrade}>
-          <Sparkles size={14} /> {isPaid ? "Mudar de plano" : "Fazer upgrade"}
-        </button>
+        <div className="account-actions" style={{ marginTop: 16, flexWrap: "wrap" }}>
+          <button className="btn-primary" onClick={onUpgrade}>
+            <Sparkles size={14} /> {isPaid ? "Mudar de plano" : "Fazer upgrade"}
+          </button>
+          {isPaidSubscription && (
+            <button className="btn-ghost" onClick={openPortal} disabled={portalLoading}>
+              {portalLoading ? <Loader2 size={14} className="spin" /> : <ExternalLink size={14} />}
+              Gerenciar assinatura
+            </button>
+          )}
+          <button className="btn-ghost" onClick={sync} disabled={syncing}>
+            {syncing ? <Loader2 size={14} className="spin" /> : <Activity size={14} />}
+            Sincronizar
+          </button>
+        </div>
       </div>
 
       <div className="account-card">
@@ -265,6 +318,63 @@ function UsageTab() {
               <span className="right">{(it.credits_used ?? 0).toLocaleString("pt-BR")}</span>
             </div>
           ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function TransactionsTab() {
+  const [items, setItems] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      const { data: u } = await supabase.auth.getUser();
+      if (!u.user) { setLoading(false); return; }
+      const { data } = await supabase
+        .from("credit_transactions")
+        .select("id, type, amount, balance_after, reason, created_at, metadata")
+        .eq("user_id", u.user.id)
+        .order("created_at", { ascending: false })
+        .limit(50);
+      setItems(data ?? []);
+      setLoading(false);
+    })();
+  }, []);
+
+  const labelOf = (t: string) => ({
+    debit: "Consumo", credit: "Crédito", refund: "Reembolso",
+    topup: "Top-up", reset: "Renovação",
+  } as Record<string, string>)[t] ?? t;
+
+  return (
+    <div className="account-card">
+      <h2>Transações</h2>
+      <p className="account-card-sub">Últimas 50 movimentações de créditos.</p>
+
+      {loading ? (
+        <div className="account-empty"><Loader2 size={16} className="spin" /></div>
+      ) : items.length === 0 ? (
+        <div className="account-empty">Sem transações ainda.</div>
+      ) : (
+        <div className="usage-table">
+          <div className="usage-row usage-head">
+            <span>Quando</span><span>Tipo</span><span>Motivo</span><span className="right">Variação</span><span className="right">Saldo</span>
+          </div>
+          {items.map((it) => {
+            const isOut = it.type === "debit";
+            const sign = isOut ? "−" : "+";
+            return (
+              <div className="usage-row" key={it.id}>
+                <span className="muted">{new Date(it.created_at).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" })}</span>
+                <span><span className={"status-pill status-" + it.type}>{labelOf(it.type)}</span></span>
+                <span className="muted">{it.reason || "—"}</span>
+                <span className="right" style={{ color: isOut ? "#e85d3a" : "#16a34a" }}>{sign}{(it.amount ?? 0).toLocaleString("pt-BR")}</span>
+                <span className="right">{(it.balance_after ?? 0).toLocaleString("pt-BR")}</span>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

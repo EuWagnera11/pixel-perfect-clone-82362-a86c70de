@@ -223,7 +223,7 @@ export function VideoWorkspace({
     if (fail) showToast("Erro: " + (fail.error || "falha"));
     else showToast(n > 1 ? `${n} vídeos em paralelo` : "Geração iniciada");
   }, [prompt, mode, refs, framesStart, framesEnd, videoSourceUrl, lipSyncAudioUrl, camera, intensity,
-      audioMode, audioPrompt, variations, ratio, modelId, currentModel, quality, enqueue, showToast]);
+      audioMode, audioPrompt, variations, ratio, modelId, currentModel, quality, duration, enqueue, showToast]);
 
   // Frames upload helpers
   const pickFrame = (which: "start" | "end") => async (file: File) => {

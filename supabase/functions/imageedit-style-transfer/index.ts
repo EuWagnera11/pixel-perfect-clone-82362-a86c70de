@@ -32,9 +32,13 @@ Deno.serve(async (req) => {
 
   const imageUrl = body?.image_url;
   const styleUrl = body?.style_url;
+  const stylePreset = body?.style_preset ? String(body.style_preset) : undefined;
   if (!imageUrl) return json({ error: { code: "MISSING_INPUT", message: "image_url obrigatório." } }, 400);
-  if (!styleUrl && !body?.prompt) {
-    return json({ error: { code: "MISSING_INPUT", message: "Forneça style_url ou prompt." } }, 400);
+  if (!styleUrl && !stylePreset && !body?.prompt) {
+    return json({ error: { code: "MISSING_INPUT", message: "Forneça style_url, style_preset ou prompt." } }, 400);
+  }
+  if (stylePreset && !STYLE_PRESETS[stylePreset]) {
+    return json({ error: { code: "INVALID_STYLE_PRESET", message: "preset desconhecido." } }, 400);
   }
 
   for (const u of [imageUrl, styleUrl].filter(Boolean) as string[]) {
@@ -50,10 +54,12 @@ Deno.serve(async (req) => {
   }
 
   const strength = Math.max(0.1, Math.min(1, Number(body?.strength) || 0.7));
+  const presetText = stylePreset ? STYLE_PRESETS[stylePreset] : "";
   const finalPrompt =
     (styleUrl
       ? `Apply the artistic style from the second reference image to the first reference image. `
       : `Restyle the reference image. `) +
+    (presetText ? `Target style: ${presetText} ` : "") +
     (extra ? `Style direction: ${extra}. ` : "") +
     `Preserve the composition, subject identity and pose of the source. Style strength: ${strength.toFixed(2)}.`;
 

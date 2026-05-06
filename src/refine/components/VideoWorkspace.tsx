@@ -203,6 +203,7 @@ export function VideoWorkspace({
     const extras: Record<string, unknown> = {};
     if ((isLipSync || isOmniHuman) && lipSyncAudioUrl) extras.audio_url = lipSyncAudioUrl;
 
+    const durStr = String(parseInt(duration, 10) || 5);
     const promises = Array.from({ length: n }).map(() =>
       enqueue({
         tab: "video",
@@ -212,6 +213,7 @@ export function VideoWorkspace({
         model: modelId,
         thumb: source || undefined,
         quality,
+        duration: durStr,
         numVariations: 1,
         extras: Object.keys(extras).length ? extras : undefined,
       })
@@ -221,7 +223,7 @@ export function VideoWorkspace({
     if (fail) showToast("Erro: " + (fail.error || "falha"));
     else showToast(n > 1 ? `${n} vídeos em paralelo` : "Geração iniciada");
   }, [prompt, mode, refs, framesStart, framesEnd, videoSourceUrl, lipSyncAudioUrl, camera, intensity,
-      audioMode, audioPrompt, variations, ratio, modelId, currentModel, quality, enqueue, showToast]);
+      audioMode, audioPrompt, variations, ratio, modelId, currentModel, quality, duration, enqueue, showToast]);
 
   // Frames upload helpers
   const pickFrame = (which: "start" | "end") => async (file: File) => {

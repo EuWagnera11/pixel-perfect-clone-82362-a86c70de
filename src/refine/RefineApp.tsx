@@ -22,6 +22,7 @@ import { ImageWorkspace } from "./components/ImageWorkspace";
 import { VideoWorkspace } from "./components/VideoWorkspace";
 import { ToolWorkspace, tabHasToolWorkspace } from "./components/ToolWorkspace";
 import { AccountPage } from "./components/AccountPage";
+import { TopupModal } from "./components/TopupModal";
 import { JobsProvider, useJobs, type Job } from "./lib/jobs";
 import { TAB_CONFIG } from "./lib/nav";
 import {

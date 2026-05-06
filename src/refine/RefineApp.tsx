@@ -81,6 +81,8 @@ function Workspace() {
   const [stylePack, setStylePack] = useState<string | null>(null);
   const [toolOptions, setToolOptions] = useState<ToolOptions>({});
   const viewRef = useRef<HTMLDivElement>(null);
+  const [topupOpen, setTopupOpen] = useState(false);
+  const userId = session?.user?.id ?? null;
 
   // Trocar de aba limpa upload (cada ferramenta tem seu fluxo independente)
   useEffect(() => { setSourceUrl(null); setLastFrameUrl(null); }, [currentTab]);

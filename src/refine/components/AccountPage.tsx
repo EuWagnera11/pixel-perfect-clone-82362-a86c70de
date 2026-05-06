@@ -61,6 +61,9 @@ export function AccountPage({ profile, userId, email, isAnonymous, onUpgrade, on
         <button className={"account-tab" + (tab === "transactions" ? " active" : "")} onClick={() => setTab("transactions")}>
           <Receipt size={14} /> Transações
         </button>
+        <button className={"account-tab" + (tab === "invoices" ? " active" : "")} onClick={() => setTab("invoices")}>
+          <FileText size={14} /> Faturas
+        </button>
       </div>
 
       {tab === "profile" && (

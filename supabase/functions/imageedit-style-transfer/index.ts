@@ -9,6 +9,7 @@ import { getModel, TOOL_MODEL_WHITELIST, defaultModelForTool } from "../_shared/
 import { urlToRefObject } from "../_shared/engines.ts";
 
 const STYLE_PRESETS: Record<string, string> = {
+  // Legacy (mantidos pra compat)
   "anime": "Anime / manga illustration, clean line art, cel shading, expressive eyes, vibrant colors.",
   "oil-painting": "Classical oil painting, visible brush strokes, rich color depth, canvas texture.",
   "watercolor": "Watercolor painting, soft washes, paper grain, organic edges, transparent layers.",
@@ -21,6 +22,32 @@ const STYLE_PRESETS: Record<string, string> = {
   "ukiyo-e": "Ukiyo-e Japanese woodblock print, flat colors, bold outlines, traditional patterns.",
   "claymation": "Claymation/clay sculpt, fingerprint texture, soft studio lighting, stop-motion feel.",
   "low-poly": "Low-poly 3D render, faceted geometry, flat shading, clean colors.",
+  // Catálogo Refine v1.0 (20 estilos curados)
+  "cinematic-anamorphic": "shot on anamorphic lens, horizontal lens flares, oval bokeh, cinematic teal and orange grading, 2.39:1 aspect mood, deep blacks, film grain, professional color timing, motion picture stock",
+  "kodak-portra-400": "shot on Kodak Portra 400, analog film, soft warm tones, natural skin glow, fine grain, slight haze, magic hour warmth, mid-contrast, film scan aesthetic",
+  "fuji-velvia-50": "shot on Fuji Velvia 50, hyper-saturated landscape film, vivid greens and blues, punchy reds, fine grain, high color density, professional landscape photography",
+  "editorial-magazine": "editorial magazine style, Vogue aesthetic, clean color grading, controlled contrast, flawless skin retouching, sophisticated lighting, high-end fashion photography",
+  "vintage-70s": "1970s vintage photography, faded warm tones, mustard yellow, burnt orange, brown shadows, light leaks, slight haze, sun-bleached look, period accurate color processing",
+  "noir-cinematic": "film noir, high contrast black and white, deep shadows, dramatic lighting, classic Hollywood, silver gelatin print, mysterious mood",
+  "polaroid-instant": "Polaroid SX-70 instant photo, soft faded colors, slight green tint in shadows, warm highlights, vignette, slightly blurry edges, analog imperfection, nostalgic feel",
+  "moody-dark": "moody dark photography, low-key lighting, deep shadows, controlled highlights, atmospheric, dramatic, modern dark aesthetic, rich blacks",
+  "anime-cel-shaded": "anime cel-shaded illustration, flat color regions, clean line art, vibrant colors, Japanese animation style, Studio Ghibli inspired, 2D look, anime art",
+  "watercolor-painting": "watercolor painting, soft wet edges, paper texture, transparent washes, bleeding colors, artistic brush strokes, traditional media, hand-painted",
+  "oil-painting-classic": "classical oil painting, visible brush strokes, rich impasto texture, Old Masters style, Rembrandt lighting, deep chiaroscuro, museum quality, traditional fine art",
+  "pixel-art-retro": "16-bit pixel art, limited color palette, visible pixels, dithering pattern, retro video game aesthetic, SNES era graphics, blocky resolution",
+  "3d-render-octane": "Octane render, photorealistic 3D, physically based materials, ray-traced lighting, ultra detailed, studio lighting, product visualization quality, 8K render",
+  "claymation-stop-motion": "claymation stop-motion, plasticine clay texture, handmade aesthetic, Wallace and Gromit style, Aardman Animations, slight finger marks, charming imperfection",
+  "lowpoly-geometric": "low poly 3D art, geometric faceted surfaces, triangular polygons, flat shading, limited color palette, minimalist 3D aesthetic, isometric clean",
+  "neon-cyberpunk": "cyberpunk neon aesthetic, saturated magenta and cyan, wet streets reflections, night atmosphere, Blade Runner mood, neon glow, futuristic city vibes",
+  "minimalist-bw": "minimalist black and white, clean composition, negative space, subtle elegance, modern editorial, refined aesthetic, gallery quality",
+  "risograph-print": "risograph print aesthetic, two-color screen printing, slight registration offset, paper texture, limited spot color palette, indie zine style, halftone patterns",
+  "vaporwave-aesthetic": "vaporwave aesthetic, pastel pink and cyan, retrofuturism, 90s nostalgia, dreamy haze, gradient sky, surreal atmosphere, lo-fi quality",
+  "tilt-shift-miniature": "tilt-shift photography, miniature effect, selective focus center band, blurred top and bottom, saturated colors, toy-like appearance, model city look",
+  "double-exposure": "double exposure photography, ethereal blend, silhouette overlay with landscape texture, artistic composition, melancholic mood, fine art photography",
+  "sun-bleached-summer": "sun-bleached summer photography, faded warm tones, blown out highlights, hazy atmosphere, beach nostalgia, vintage holiday feel, sunlight overexposure",
+  "ink-print-monochrome": "Japanese sumi-e ink painting, brush strokes, washi paper texture, minimalist composition, Zen aesthetic, traditional black ink, calligraphic quality",
+  "glitch-vhs": "VHS aesthetic, chromatic aberration, scan lines, analog video distortion, RGB color shift, magnetic tape glitch, 80s home video feel, retro lo-fi",
+  "studio-product-clean": "professional studio product photography, clean background, technical lighting, soft shadows, catalog quality, e-commerce ready, sharp details, color accurate",
 };
 
 Deno.serve(async (req) => {

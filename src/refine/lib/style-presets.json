@@ -1,0 +1,385 @@
+{
+  "_meta": {
+    "version": "1.0.0",
+    "name": "Refine Style Templates",
+    "description": "20 templates de estilo prontos. Cada estilo aplica APENAS tratamento visual (como filtro) sobre a foto original — não muda composição, sujeito ou cena. Use o campo 'prompt_suffix' concatenado ao prompt do usuário, ou 'system_instruction' como instrução do modelo.",
+    "preservation_rule": "PRESERVAR composição, enquadramento, sujeito, expressões, poses e elementos da imagem original. APLICAR apenas: paleta de cores, contraste, granulação, tonalidade, processamento de cor e atmosfera de iluminação."
+  },
+
+  "styles": [
+    {
+      "id": "cinematic-anamorphic",
+      "name": "#cinematic-anamorphic",
+      "display_name": "Cinematic Anamorphic",
+      "category": "Foto",
+      "description": "Visual de cinema com lentes anamórficas — lens flares horizontais alaranjados, oval bokeh, alto contraste cinematográfico.",
+      "thumbnail_gradient": "linear-gradient(135deg, #1a0e08 0%, #2a1a0e 50%, #5b3a1a 100%)",
+      "prompt_suffix": "shot on anamorphic lens, horizontal lens flares, oval bokeh, cinematic teal and orange grading, 2.39:1 aspect mood, deep blacks, film grain, professional color timing, motion picture stock",
+      "negative_prompt": "flat lighting, oversaturated, digital look, sharp corners, video aesthetic",
+      "system_instruction": "Apply ONLY anamorphic cinematic look to the existing image. Preserve composition, subject, pose and framing exactly. Add: horizontal orange lens flares where appropriate, teal-and-orange color grading, deep contrast, cinema-style highlights and shadows, subtle film grain. Do NOT alter the subject's identity, position or expression.",
+      "intensity_default": 0.7,
+      "compatible_with": ["portrait", "landscape", "scene"],
+      "color_palette": ["#0a0a0c", "#1a3a4a", "#ff8a3d", "#5b3a1a"]
+    },
+
+    {
+      "id": "kodak-portra-400",
+      "name": "#kodak-portra-400",
+      "display_name": "Kodak Portra 400",
+      "category": "Foto",
+      "description": "Filme analógico clássico — tons quentes naturais, peles douradas, grão fino, alta latitude tonal.",
+      "thumbnail_gradient": "linear-gradient(160deg, #2a1a14 0%, #c89972 50%, #5b3a2a 100%)",
+      "prompt_suffix": "shot on Kodak Portra 400, analog film, soft warm tones, natural skin glow, fine grain, slight haze, magic hour warmth, mid-contrast, film scan aesthetic",
+      "negative_prompt": "digital sharpness, oversaturated colors, harsh shadows, plastic skin",
+      "system_instruction": "Apply Kodak Portra 400 film emulation to the existing image. Preserve all subject details. Apply: warm natural tones, golden skin highlights, soft contrast curve, fine analog grain (medium intensity), slight halation in highlights, characteristic Portra magenta-yellow color cast.",
+      "intensity_default": 0.75,
+      "compatible_with": ["portrait", "fashion", "lifestyle"],
+      "color_palette": ["#f4d4a8", "#d49870", "#8a5a3a", "#2a1a14"]
+    },
+
+    {
+      "id": "fuji-velvia-50",
+      "name": "#fuji-velvia-50",
+      "display_name": "Fuji Velvia 50",
+      "category": "Foto",
+      "description": "Saturação intensa estilo paisagem — verdes vibrantes, céus turquesa, vermelhos profundos.",
+      "thumbnail_gradient": "linear-gradient(135deg, #0a3a4a 0%, #2a8060 50%, #ff5a2a 100%)",
+      "prompt_suffix": "shot on Fuji Velvia 50, hyper-saturated landscape film, vivid greens and blues, punchy reds, fine grain, high color density, professional landscape photography",
+      "negative_prompt": "muted tones, low saturation, washed out, gray skies",
+      "system_instruction": "Apply Fuji Velvia 50 emulation. Preserve composition. Boost color saturation especially in greens, blues and reds. Increase color density without crushing details. Add fine analog grain. Maintain natural skin tones if subject is human.",
+      "intensity_default": 0.8,
+      "compatible_with": ["landscape", "nature", "travel"],
+      "color_palette": ["#0a4060", "#2a8060", "#c93a1a", "#1a2a14"]
+    },
+
+    {
+      "id": "editorial-magazine",
+      "name": "#editorial-magazine",
+      "display_name": "Editorial Magazine",
+      "category": "Foto",
+      "description": "Look de revista de moda — clean, sofisticado, contraste controlado, pele perfeita.",
+      "thumbnail_gradient": "linear-gradient(180deg, #f4f0ec 0%, #c4b8a8 50%, #2a2018 100%)",
+      "prompt_suffix": "editorial magazine style, Vogue aesthetic, clean color grading, controlled contrast, flawless skin retouching, sophisticated lighting, high-end fashion photography",
+      "negative_prompt": "amateur, oversharpened, flat colors, social media filter look",
+      "system_instruction": "Apply high-end editorial magazine treatment. Preserve subject and composition. Apply: clean controlled contrast, sophisticated color grading with restrained saturation, flawless skin (preserve natural texture), polished highlights, deep but detailed shadows, magazine-quality color timing.",
+      "intensity_default": 0.65,
+      "compatible_with": ["portrait", "fashion", "beauty"],
+      "color_palette": ["#f4f0ec", "#c4b8a8", "#5a4a3a", "#1a1410"]
+    },
+
+    {
+      "id": "vintage-70s",
+      "name": "#vintage-70s",
+      "display_name": "Vintage 70s",
+      "category": "Foto",
+      "description": "Anos 70 — laranja queimado, mostarda, marrons, sub-saturação característica da era.",
+      "thumbnail_gradient": "linear-gradient(135deg, #4a2818 0%, #c8702a 50%, #f4c878 100%)",
+      "prompt_suffix": "1970s vintage photography, faded warm tones, mustard yellow, burnt orange, brown shadows, light leaks, slight haze, sun-bleached look, period accurate color processing",
+      "negative_prompt": "modern, digital, blue cast, high tech, neon",
+      "system_instruction": "Apply 1970s vintage photo treatment. Preserve subject. Apply warm color shift (amber/orange dominant), reduce blue channel, add warm brown shadows, subtle yellow highlights, slight haze in highlights, period-accurate color fading, soft contrast.",
+      "intensity_default": 0.75,
+      "compatible_with": ["portrait", "lifestyle", "scene"],
+      "color_palette": ["#c8702a", "#a04a18", "#f4c878", "#4a2818"]
+    },
+
+    {
+      "id": "noir-cinematic",
+      "name": "#noir-cinematic",
+      "display_name": "Noir Cinemático",
+      "category": "Foto",
+      "description": "Preto e branco dramático com sombras profundas, contraste extremo, mood detetive.",
+      "thumbnail_gradient": "linear-gradient(180deg, #f0f0f0 0%, #404040 50%, #000000 100%)",
+      "prompt_suffix": "film noir, high contrast black and white, deep shadows, dramatic lighting, classic Hollywood, silver gelatin print, mysterious mood",
+      "negative_prompt": "color, soft contrast, modern digital BW, gray flat tones",
+      "system_instruction": "Convert to dramatic black and white. Preserve composition exactly. Apply: high contrast curve, crushed deep blacks (with retained shadow detail), bright but not blown highlights, silver-toned midtones, subtle film grain, dramatic noir mood.",
+      "intensity_default": 1.0,
+      "compatible_with": ["portrait", "scene", "architecture"],
+      "color_palette": ["#000000", "#1a1a1a", "#808080", "#f0f0f0"]
+    },
+
+    {
+      "id": "polaroid-instant",
+      "name": "#polaroid-instant",
+      "display_name": "Polaroid Instant",
+      "category": "Foto",
+      "description": "Foto instantânea analógica — cantos suaves, imperfeições cromáticas, look amador charmoso.",
+      "thumbnail_gradient": "linear-gradient(160deg, #f4e4c8 0%, #d4a878 50%, #6a4a2a 100%)",
+      "prompt_suffix": "Polaroid SX-70 instant photo, soft faded colors, slight green tint in shadows, warm highlights, vignette, slightly blurry edges, analog imperfection, nostalgic feel",
+      "negative_prompt": "sharp, digital, perfect, modern, high resolution feel",
+      "system_instruction": "Apply Polaroid instant film aesthetic. Preserve subject. Add: faded color palette, slight green/cyan tint in shadows, warm cream highlights, soft focus near edges, subtle vignette, slight color shift, characteristic Polaroid imperfections.",
+      "intensity_default": 0.75,
+      "compatible_with": ["portrait", "lifestyle", "casual"],
+      "color_palette": ["#f4e4c8", "#d4a878", "#8a7a5a", "#3a2a1a"]
+    },
+
+    {
+      "id": "moody-dark",
+      "name": "#moody-dark",
+      "display_name": "Moody Dark",
+      "category": "Foto",
+      "description": "Atmosfera densa e escura — sombras dominantes, highlights controlados, dramático moderno.",
+      "thumbnail_gradient": "linear-gradient(180deg, #1a1a1f 0%, #2a2018 50%, #5a3a28 100%)",
+      "prompt_suffix": "moody dark photography, low-key lighting, deep shadows, controlled highlights, atmospheric, dramatic, modern dark aesthetic, rich blacks",
+      "negative_prompt": "bright, overexposed, washed out, flat lighting, high-key",
+      "system_instruction": "Apply moody dark grading. Preserve composition. Apply: lifted shadows with retained detail, deep rich blacks, controlled highlights (pulled down), reduced overall exposure, slight warm cast in midtones, atmospheric quality.",
+      "intensity_default": 0.7,
+      "compatible_with": ["portrait", "scene", "nature"],
+      "color_palette": ["#0a0a0e", "#2a2018", "#5a3a28", "#8a6a48"]
+    },
+
+    {
+      "id": "anime-cel-shaded",
+      "name": "#anime-cel-shaded",
+      "display_name": "Anime Cel-Shaded",
+      "category": "Ilustração",
+      "description": "Estilo anime moderno com cel shading — cores chapadas, contornos nítidos, look 2D.",
+      "thumbnail_gradient": "linear-gradient(160deg, #2a1808 0%, #ff8a3d 50%, #ffe8a0 100%)",
+      "prompt_suffix": "anime cel-shaded illustration, flat color regions, clean line art, vibrant colors, Japanese animation style, Studio Ghibli inspired, 2D look, anime art",
+      "negative_prompt": "photorealistic, 3D render, painted texture, oil painting, realistic skin",
+      "system_instruction": "Convert to anime cel-shaded illustration. Preserve composition, pose and identity. Apply: flat color regions instead of realistic gradients, clean dark line art on edges, simplified shadow shapes, vibrant saturated colors, anime-style hair/eye treatment, 2D animation aesthetic.",
+      "intensity_default": 1.0,
+      "compatible_with": ["portrait", "character", "scene"],
+      "color_palette": ["#ff8a3d", "#2a8090", "#f4d4a0", "#1a1a3a"]
+    },
+
+    {
+      "id": "watercolor-painting",
+      "name": "#watercolor-painting",
+      "display_name": "Aquarela",
+      "category": "Ilustração",
+      "description": "Aquarela suave — transparências, bordas molhadas, papel texturizado, paleta artística.",
+      "thumbnail_gradient": "linear-gradient(135deg, #f4ece0 0%, #ffae8a 50%, #6a4a8a 100%)",
+      "prompt_suffix": "watercolor painting, soft wet edges, paper texture, transparent washes, bleeding colors, artistic brush strokes, traditional media, hand-painted",
+      "negative_prompt": "digital, sharp, photorealistic, smooth gradients, flat color",
+      "system_instruction": "Convert to watercolor painting. Preserve composition and subject. Apply: soft wet edges instead of hard lines, transparent overlapping washes, visible paper texture, slight color bleeding, hand-painted brush stroke quality, muted artistic palette.",
+      "intensity_default": 0.95,
+      "compatible_with": ["portrait", "landscape", "still-life"],
+      "color_palette": ["#f4ece0", "#ffae8a", "#a08aaa", "#4a3a5a"]
+    },
+
+    {
+      "id": "oil-painting-classic",
+      "name": "#oil-painting-classic",
+      "display_name": "Pintura a Óleo",
+      "category": "Ilustração",
+      "description": "Óleo clássico estilo Velho Mestre — pinceladas visíveis, cores ricas, drama renascentista.",
+      "thumbnail_gradient": "linear-gradient(135deg, #2a1a08 0%, #8a4a18 50%, #d4a868 100%)",
+      "prompt_suffix": "classical oil painting, visible brush strokes, rich impasto texture, Old Masters style, Rembrandt lighting, deep chiaroscuro, museum quality, traditional fine art",
+      "negative_prompt": "digital, photographic, smooth, modern, illustration, flat",
+      "system_instruction": "Convert to classical oil painting. Preserve composition. Apply: thick visible brush strokes, rich impasto texture, Old Masters color palette (warm earth tones, deep shadows), Rembrandt-style chiaroscuro lighting, oil paint material quality, museum aesthetic.",
+      "intensity_default": 0.95,
+      "compatible_with": ["portrait", "still-life", "scene"],
+      "color_palette": ["#2a1a08", "#8a4a18", "#d4a868", "#1a0e04"]
+    },
+
+    {
+      "id": "pixel-art-retro",
+      "name": "#pixel-art-retro",
+      "display_name": "Pixel Art Retro",
+      "category": "Ilustração",
+      "description": "Pixel art 16-bit — paleta limitada, dithering visível, estética de jogo retrô.",
+      "thumbnail_gradient": "linear-gradient(45deg, #1a1a3a 0%, #ff6a8a 50%, #f4d44a 100%)",
+      "prompt_suffix": "16-bit pixel art, limited color palette, visible pixels, dithering pattern, retro video game aesthetic, SNES era graphics, blocky resolution",
+      "negative_prompt": "smooth, high resolution, anti-aliased, photorealistic, modern",
+      "system_instruction": "Convert to 16-bit pixel art. Preserve composition and subject identification. Apply: visible square pixels (256-512 effective resolution), limited 32-color palette, dithering for gradients, retro video game aesthetic (SNES/Genesis era), no anti-aliasing.",
+      "intensity_default": 1.0,
+      "compatible_with": ["character", "scene", "landscape"],
+      "color_palette": ["#1a1a3a", "#ff6a8a", "#f4d44a", "#4aa8d8"]
+    },
+
+    {
+      "id": "3d-render-octane",
+      "name": "#3d-render-octane",
+      "display_name": "3D Render Octane",
+      "category": "3D",
+      "description": "Render 3D fotorrealista estilo Octane — materiais perfeitos, iluminação física, alta qualidade.",
+      "thumbnail_gradient": "linear-gradient(135deg, #1a1a1f 0%, #ff8a3d 60%, #f4f4f4 100%)",
+      "prompt_suffix": "Octane render, photorealistic 3D, physically based materials, ray-traced lighting, ultra detailed, studio lighting, product visualization quality, 8K render",
+      "negative_prompt": "2D, illustration, painting, low quality, video game graphics",
+      "system_instruction": "Apply photorealistic 3D Octane render aesthetic. Preserve composition. Apply: physically-based materials with realistic surface properties, ray-traced reflections and shadows, studio-quality lighting setup, ultra-sharp detail, render-perfect color accuracy, professional 3D look.",
+      "intensity_default": 0.85,
+      "compatible_with": ["product", "object", "still-life"],
+      "color_palette": ["#1a1a1f", "#ff8a3d", "#f4f4f4", "#3a3a40"]
+    },
+
+    {
+      "id": "claymation-stop-motion",
+      "name": "#claymation-stop-motion",
+      "display_name": "Claymation",
+      "category": "3D",
+      "description": "Stop-motion de massinha — texturas de barro, imperfeições charmosas, estilo Aardman.",
+      "thumbnail_gradient": "linear-gradient(135deg, #d4a878 0%, #c8702a 50%, #4a2818 100%)",
+      "prompt_suffix": "claymation stop-motion, plasticine clay texture, handmade aesthetic, Wallace and Gromit style, Aardman Animations, slight finger marks, charming imperfection",
+      "negative_prompt": "smooth, digital, photorealistic, perfect surfaces",
+      "system_instruction": "Convert to claymation stop-motion aesthetic. Preserve composition. Apply: plasticine clay surface texture with visible thumbprints, slight asymmetric handmade quality, soft sculpted forms, Aardman Animations-inspired style, charming imperfections.",
+      "intensity_default": 1.0,
+      "compatible_with": ["character", "scene", "object"],
+      "color_palette": ["#d4a878", "#c8702a", "#4a2818", "#f4e4c8"]
+    },
+
+    {
+      "id": "lowpoly-geometric",
+      "name": "#lowpoly-geometric",
+      "display_name": "Low Poly",
+      "category": "3D",
+      "description": "Geometria simplificada — facetas triangulares visíveis, paleta limitada, estética minimalista.",
+      "thumbnail_gradient": "linear-gradient(135deg, #2a4060 0%, #ff8a3d 50%, #f4d4a0 100%)",
+      "prompt_suffix": "low poly 3D art, geometric faceted surfaces, triangular polygons, flat shading, limited color palette, minimalist 3D aesthetic, isometric clean",
+      "negative_prompt": "smooth surfaces, high detail, realistic textures, organic curves",
+      "system_instruction": "Convert to low poly 3D art. Preserve general composition. Apply: simplified geometric forms with visible triangular facets, flat shading per polygon, limited harmonious color palette, no smooth gradients, minimalist 3D aesthetic.",
+      "intensity_default": 1.0,
+      "compatible_with": ["scene", "character", "landscape"],
+      "color_palette": ["#2a4060", "#ff8a3d", "#f4d4a0", "#5a8a6a"]
+    },
+
+    {
+      "id": "neon-cyberpunk",
+      "name": "#neon-cyberpunk",
+      "display_name": "Neon Cyberpunk",
+      "category": "Foto",
+      "description": "Cyberpunk noturno — neons saturados, atmosfera úmida, contrastes magenta/cyan.",
+      "thumbnail_gradient": "linear-gradient(135deg, #0a0a2a 0%, #ff3d8a 50%, #2acef0 100%)",
+      "prompt_suffix": "cyberpunk neon aesthetic, saturated magenta and cyan, wet streets reflections, night atmosphere, Blade Runner mood, neon glow, futuristic city vibes",
+      "negative_prompt": "daylight, natural colors, suburban, retro, warm tones only",
+      "system_instruction": "Apply cyberpunk neon treatment. Preserve composition. Apply: heavy magenta-cyan color split, neon glow on highlights, deep navy/purple shadows, wet reflective surfaces feel, slight haze, Blade Runner atmospheric mood. Maintain orange (#ff6a1a) as accent color where applicable.",
+      "intensity_default": 0.85,
+      "compatible_with": ["portrait", "scene", "urban"],
+      "color_palette": ["#0a0a2a", "#ff3d8a", "#2acef0", "#ff6a1a"]
+    },
+
+    {
+      "id": "minimalist-bw",
+      "name": "#minimalist-bw",
+      "display_name": "Minimal Mono",
+      "category": "Design",
+      "description": "Minimalismo monocromático — composição limpa, espaço negativo, elegância sutil.",
+      "thumbnail_gradient": "linear-gradient(135deg, #ffffff 0%, #c4c4c4 50%, #1a1a1a 100%)",
+      "prompt_suffix": "minimalist black and white, clean composition, negative space, subtle elegance, modern editorial, refined aesthetic, gallery quality",
+      "negative_prompt": "busy, cluttered, colorful, decorative, ornate",
+      "system_instruction": "Convert to minimalist monochrome. Preserve subject. Apply: clean black-to-white tonality, refined contrast curve (soft midtones), gallery-quality finish, subtle silver-toned shadows, no warm or cool cast, museum-print aesthetic.",
+      "intensity_default": 1.0,
+      "compatible_with": ["portrait", "architecture", "object"],
+      "color_palette": ["#ffffff", "#c4c4c4", "#5a5a5a", "#1a1a1a"]
+    },
+
+    {
+      "id": "risograph-print",
+      "name": "#risograph-print",
+      "display_name": "Risograph Print",
+      "category": "Design",
+      "description": "Impressão Risograph — registro torto, paleta limitada de duas cores, textura de impressão.",
+      "thumbnail_gradient": "linear-gradient(45deg, #ff5a4a 0%, #f4e4c8 50%, #2a4080 100%)",
+      "prompt_suffix": "risograph print aesthetic, two-color screen printing, slight registration offset, paper texture, limited spot color palette, indie zine style, halftone patterns",
+      "negative_prompt": "high resolution, perfect alignment, photographic, full color",
+      "system_instruction": "Apply Risograph print aesthetic. Preserve composition. Apply: limited 2-color spot palette (typically warm + cool), slight color registration offset, halftone dot patterns, paper grain texture, indie print zine quality.",
+      "intensity_default": 0.95,
+      "compatible_with": ["illustration", "poster", "editorial"],
+      "color_palette": ["#ff5a4a", "#2a4080", "#f4e4c8", "#1a1a1a"]
+    },
+
+    {
+      "id": "vaporwave-aesthetic",
+      "name": "#vaporwave-aesthetic",
+      "display_name": "Vaporwave",
+      "category": "Design",
+      "description": "Estética vaporwave — pastel + neon, glitches sutis, mood retrofuturista anos 90.",
+      "thumbnail_gradient": "linear-gradient(135deg, #ffaada 0%, #aaccff 50%, #ffe8a0 100%)",
+      "prompt_suffix": "vaporwave aesthetic, pastel pink and cyan, retrofuturism, 90s nostalgia, dreamy haze, gradient sky, surreal atmosphere, lo-fi quality",
+      "negative_prompt": "modern, sharp, professional, monochrome",
+      "system_instruction": "Apply vaporwave aesthetic. Preserve composition. Apply: pastel pink-cyan color shift, dreamy hazy quality, slight chromatic aberration, retrofuturistic mood, soft contrast, nostalgic 90s feel. Add subtle gradient atmosphere.",
+      "intensity_default": 0.8,
+      "compatible_with": ["scene", "object", "still-life"],
+      "color_palette": ["#ffaada", "#aaccff", "#ffe8a0", "#3a2a5a"]
+    },
+
+    {
+      "id": "tilt-shift-miniature",
+      "name": "#tilt-shift-miniature",
+      "display_name": "Tilt-Shift Miniatura",
+      "category": "Foto",
+      "description": "Efeito miniatura — desfoque seletivo top/bottom, saturação realçada, look de maquete.",
+      "thumbnail_gradient": "linear-gradient(180deg, #aaaaaa 0%, #ffe8a0 50%, #aaaaaa 100%)",
+      "prompt_suffix": "tilt-shift photography, miniature effect, selective focus center band, blurred top and bottom, saturated colors, toy-like appearance, model city look",
+      "negative_prompt": "uniform focus, flat colors, realistic depth",
+      "system_instruction": "Apply tilt-shift miniature effect. Preserve composition. Apply: sharp focus on horizontal center band only, gradual blur toward top and bottom edges, slightly boosted saturation, toy-model aesthetic. Subject in focus stays sharp.",
+      "intensity_default": 0.75,
+      "compatible_with": ["landscape", "urban", "scene"],
+      "color_palette": ["#3a3a4a", "#ffae6e", "#5a8a4a", "#aaaaaa"]
+    },
+
+    {
+      "id": "double-exposure",
+      "name": "#double-exposure",
+      "display_name": "Dupla Exposição",
+      "category": "Foto",
+      "description": "Sobreposição artística — silhueta e cena/textura combinadas, mood etéreo.",
+      "thumbnail_gradient": "linear-gradient(135deg, #1a1a2a 0%, #6a4a8a 50%, #ff8a3d 100%)",
+      "prompt_suffix": "double exposure photography, ethereal blend, silhouette overlay with landscape texture, artistic composition, melancholic mood, fine art photography",
+      "negative_prompt": "single exposure, flat, ordinary, no overlay",
+      "system_instruction": "Apply double exposure aesthetic. Preserve main subject. Add: ethereal texture overlay (forest, mountains or abstract patterns) blended into shadow areas of the subject, fine art photography quality, artistic mood, soft transitions between layers.",
+      "intensity_default": 0.7,
+      "compatible_with": ["portrait", "silhouette"],
+      "color_palette": ["#1a1a2a", "#6a4a8a", "#ff8a3d", "#f4ece0"]
+    },
+
+    {
+      "id": "sun-bleached-summer",
+      "name": "#sun-bleached-summer",
+      "display_name": "Sun Bleached",
+      "category": "Foto",
+      "description": "Verão estourado pelo sol — highlights queimados, cores desbotadas, mood nostálgico de praia.",
+      "thumbnail_gradient": "linear-gradient(180deg, #ffe8c8 0%, #f4c898 50%, #c8a878 100%)",
+      "prompt_suffix": "sun-bleached summer photography, faded warm tones, blown out highlights, hazy atmosphere, beach nostalgia, vintage holiday feel, sunlight overexposure",
+      "negative_prompt": "moody, dark, cool tones, indoor lighting",
+      "system_instruction": "Apply sun-bleached summer treatment. Preserve subject. Apply: lifted/faded shadows, slightly blown highlights with warm cream cast, reduced contrast, hazy atmosphere, vintage summer feel, washed-out warm color palette.",
+      "intensity_default": 0.7,
+      "compatible_with": ["portrait", "landscape", "lifestyle"],
+      "color_palette": ["#ffe8c8", "#f4c898", "#c8a878", "#8a6848"]
+    },
+
+    {
+      "id": "ink-print-monochrome",
+      "name": "#ink-print-monochrome",
+      "display_name": "Ink Print",
+      "category": "Ilustração",
+      "description": "Tinta sumi-e japonesa — pinceladas em tinta nanquim, papel washi, simplicidade Zen.",
+      "thumbnail_gradient": "linear-gradient(180deg, #f4ece0 0%, #5a4a3a 50%, #0a0a0a 100%)",
+      "prompt_suffix": "Japanese sumi-e ink painting, brush strokes, washi paper texture, minimalist composition, Zen aesthetic, traditional black ink, calligraphic quality",
+      "negative_prompt": "color, photorealistic, busy, Western style",
+      "system_instruction": "Convert to Japanese sumi-e ink painting. Preserve subject silhouette and composition. Apply: black ink brush strokes only, varying line thickness with calligraphic quality, washi paper texture, minimalist negative space, traditional Zen aesthetic.",
+      "intensity_default": 1.0,
+      "compatible_with": ["portrait", "nature", "object"],
+      "color_palette": ["#f4ece0", "#8a7a6a", "#3a3a3a", "#0a0a0a"]
+    },
+
+    {
+      "id": "glitch-vhs",
+      "name": "#glitch-vhs",
+      "display_name": "Glitch VHS",
+      "category": "Foto",
+      "description": "Estética de fita VHS — chromatic aberration, scan lines, distorções analógicas.",
+      "thumbnail_gradient": "linear-gradient(135deg, #2a0a3a 0%, #ff3a3a 50%, #3aaaff 100%)",
+      "prompt_suffix": "VHS aesthetic, chromatic aberration, scan lines, analog video distortion, RGB color shift, magnetic tape glitch, 80s home video feel, retro lo-fi",
+      "negative_prompt": "clean, modern, digital, sharp, high definition",
+      "system_instruction": "Apply VHS glitch aesthetic. Preserve composition. Apply: RGB chromatic aberration (red and blue channel offset), horizontal scan lines, slight magnetic tape distortion, lo-fi color quality, analog video noise, 80s home video character.",
+      "intensity_default": 0.65,
+      "compatible_with": ["portrait", "scene", "urban"],
+      "color_palette": ["#ff3a3a", "#3aaaff", "#2a0a3a", "#f4f4f4"]
+    },
+
+    {
+      "id": "studio-product-clean",
+      "name": "#studio-product-clean",
+      "display_name": "Studio Product",
+      "category": "Foto",
+      "description": "Foto de produto de estúdio — fundo limpo, iluminação técnica, qualidade catálogo premium.",
+      "thumbnail_gradient": "linear-gradient(135deg, #f4f4f4 0%, #e4e4e4 50%, #2a2a30 100%)",
+      "prompt_suffix": "professional studio product photography, clean background, technical lighting, soft shadows, catalog quality, e-commerce ready, sharp details, color accurate",
+      "negative_prompt": "moody, atmospheric, lifestyle, cluttered background",
+      "system_instruction": "Apply studio product photography treatment. Preserve subject exactly. Apply: clean controlled lighting, soft well-defined shadows, neutral white balance, sharp commercial detail, color-accurate rendering, premium catalog quality. Subject is hero — no atmospheric effects.",
+      "intensity_default": 0.7,
+      "compatible_with": ["product", "object", "still-life"],
+      "color_palette": ["#ffffff", "#e4e4e4", "#a4a4a4", "#2a2a30"]
+    }
+  ]
+}

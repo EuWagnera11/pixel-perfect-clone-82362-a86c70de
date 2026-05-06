@@ -24,6 +24,7 @@ import { ToolWorkspace, tabHasToolWorkspace } from "./components/ToolWorkspace";
 import { AccountPage } from "./components/AccountPage";
 import { TopupModal } from "./components/TopupModal";
 import { PricingPage } from "./components/PricingPage";
+import PaymentSuccess from "./components/PaymentSuccess";
 import { JobsProvider, useJobs, type Job } from "./lib/jobs";
 import { TAB_CONFIG } from "./lib/nav";
 import {
@@ -441,8 +442,19 @@ function Workspace() {
         open={topupOpen}
         onClose={() => setTopupOpen(false)}
         currentPlanId={(profile?.tier ?? "free").toLowerCase()}
-        onPurchase={(pkgId) => {
-          showToast(`Top-up ${pkgId} em breve — checkout será integrado na Fase 4.`);
+        onPurchase={async (pkgId) => {
+          const key = String(pkgId).replace(/^topup_/, "");
+          try {
+            const { data, error } = await supabase.functions.invoke("create-checkout", {
+              body: { topup: key },
+            });
+            if (error) throw error;
+            const url = (data as any)?.url;
+            if (url) window.location.href = url;
+            else throw new Error("Sem URL");
+          } catch (e: any) {
+            showToast("Erro: " + (e?.message || "checkout falhou"));
+          }
           setTopupOpen(false);
         }}
       />
@@ -466,6 +478,7 @@ export default function RefineApp() {
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/pricing" element={<PricingPage />} />
+            <Route path="/payment-success" element={<PaymentSuccess />} />
             <Route path="/login" element={<AuthPage mode="login" />} />
             <Route path="/signup" element={<AuthPage mode="signup" />} />
             <Route path="/app" element={<Navigate to="/home" replace />} />

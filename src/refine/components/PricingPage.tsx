@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Check, X, ArrowRight, Sparkle, Lightning, Crown, Rocket, Buildings } from "@phosphor-icons/react";
 import pricing from "@/config/pricing.json";
+import { supabase } from "@/integrations/supabase/client";
 
 type BillingCycle = "monthly" | "yearly";
 
@@ -78,9 +79,50 @@ const FAQ = [
 export function PricingPage() {
   const navigate = useNavigate();
   const [cycle, setCycle] = useState<BillingCycle>("monthly");
+  const [loadingKey, setLoadingKey] = useState<string | null>(null);
 
   const plans = useMemo(() => PLAN_ORDER.map((id) => (pricing as any).plans[id]).filter(Boolean), []);
   const topups = useMemo(() => Object.values((pricing as any).topup_packages || {}) as any[], []);
+
+  const startCheckout = async (planId: string) => {
+    if (planId === "free") { navigate("/signup"); return; }
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) { navigate(`/signup?next=/pricing`); return; }
+    const planKey = `${planId}_${cycle}`;
+    setLoadingKey(`plan:${planKey}`);
+    try {
+      const { data, error } = await supabase.functions.invoke("create-checkout", {
+        body: { plan: planKey },
+      });
+      if (error) throw error;
+      const url = (data as any)?.url;
+      if (url) window.location.href = url;
+      else throw new Error("Sem URL de checkout");
+    } catch (e: any) {
+      alert("Erro: " + (e?.message || "checkout falhou"));
+    } finally {
+      setLoadingKey(null);
+    }
+  };
+
+  const startTopup = async (topupKey: string) => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) { navigate(`/signup?next=/pricing`); return; }
+    setLoadingKey(`topup:${topupKey}`);
+    try {
+      const { data, error } = await supabase.functions.invoke("create-checkout", {
+        body: { topup: topupKey },
+      });
+      if (error) throw error;
+      const url = (data as any)?.url;
+      if (url) window.location.href = url;
+      else throw new Error("Sem URL de checkout");
+    } catch (e: any) {
+      alert("Erro: " + (e?.message || "checkout falhou"));
+    } finally {
+      setLoadingKey(null);
+    }
+  };
 
   return (
     <div className="pricing-page">
@@ -153,9 +195,12 @@ export function PricingPage() {
 
               <button
                 className={`plan-cta ${isHighlighted ? "primary" : ""}`}
-                onClick={() => navigate("/signup")}
+                onClick={() => startCheckout(plan.id)}
+                disabled={loadingKey === `plan:${plan.id}_${cycle}`}
               >
-                {isFree ? "Começar grátis" : `Assinar ${plan.name}`}
+                {loadingKey === `plan:${plan.id}_${cycle}`
+                  ? "Abrindo…"
+                  : isFree ? "Começar grátis" : `Assinar ${plan.name}`}
                 <ArrowRight weight="bold" size={14} />
               </button>
 
@@ -195,14 +240,26 @@ export function PricingPage() {
           <p className="section-sub">Disponível pra Creator, Pro e Studio. Top-ups não expiram.</p>
         </div>
         <div className="topups-grid">
-          {topups.map((t: any) => (
-            <div key={t.id} className="topup-card">
-              <div className="topup-name">{t.name}</div>
-              <div className="topup-credits">{formatCredits(t.credits)} <span>cr</span></div>
-              <div className="topup-price">R${t.price_brl}</div>
-              <div className="topup-rate">R${(t.price_brl / t.credits * 1000).toFixed(2)} / 1k créditos</div>
-            </div>
-          ))}
+          {topups.map((t: any) => {
+            const key = String(t.id || "").replace(/^topup_/, "");
+            return (
+              <button
+                key={t.id}
+                className="topup-card"
+                onClick={() => startTopup(key)}
+                disabled={loadingKey === `topup:${key}`}
+                style={{ cursor: "pointer", textAlign: "left", border: "none", background: "transparent", font: "inherit", color: "inherit" }}
+              >
+                <div className="topup-name">{t.name}</div>
+                <div className="topup-credits">{formatCredits(t.credits)} <span>cr</span></div>
+                <div className="topup-price">R${t.price_brl}</div>
+                <div className="topup-rate">R${(t.price_brl / t.credits * 1000).toFixed(2)} / 1k créditos</div>
+                <div style={{ marginTop: 12, fontSize: 12, opacity: 0.7 }}>
+                  {loadingKey === `topup:${key}` ? "Abrindo…" : "Comprar →"}
+                </div>
+              </button>
+            );
+          })}
         </div>
       </section>
 

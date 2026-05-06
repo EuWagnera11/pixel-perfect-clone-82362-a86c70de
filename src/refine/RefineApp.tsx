@@ -12,6 +12,8 @@ import AuthPage from "@/pages/Auth";
 import { useAuth } from "./hooks/useAuth";
 import { useGenerations } from "./hooks/useGenerations";
 import { useToast } from "./hooks/useToast";
+import { useBilling } from "./hooks/useBilling";
+import { useBillingNotifications } from "./hooks/useBillingNotifications";
 import { Sidebar } from "./components/Sidebar";
 import { Dock } from "./components/Dock";
 import { Rail } from "./components/Rail";
@@ -86,6 +88,9 @@ function Workspace() {
   const viewRef = useRef<HTMLDivElement>(null);
   const [topupOpen, setTopupOpen] = useState(false);
   const userId = session?.user?.id ?? null;
+
+  const billing = useBilling(userId);
+  useBillingNotifications(userId, billing.capacity);
 
   // Trocar de aba limpa upload (cada ferramenta tem seu fluxo independente)
   useEffect(() => { setSourceUrl(null); setLastFrameUrl(null); }, [currentTab]);

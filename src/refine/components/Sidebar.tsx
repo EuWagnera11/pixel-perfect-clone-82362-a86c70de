@@ -2,18 +2,21 @@ import { useEffect, useRef, useState } from "react";
 import { Plus, ArrowRight, Lock, Gear, CreditCard, SignOut, User } from "@phosphor-icons/react";
 import { NAV } from "../lib/nav";
 import type { Profile } from "../hooks/useAuth";
-import pricing from "@/config/pricing.json";
+import { useBilling } from "../hooks/useBilling";
+import { balanceLevel } from "../lib/credits";
 
 type SidebarProps = {
   currentTab: string;
   onTabChange: (key: string) => void;
   profile: Profile | null;
+  userId: string | null;
   email: string | null;
   isAnonymous: boolean;
   onUpgrade: () => void;
   onSignInGoogle: () => void;
   onSignOut: () => void;
   onOpenAccount: (tab?: "profile" | "plan" | "usage") => void;
+  onOpenTopup?: () => void;
   activeJobsCount?: number;
 };
 
@@ -23,12 +26,14 @@ export function Sidebar({
   currentTab,
   onTabChange,
   profile,
+  userId,
   email,
   isAnonymous,
   onUpgrade,
   onSignInGoogle,
   onSignOut,
   onOpenAccount,
+  onOpenTopup,
   activeJobsCount = 0,
 }: SidebarProps) {
   const [locked, setLocked] = useState<boolean>(() => {
@@ -51,19 +56,15 @@ export function Sidebar({
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  const credits = profile?.credits ?? 0;
-  const tier = (profile?.tier ?? "free").toLowerCase();
-  const PLAN_CAP: Record<string, number> = {
-    free: pricing.plans.free.credits_monthly,
-    starter: pricing.plans.starter.credits_monthly,
-    creator: pricing.plans.creator.credits_monthly,
-    pro: pricing.plans.pro.credits_monthly,
-    studio: pricing.plans.studio.credits_monthly,
-    agency: 100000,
-    enterprise: 500000,
-  };
-  const capacity = PLAN_CAP[tier] ?? 5000;
+  const billing = useBilling(userId);
+  const tier = (billing.currentPlan?.id ?? profile?.tier ?? "free").toLowerCase();
+  const planName = billing.currentPlan?.name ?? tier.toUpperCase();
+  const credits = billing.balance ?? profile?.credits ?? 0;
+  const capacity = billing.capacity || 500;
   const pct = Math.min(100, (credits / Math.max(1, capacity)) * 100);
+  const level = balanceLevel(credits, capacity);
+  const daysToReset = billing.daysToReset;
+  const topupEnabled = billing.currentPlan?.features?.topup_enabled === true;
   const initial = (email || tier)[0]?.toUpperCase() ?? "U";
   const userName = email?.split("@")[0] || "Anônimo";
 
@@ -139,14 +140,14 @@ export function Sidebar({
       </nav>
 
       <div className="sb-foot">
-        <div className="sb-credits">
+        <div className={"sb-credits" + (level === "low" ? " low" : level === "warn" ? " warn" : "")} data-level={level}>
           <div className="sb-credits-head">
             <button
               className="sb-credits-plan sb-credits-plan-btn"
               onClick={() => onOpenAccount("plan")}
               title="Ver plano e créditos"
             >
-              Plano {tier.toUpperCase()}
+              Plano {planName}
             </button>
             <span className="sb-credits-count">
               <span className="current">{credits.toLocaleString("pt-BR")}</span>
@@ -155,7 +156,14 @@ export function Sidebar({
             </span>
           </div>
           <div className="sb-credits-bar"><i style={{ width: `${pct}%` }} /></div>
-          <span className="sb-credits-renewal">Renova em 30 dias</span>
+          <div className="sb-credits-foot">
+            <span className="sb-credits-renewal">
+              {daysToReset !== null ? `Renova em ${daysToReset} ${daysToReset === 1 ? "dia" : "dias"}` : "—"}
+            </span>
+            {topupEnabled && onOpenTopup && (
+              <button className="sb-credits-topup" onClick={onOpenTopup}>+ Comprar</button>
+            )}
+          </div>
           <button className="sb-upgrade" onClick={() => onOpenAccount("plan")}>
             {tier === "free" ? "Fazer upgrade" : "Gerenciar plano"}
           </button>

@@ -3,44 +3,40 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { User, CreditCard, Activity, ArrowLeft, Check, Sparkles, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Profile } from "../hooks/useAuth";
+import { useBilling } from "../hooks/useBilling";
 import pricing from "@/config/pricing.json";
 
 type Tab = "profile" | "plan" | "usage";
 
 type Props = {
   profile: Profile | null;
+  userId: string | null;
   email: string | null;
   isAnonymous: boolean;
   onUpgrade: () => void;
   onSignOut: () => void;
   refreshProfile: () => void;
+  onOpenTopup?: () => void;
 };
 
-const PLAN_META: Record<string, { name: string; credits: number; priceM: number; priceY: number }> = {
-  free:     { name: "Free",     credits: pricing.plans.free.credits_monthly,     priceM: 0,    priceY: 0 },
-  starter:  { name: "Starter",  credits: pricing.plans.starter.credits_monthly,  priceM: 27,   priceY: 259 },
-  creator:  { name: "Creator",  credits: pricing.plans.creator.credits_monthly,  priceM: 59,   priceY: 566 },
-  pro:      { name: "Pro",      credits: pricing.plans.pro.credits_monthly,      priceM: 129,  priceY: 1238 },
-  studio:   { name: "Studio",   credits: pricing.plans.studio.credits_monthly,   priceM: 749,  priceY: 7190 },
-  agency:   { name: "Agency",   credits: 100000, priceM: 299, priceY: 2870 },
-  enterprise: { name: "Enterprise", credits: 500000, priceM: 0, priceY: 0 },
-};
-
-export function AccountPage({ profile, email, isAnonymous, onUpgrade, onSignOut, refreshProfile }: Props) {
+export function AccountPage({ profile, userId, email, isAnonymous, onUpgrade, onSignOut, refreshProfile, onOpenTopup }: Props) {
   const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
   const initial = (params.get("tab") as Tab) || "profile";
   const [tab, setTab] = useState<Tab>(initial);
+  const billing = useBilling(userId);
 
   useEffect(() => {
     setParams({ tab }, { replace: true });
   }, [tab]);
 
-  const tier = (profile?.tier ?? "free").toLowerCase();
-  const meta = PLAN_META[tier] ?? PLAN_META.free;
-  const credits = profile?.credits ?? 0;
-  const capacity = meta.credits;
+  const planName = billing.currentPlan?.name ?? (profile?.tier ?? "Free");
+  const credits = billing.balance ?? profile?.credits ?? 0;
+  const capacity = billing.capacity || 500;
   const pct = Math.min(100, (credits / Math.max(1, capacity)) * 100);
+  const cycle = billing.subscription?.billing_cycle ?? "monthly";
+  const priceM = billing.currentPlan?.price_monthly_brl ?? 0;
+  const periodEnd = billing.subscription?.current_period_end;
 
   return (
     <div className="account-page">
@@ -68,7 +64,20 @@ export function AccountPage({ profile, email, isAnonymous, onUpgrade, onSignOut,
         <ProfileTab email={email} isAnonymous={isAnonymous} onSignOut={onSignOut} refreshProfile={refreshProfile} />
       )}
       {tab === "plan" && (
-        <PlanTab tier={tier} meta={meta} credits={credits} capacity={capacity} pct={pct} onUpgrade={onUpgrade} />
+        <PlanTab
+          planName={planName}
+          cycle={cycle}
+          priceM={priceM}
+          credits={credits}
+          capacity={capacity}
+          pct={pct}
+          periodEnd={periodEnd}
+          rolloverCredits={billing.credits?.rollover_credits ?? 0}
+          topupCredits={billing.credits?.topup_credits ?? 0}
+          topupEnabled={billing.currentPlan?.features?.topup_enabled === true}
+          onUpgrade={onUpgrade}
+          onOpenTopup={onOpenTopup}
+        />
       )}
       {tab === "usage" && <UsageTab />}
     </div>
@@ -136,21 +145,31 @@ function ProfileTab({
 }
 
 function PlanTab({
-  tier, meta, credits, capacity, pct, onUpgrade,
+  planName, cycle, priceM, credits, capacity, pct, periodEnd,
+  rolloverCredits, topupCredits, topupEnabled, onUpgrade, onOpenTopup,
 }: {
-  tier: string;
-  meta: { name: string; credits: number; priceM: number; priceY: number };
+  planName: string;
+  cycle: "monthly" | "yearly";
+  priceM: number;
   credits: number; capacity: number; pct: number;
+  periodEnd?: string;
+  rolloverCredits: number;
+  topupCredits: number;
+  topupEnabled: boolean;
   onUpgrade: () => void;
+  onOpenTopup?: () => void;
 }) {
-  const isPaid = tier !== "free";
+  const isPaid = priceM > 0;
+  const renewLabel = periodEnd
+    ? new Date(periodEnd).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" })
+    : "—";
   return (
     <div className="account-grid">
       <div className="account-card account-card-feature">
-        <div className="account-pill">Plano atual</div>
-        <h2>{meta.name}</h2>
+        <div className="account-pill">Plano atual · {cycle === "yearly" ? "Anual" : "Mensal"}</div>
+        <h2>{planName}</h2>
         <p className="account-card-sub">
-          {meta.priceM > 0 ? `R$ ${meta.priceM} / mês` : "Grátis"}
+          {priceM > 0 ? `R$ ${priceM} / mês` : "Grátis"}
         </p>
 
         <div className="account-credits">
@@ -162,7 +181,11 @@ function PlanTab({
             </span>
           </div>
           <div className="account-credits-bar"><i style={{ width: `${pct}%` }} /></div>
-          <span className="account-credits-foot">Renovação automática a cada 30 dias</span>
+          <span className="account-credits-foot">
+            Renova em {renewLabel}
+            {rolloverCredits > 0 && ` · ${rolloverCredits.toLocaleString("pt-BR")} de rollover`}
+            {topupCredits > 0 && ` · ${topupCredits.toLocaleString("pt-BR")} avulsos`}
+          </span>
         </div>
 
         <button className="btn-primary block" onClick={onUpgrade}>
@@ -184,7 +207,13 @@ function PlanTab({
             </div>
           ))}
         </div>
-        <p className="account-note">Disponível para Creator, Pro e Studio.</p>
+        {topupEnabled ? (
+          <button className="btn-primary block" onClick={onOpenTopup} style={{ marginTop: 12 }}>
+            Comprar créditos
+          </button>
+        ) : (
+          <p className="account-note">Disponível a partir do plano Creator.</p>
+        )}
       </div>
     </div>
   );

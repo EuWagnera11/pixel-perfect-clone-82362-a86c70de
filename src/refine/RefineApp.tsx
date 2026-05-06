@@ -22,6 +22,7 @@ import { ImageWorkspace } from "./components/ImageWorkspace";
 import { VideoWorkspace } from "./components/VideoWorkspace";
 import { ToolWorkspace, tabHasToolWorkspace } from "./components/ToolWorkspace";
 import { AccountPage } from "./components/AccountPage";
+import { TopupModal } from "./components/TopupModal";
 import { JobsProvider, useJobs, type Job } from "./lib/jobs";
 import { TAB_CONFIG } from "./lib/nav";
 import {
@@ -80,6 +81,8 @@ function Workspace() {
   const [stylePack, setStylePack] = useState<string | null>(null);
   const [toolOptions, setToolOptions] = useState<ToolOptions>({});
   const viewRef = useRef<HTMLDivElement>(null);
+  const [topupOpen, setTopupOpen] = useState(false);
+  const userId = session?.user?.id ?? null;
 
   // Trocar de aba limpa upload (cada ferramenta tem seu fluxo independente)
   useEffect(() => { setSourceUrl(null); setLastFrameUrl(null); }, [currentTab]);
@@ -306,12 +309,14 @@ function Workspace() {
           currentTab={currentTab}
           onTabChange={(k) => navigate(`/${k}`)}
           profile={profile}
+          userId={userId}
           email={session?.user?.email ?? null}
           isAnonymous={isAnonymous}
           onUpgrade={() => navigate("/account?tab=plan")}
           onSignInGoogle={signInWithGoogle}
           onSignOut={signOut}
           onOpenAccount={(t) => navigate(`/account${t ? `?tab=${t}` : ""}`)}
+          onOpenTopup={() => setTopupOpen(true)}
           activeJobsCount={activeJobsCount}
         />
 
@@ -320,11 +325,13 @@ function Workspace() {
             <div className="canvas no-dock">
               <AccountPage
                 profile={profile}
+                userId={userId}
                 email={session?.user?.email ?? null}
                 isAnonymous={isAnonymous}
                 onUpgrade={() => upgradeTo("starter_monthly")}
                 onSignOut={signOut}
                 refreshProfile={refreshProfile}
+                onOpenTopup={() => setTopupOpen(true)}
               />
             </div>
           )}
@@ -422,6 +429,15 @@ function Workspace() {
 
       <JobsPanel onOpenResult={handleJobOpen} />
       <Toast msg={msg} show={show} />
+      <TopupModal
+        open={topupOpen}
+        onClose={() => setTopupOpen(false)}
+        currentPlanId={(profile?.tier ?? "free").toLowerCase()}
+        onPurchase={(pkgId) => {
+          showToast(`Top-up ${pkgId} em breve — checkout será integrado na Fase 4.`);
+          setTopupOpen(false);
+        }}
+      />
     </>
   );
 }

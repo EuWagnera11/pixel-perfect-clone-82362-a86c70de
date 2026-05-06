@@ -3533,3 +3533,31 @@ img{display:block;max-width:100%}
 .sb-menu-danger{color:#ff7a7a}
 .sb-menu-danger:hover{background:rgba(255,90,90,.08);color:#ff5a5a}
 .sb-menu-sep{height:1px;background:rgba(255,255,255,.06);margin:4px 6px}
+
+/* ===== Fase 2: créditos + topup modal ===== */
+.sb-credits-foot { display:flex; justify-content:space-between; align-items:center; margin-top:6px; gap:8px; }
+.sb-credits-topup { background:transparent; border:0; color:#ff8a3d; font-size:10.5px; font-weight:600; cursor:pointer; padding:0; }
+.sb-credits-topup:hover { text-decoration:underline; }
+.sb-credits.low .sb-credits-bar i { background: linear-gradient(90deg,#ef4444,#f87171) !important; }
+.sb-credits.warn .sb-credits-bar i { background: linear-gradient(90deg,#f59e0b,#fbbf24) !important; }
+
+.topup-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.65); backdrop-filter:blur(6px); z-index:1000; display:grid; place-items:center; padding:24px; }
+.topup-modal { position:relative; width:100%; max-width:640px; background:rgba(14,14,22,0.95); border:1px solid rgba(255,255,255,0.08); border-radius:18px; padding:28px; box-shadow:0 30px 80px -20px rgba(0,0,0,0.7); }
+.topup-close { position:absolute; top:14px; right:14px; background:transparent; border:0; color:#9b9ba3; cursor:pointer; padding:6px; border-radius:6px; }
+.topup-close:hover { background:rgba(255,255,255,0.06); color:#fff; }
+.topup-header h2 { margin:0 0 4px; font-size:20px; letter-spacing:-0.02em; color:#fff; }
+.topup-header p { margin:0 0 20px; font-size:12.5px; color:#9b9ba3; }
+.topup-locked { display:flex; align-items:center; gap:8px; padding:10px 12px; background:rgba(255,106,26,0.08); border:1px solid rgba(255,106,26,0.2); border-radius:9px; font-size:12px; color:#ff8a3d; margin-bottom:16px; flex-wrap:wrap; }
+.topup-locked a { color:#ff8a3d; text-decoration:underline; margin-left:auto; }
+.topup-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
+@media (max-width:520px){ .topup-grid { grid-template-columns:1fr; } }
+.topup-card { display:flex; flex-direction:column; align-items:flex-start; padding:16px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:12px; cursor:pointer; transition:0.25s cubic-bezier(0.32,0.72,0,1); text-align:left; }
+.topup-card:hover:not(:disabled) { transform:translateY(-2px); border-color:rgba(255,106,26,0.35); background:rgba(255,106,26,0.04); }
+.topup-card:disabled { opacity:0.45; cursor:not-allowed; }
+.topup-card-name { font-size:11px; color:#9b9ba3; letter-spacing:0.04em; text-transform:uppercase; font-weight:600; }
+.topup-card-credits { font-size:22px; font-weight:700; color:#ff8a3d; font-family:ui-monospace,monospace; margin:4px 0 6px; }
+.topup-card-credits span { font-size:12px; color:#9b9ba3; font-weight:500; }
+.topup-card-price { font-size:16px; font-weight:600; color:#fff; }
+.topup-card-rate { font-size:10.5px; color:#6b6b75; margin-top:2px; }
+.topup-foot { margin-top:18px; padding-top:14px; border-top:1px solid rgba(255,255,255,0.06); font-size:12px; color:#9b9ba3; text-align:center; }
+.topup-foot a { color:#ff8a3d; text-decoration:underline; }

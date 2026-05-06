@@ -3335,3 +3335,66 @@ img{display:block;max-width:100%}
   transition:.3s var(--spring,cubic-bezier(.2,.8,.2,1));
 }
 .st-opts-select:hover .st-opts-caret{color:#ff8a3d}
+
+/* === Style Transfer custom preset picker (idv do site) === */
+.st-picker{position:relative;width:100%}
+.st-picker-trigger{
+  all:unset;box-sizing:border-box;display:inline-flex;align-items:center;gap:9px;
+  width:100%;height:38px;padding:0 12px;cursor:pointer;
+  border-radius:99px;background:rgba(255,255,255,.03);
+  border:1px solid var(--hairline,rgba(255,255,255,.08));
+  color:var(--text-2,rgba(255,255,255,.78));font-size:11.5px;font-weight:500;
+  transition:.3s var(--spring,cubic-bezier(.2,.8,.2,1));
+}
+.st-picker-trigger:hover{
+  background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.16);color:#fff;
+}
+.st-picker-trigger[aria-expanded="true"]{
+  border-color:rgba(249,115,22,.45);
+  background:linear-gradient(180deg,rgba(255,106,26,.08),rgba(255,106,26,.02));
+  color:#fff;box-shadow:0 0 0 3px rgba(249,115,22,.10);
+}
+.st-picker-label{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:left}
+.st-picker-placeholder{color:var(--text-3,rgba(255,255,255,.4))}
+.st-picker-cat{
+  font-size:9.5px;text-transform:uppercase;letter-spacing:.8px;
+  color:var(--text-3,rgba(255,255,255,.4));font-weight:600;
+  padding:2px 7px;border-radius:99px;background:rgba(255,255,255,.04);
+}
+.st-picker-swatch{
+  display:inline-flex;flex-shrink:0;width:22px;height:22px;border-radius:50%;
+  overflow:hidden;border:1px solid rgba(255,255,255,.08);
+}
+.st-picker-swatch span{flex:1;height:100%;display:block}
+.st-picker-swatch--empty{background:repeating-linear-gradient(45deg,rgba(255,255,255,.05) 0 4px,transparent 4px 8px)}
+
+.st-picker-menu{
+  position:absolute;top:calc(100% + 6px);left:0;right:0;z-index:50;
+  max-height:320px;overflow-y:auto;padding:6px;
+  background:rgba(20,20,20,.96);backdrop-filter:blur(20px);
+  border:1px solid var(--hairline,rgba(255,255,255,.1));
+  border-radius:14px;
+  box-shadow:0 12px 32px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.02);
+  animation:stPickerIn .18s var(--spring,cubic-bezier(.2,.8,.2,1));
+}
+@keyframes stPickerIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+.st-picker-menu::-webkit-scrollbar{width:6px}
+.st-picker-menu::-webkit-scrollbar-thumb{background:rgba(255,255,255,.08);border-radius:99px}
+.st-picker-group{padding:4px 0}
+.st-picker-group + .st-picker-group{border-top:1px solid rgba(255,255,255,.05);margin-top:4px;padding-top:6px}
+.st-picker-group-label{
+  font-size:9.5px;text-transform:uppercase;letter-spacing:1.2px;font-weight:700;
+  color:var(--text-3,rgba(255,255,255,.4));padding:4px 10px 6px;
+}
+.st-picker-item{
+  all:unset;box-sizing:border-box;display:flex;align-items:center;gap:9px;
+  width:100%;padding:7px 10px;border-radius:9px;cursor:pointer;
+  color:var(--text-2,rgba(255,255,255,.78));font-size:12px;
+  transition:.18s var(--spring,cubic-bezier(.2,.8,.2,1));
+}
+.st-picker-item:hover{background:rgba(255,255,255,.05);color:#fff}
+.st-picker-item.is-active{
+  background:linear-gradient(180deg,rgba(255,106,26,.14),rgba(255,106,26,.04));
+  color:#ff8a3d;
+}
+.st-picker-check{width:14px;height:14px;color:#ff8a3d;flex-shrink:0}

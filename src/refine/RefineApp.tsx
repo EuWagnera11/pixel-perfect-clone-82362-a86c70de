@@ -12,6 +12,8 @@ import AuthPage from "@/pages/Auth";
 import { useAuth } from "./hooks/useAuth";
 import { useGenerations } from "./hooks/useGenerations";
 import { useToast } from "./hooks/useToast";
+import { useBilling } from "./hooks/useBilling";
+import { useBillingNotifications } from "./hooks/useBillingNotifications";
 import { Sidebar } from "./components/Sidebar";
 import { Dock } from "./components/Dock";
 import { Rail } from "./components/Rail";

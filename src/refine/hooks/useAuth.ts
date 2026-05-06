@@ -110,8 +110,15 @@ export function useAuth() {
 
   const refreshProfile = async () => {
     try {
-      const me = await api<{ tier: string; credits: number }>("/billing/me");
-      setProfile({ tier: me.tier, credits: me.credits });
+      const { data: u } = await supabase.auth.getUser();
+      if (!u.user) { setProfile(null); return; }
+      const { data: row } = await supabase
+        .from("profiles")
+        .select("tier, credits")
+        .eq("id", u.user.id)
+        .maybeSingle();
+      if (row) setProfile({ tier: row.tier, credits: row.credits });
+      else setProfile(null);
     } catch {
       setProfile(null);
     }

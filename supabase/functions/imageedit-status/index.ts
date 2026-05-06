@@ -223,6 +223,8 @@ Deno.serve(async (req) => {
       error_message: data?.error || "Falha na Freepik.",
       completed_at: new Date().toISOString(),
     }).eq("generation_id", generationId);
+    const cost = (gen.metadata as any)?.credits_used ?? 0;
+    if (cost > 0) await refundCredits(userId, cost, "Generation failed at provider", generationId);
     return json({ generation_id: generationId, status: "FAILED", error: data?.error });
   }
 

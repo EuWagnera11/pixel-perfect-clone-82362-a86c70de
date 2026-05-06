@@ -153,7 +153,8 @@ function ProfileTab({
 
 function PlanTab({
   planName, cycle, priceM, credits, capacity, pct, periodEnd,
-  rolloverCredits, topupCredits, topupEnabled, onUpgrade, onOpenTopup,
+  rolloverCredits, topupCredits, topupEnabled, isPaidSubscription, cancelAtPeriodEnd,
+  onUpgrade, onOpenTopup, onRefresh,
 }: {
   planName: string;
   cycle: "monthly" | "yearly";
@@ -163,13 +164,45 @@ function PlanTab({
   rolloverCredits: number;
   topupCredits: number;
   topupEnabled: boolean;
+  isPaidSubscription: boolean;
+  cancelAtPeriodEnd: boolean;
   onUpgrade: () => void;
   onOpenTopup?: () => void;
+  onRefresh: () => void | Promise<void>;
 }) {
+  const [portalLoading, setPortalLoading] = useState(false);
+  const [syncing, setSyncing] = useState(false);
   const isPaid = priceM > 0;
   const renewLabel = periodEnd
     ? new Date(periodEnd).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" })
     : "—";
+
+  const openPortal = async () => {
+    setPortalLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("customer-portal");
+      if (error) throw error;
+      if ((data as any)?.url) window.open((data as any).url, "_blank");
+    } catch (e) {
+      console.error("[customer-portal]", e);
+      alert("Não foi possível abrir o portal de assinatura.");
+    } finally {
+      setPortalLoading(false);
+    }
+  };
+
+  const sync = async () => {
+    setSyncing(true);
+    try {
+      await supabase.functions.invoke("check-subscription");
+      await onRefresh();
+    } catch (e) {
+      console.error("[sync]", e);
+    } finally {
+      setSyncing(false);
+    }
+  };
+
   return (
     <div className="account-grid">
       <div className="account-card account-card-feature">
@@ -177,6 +210,7 @@ function PlanTab({
         <h2>{planName}</h2>
         <p className="account-card-sub">
           {priceM > 0 ? `R$ ${priceM} / mês` : "Grátis"}
+          {cancelAtPeriodEnd && <span className="account-warn"> · cancela em {renewLabel}</span>}
         </p>
 
         <div className="account-credits">
@@ -189,15 +223,27 @@ function PlanTab({
           </div>
           <div className="account-credits-bar"><i style={{ width: `${pct}%` }} /></div>
           <span className="account-credits-foot">
-            Renova em {renewLabel}
+            {cancelAtPeriodEnd ? "Termina" : "Renova"} em {renewLabel}
             {rolloverCredits > 0 && ` · ${rolloverCredits.toLocaleString("pt-BR")} de rollover`}
             {topupCredits > 0 && ` · ${topupCredits.toLocaleString("pt-BR")} avulsos`}
           </span>
         </div>
 
-        <button className="btn-primary block" onClick={onUpgrade}>
-          <Sparkles size={14} /> {isPaid ? "Mudar de plano" : "Fazer upgrade"}
-        </button>
+        <div className="account-actions" style={{ marginTop: 16, flexWrap: "wrap" }}>
+          <button className="btn-primary" onClick={onUpgrade}>
+            <Sparkles size={14} /> {isPaid ? "Mudar de plano" : "Fazer upgrade"}
+          </button>
+          {isPaidSubscription && (
+            <button className="btn-ghost" onClick={openPortal} disabled={portalLoading}>
+              {portalLoading ? <Loader2 size={14} className="spin" /> : <ExternalLink size={14} />}
+              Gerenciar assinatura
+            </button>
+          )}
+          <button className="btn-ghost" onClick={sync} disabled={syncing}>
+            {syncing ? <Loader2 size={14} className="spin" /> : <Activity size={14} />}
+            Sincronizar
+          </button>
+        </div>
       </div>
 
       <div className="account-card">

@@ -143,6 +143,10 @@ Deno.serve(async (req) => {
     update.error_message = typeof reason === "string" ? reason : JSON.stringify(reason);
     update.completed_at = new Date().toISOString();
   }
+  // Refund credits if generation ultimately failed (failed_generation_charge: false)
+  if ((update.status === "failed") && (gen.credits_used ?? 0) > 0) {
+    await refundCredits(auth.userId, gen.credits_used, "Generation failed", generationId);
+  }
   await auth.admin.from("generations").update(update).eq("id", generationId);
 
   const { data: fresh } = await auth.admin

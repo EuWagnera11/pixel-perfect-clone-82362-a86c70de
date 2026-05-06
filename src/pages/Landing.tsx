@@ -1,8 +1,9 @@
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
-  ArrowRight, ArrowUpRight, Sparkles, Video, Users, MapPin, Shirt,
-  FolderInput, Brain, Layers, RefreshCw, Play, Check, Zap, Star,
+  ArrowRight, ArrowUpRight, Image as ImageIcon, Video, Film, Pencil,
+  AudioWaveform, ArrowUpToLine, ShoppingBag, Box, Boxes, Layers,
+  UserCircle2, Send, Play, Check, Star,
 } from "lucide-react";
 import { CuboLogo } from "@/components/CuboLogo";
 import { useAuth } from "@/lib/auth";
@@ -19,15 +20,18 @@ import tplOotd from "@/assets/template-ootd.jpg";
    ============================================================ */
 
 const tools = [
-  { icon: Sparkles, title: "Image Generation", desc: "Editorial 4K em 3 minutos, identidade fixa garantida.", tag: "Core", media: tplCafe },
-  { icon: Video, title: "Video Generation", desc: "Reels cinematográficos 9:16 com motion control.", tag: "New", media: tplOotd },
-  { icon: Users, title: "Face Swap", desc: "Troque rostos preservando expressão e iluminação.", tag: "Pro", media: tplStudio },
-  { icon: MapPin, title: "Scene Swap", desc: "Mesma persona, qualquer cenário do mundo.", tag: "Core", media: tplMediterranean },
-  { icon: Shirt, title: "Cloth Swap", desc: "Troque outfits sem perder a pose original.", tag: "Pro", media: tplBeach },
-  { icon: FolderInput, title: "Bulk Import", desc: "Importe centenas de imagens via URLs ou upload em lote.", tag: "Workflow", media: tplRooftop },
-  { icon: Brain, title: "Style Learning", desc: "Descreva seu estilo + suba refs e a IA replica.", tag: "Custom", media: tplCafe },
-  { icon: Layers, title: "Batch Mass", desc: "Gere 100+ imagens em paralelo. Templates curados.", tag: "Scale", media: tplOotd },
-  { icon: RefreshCw, title: "Recreate", desc: "Recrie qualquer foto com sua persona.", tag: "Magic", media: tplBeach },
+  { icon: ImageIcon, title: "Image", desc: "Geração de imagem com Nano-Banana Pro, Seedream e Flux. Variações em paralelo, até 4K.", tag: "Core", media: tplCafe },
+  { icon: Video, title: "Video", desc: "Image-to-video com Kling 2.5 Pro e Pixverse v5. Até 10s, 9:16 ou 16:9.", tag: "New", media: tplOotd },
+  { icon: Film, title: "Cinema", desc: "Stills cinematográficos 21:9, anamórfico, lente longa e color grading editorial.", tag: "Pro", media: tplStudio },
+  { icon: Pencil, title: "Edit Image", desc: "Remove/replace BG, expand, style transfer, inpaint, colorize, face e cloth swap.", tag: "Core", media: tplMediterranean },
+  { icon: ArrowUpToLine, title: "Upscale", desc: "Magnific Creative e video upscaler até 4K com detalhe coerente.", tag: "Pro", media: tplBeach },
+  { icon: AudioWaveform, title: "Audio", desc: "Música (Suno V4), SFX, voiceover TTS e isolamento de áudio.", tag: "New", media: tplRooftop },
+  { icon: ShoppingBag, title: "E-commerce & Product", desc: "Product photography studio: fundo branco, packshot e cenas de produto.", tag: "Workflow", media: tplCafe },
+  { icon: Box, title: "Realistic 3D", desc: "Converte qualquer referência em figurine, toy, escultura ou clay 3D.", tag: "New", media: tplOotd },
+  { icon: Boxes, title: "Assets Gen", desc: "Ícones, sprites, props e UI assets com fundo transparente sob demanda.", tag: "New", media: tplBeach },
+  { icon: Layers, title: "Depth Map", desc: "Extrai mapa de profundidade (grayscale/colored) pronto pra ControlNet.", tag: "Beta", media: tplStudio },
+  { icon: UserCircle2, title: "Character", desc: "Persona consistente: mesmo rosto e identidade em qualquer cena ou pose.", tag: "Core", media: tplMediterranean },
+  { icon: Send, title: "Marketing", desc: "Campanhas hero shot, mockups e variações para anúncios em 1 clique.", tag: "Workflow", media: tplRooftop },
 ];
 
 const templates = [

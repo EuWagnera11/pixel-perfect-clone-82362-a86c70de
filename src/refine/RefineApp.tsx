@@ -442,7 +442,7 @@ function Workspace() {
           )}
         </section>
 
-        {currentTab !== "account" && !noRail && !(currentTab === "image" || currentTab === "video" || tabHasToolWorkspace(currentTab)) && (
+        {currentTab !== "account" && currentTab !== "admin" && !noRail && !(currentTab === "image" || currentTab === "video" || tabHasToolWorkspace(currentTab)) && (
           <Rail generations={history} onItemClick={handleHistoryClick} currentTab={currentTab} />
         )}
       </div>

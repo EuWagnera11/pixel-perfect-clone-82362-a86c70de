@@ -47,8 +47,10 @@ const templates = [
 const tiers = [
   {
     name: "Free",
-    price: "R$ 0",
-    credits: "500 créditos / mês",
+    priceMonthly: "R$ 0",
+    priceYearly: "R$ 0",
+    creditsMonthly: "500 créditos / mês",
+    creditsYearly: "6.000 créditos / ano",
     features: [
       "Com marca d'água",
       "1 geração simultânea",
@@ -59,8 +61,11 @@ const tiers = [
   },
   {
     name: "Starter",
-    price: "R$ 27",
-    credits: "8.000 créditos / mês",
+    priceMonthly: "R$ 27",
+    priceYearly: "R$ 21,58",
+    yearlyTotal: "R$ 259 / ano",
+    creditsMonthly: "8.000 créditos / mês",
+    creditsYearly: "105.600 créditos / ano",
     features: [
       "Sem marca d'água",
       "Licença comercial",
@@ -72,8 +77,11 @@ const tiers = [
   },
   {
     name: "Creator",
-    price: "R$ 59",
-    credits: "19.000 créditos / mês",
+    priceMonthly: "R$ 59",
+    priceYearly: "R$ 47,17",
+    yearlyTotal: "R$ 566 / ano",
+    creditsMonthly: "19.000 créditos / mês",
+    creditsYearly: "250.800 créditos / ano",
     features: [
       "3 gerações simultâneas",
       "5 personagens",
@@ -86,8 +94,11 @@ const tiers = [
   },
   {
     name: "Pro",
-    price: "R$ 129",
-    credits: "48.000 créditos / mês",
+    priceMonthly: "R$ 129",
+    priceYearly: "R$ 103,17",
+    yearlyTotal: "R$ 1.238 / ano",
+    creditsMonthly: "48.000 créditos / mês",
+    creditsYearly: "633.600 créditos / ano",
     features: [
       "5 gerações simultâneas",
       "Fila prioritária",
@@ -100,8 +111,11 @@ const tiers = [
   },
   {
     name: "Studio",
-    price: "R$ 749",
-    credits: "320.000 créditos / mês",
+    priceMonthly: "R$ 749",
+    priceYearly: "R$ 599,17",
+    yearlyTotal: "R$ 7.190 / ano",
+    creditsMonthly: "320.000 créditos / mês",
+    creditsYearly: "4.224.000 créditos / ano",
     features: [
       "10 gerações simultâneas",
       "Personagens ilimitados",

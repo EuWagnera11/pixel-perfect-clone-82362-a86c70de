@@ -325,11 +325,13 @@ function Workspace() {
             <div className="canvas no-dock">
               <AccountPage
                 profile={profile}
+                userId={userId}
                 email={session?.user?.email ?? null}
                 isAnonymous={isAnonymous}
                 onUpgrade={() => upgradeTo("starter_monthly")}
                 onSignOut={signOut}
                 refreshProfile={refreshProfile}
+                onOpenTopup={() => setTopupOpen(true)}
               />
             </div>
           )}

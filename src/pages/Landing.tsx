@@ -432,7 +432,7 @@ export default function Landing() {
             <div className="lg:py-8">
               <div className="eyebrow eyebrow-dot mb-4">Como funciona</div>
               <h2 className="display-1 mb-10">
-                Da persona ao carrossel
+                Do prompt ao resultado
                 <br />
                 em <span className="text-gradient-copper">3 passos</span>.
               </h2>

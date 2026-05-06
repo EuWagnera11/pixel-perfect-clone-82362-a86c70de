@@ -22,10 +22,24 @@ const ALL_MODELS: AnyModel[] = [
 ];
 const MODEL_BY_ID = new Map(ALL_MODELS.map((m) => [m.id, m]));
 
+// Aliases: engine IDs usados nos handlers que não batem com o `id` em pricing.json.
+// Mantém isolado para não afetar outros motores.
+const MODEL_ALIASES: Record<string, string> = {
+  "nano-banana": "google-nano-banana",
+  "nano-banana-2": "google-nano-banana-2",
+  "nano-banana-pro": "google-nano-banana-pro",
+  "nano-banana-pro-flash": "google-nano-banana-pro",
+};
+
 export function findModel(idOrLabel: string): AnyModel | null {
   if (!idOrLabel) return null;
   const direct = MODEL_BY_ID.get(idOrLabel);
   if (direct) return direct;
+  const aliased = MODEL_ALIASES[idOrLabel];
+  if (aliased) {
+    const m = MODEL_BY_ID.get(aliased);
+    if (m) return m;
+  }
   const label = String(idOrLabel).toLowerCase();
   return ALL_MODELS.find((m) => (m.name || "").toLowerCase() === label) || null;
 }

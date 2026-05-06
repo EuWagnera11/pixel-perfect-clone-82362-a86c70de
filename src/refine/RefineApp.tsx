@@ -21,6 +21,7 @@ import { ToolOptionsBar, tabHasOptions, type ToolOptions } from "./components/To
 import { ImageWorkspace } from "./components/ImageWorkspace";
 import { VideoWorkspace } from "./components/VideoWorkspace";
 import { ToolWorkspace, tabHasToolWorkspace } from "./components/ToolWorkspace";
+import { AccountPage } from "./components/AccountPage";
 import { JobsProvider, useJobs, type Job } from "./lib/jobs";
 import { TAB_CONFIG } from "./lib/nav";
 import {
@@ -37,7 +38,7 @@ import { supabase } from "@/integrations/supabase/client";
 const VALID_TABS = new Set([
   "home", "explore", "projects", "image", "video", "cinema", "edit", "audio",
   "upscale", "ecommerce", "product", "r3d", "assets", "depth", "character",
-  "marketing", "styletransfer", "all",
+  "marketing", "styletransfer", "all", "account",
 ]);
 
 async function uploadFile(file: File): Promise<string> {
@@ -307,14 +308,27 @@ function Workspace() {
           profile={profile}
           email={session?.user?.email ?? null}
           isAnonymous={isAnonymous}
-          onUpgrade={() => upgradeTo("starter_monthly")}
+          onUpgrade={() => navigate("/account?tab=plan")}
           onSignInGoogle={signInWithGoogle}
           onSignOut={signOut}
+          onOpenAccount={(t) => navigate(`/account${t ? `?tab=${t}` : ""}`)}
           activeJobsCount={activeJobsCount}
         />
 
         <section className="workspace">
-          {(() => {
+          {currentTab === "account" && (
+            <div className="canvas no-dock">
+              <AccountPage
+                profile={profile}
+                email={session?.user?.email ?? null}
+                isAnonymous={isAnonymous}
+                onUpgrade={() => upgradeTo("starter_monthly")}
+                onSignOut={signOut}
+                refreshProfile={refreshProfile}
+              />
+            </div>
+          )}
+          {currentTab !== "account" && (() => {
             const useWorkspace = currentTab === "image" || currentTab === "video" || tabHasToolWorkspace(currentTab);
             if (!useWorkspace) return null;
             const wsProps = {
@@ -361,7 +375,7 @@ function Workspace() {
             if (currentTab === "video") return <VideoWorkspace {...wsProps} />;
             return <ToolWorkspace tab={currentTab} {...wsProps} />;
           })()}
-          {!(currentTab === "image" || currentTab === "video" || tabHasToolWorkspace(currentTab)) && (
+          {currentTab !== "account" && !(currentTab === "image" || currentTab === "video" || tabHasToolWorkspace(currentTab)) && (
             <>
               <div className={"canvas" + (noDock ? " no-dock" : "")}>
                 <div ref={viewRef} dangerouslySetInnerHTML={{ __html: viewHtml }} />
@@ -401,7 +415,7 @@ function Workspace() {
           )}
         </section>
 
-        {!noRail && !(currentTab === "image" || currentTab === "video" || tabHasToolWorkspace(currentTab)) && (
+        {currentTab !== "account" && !noRail && !(currentTab === "image" || currentTab === "video" || tabHasToolWorkspace(currentTab)) && (
           <Rail generations={history} onItemClick={handleHistoryClick} currentTab={currentTab} />
         )}
       </div>

@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
-import { Plus, ArrowRight, Lock } from "@phosphor-icons/react";
+import { useEffect, useRef, useState } from "react";
+import { Plus, ArrowRight, Lock, Gear, CreditCard, SignOut, User } from "@phosphor-icons/react";
 import { NAV } from "../lib/nav";
 import type { Profile } from "../hooks/useAuth";
+import pricing from "@/config/pricing.json";
 
 type SidebarProps = {
   currentTab: string;
@@ -12,6 +13,7 @@ type SidebarProps = {
   onUpgrade: () => void;
   onSignInGoogle: () => void;
   onSignOut: () => void;
+  onOpenAccount: (tab?: "profile" | "plan" | "usage") => void;
   activeJobsCount?: number;
 };
 
@@ -26,6 +28,7 @@ export function Sidebar({
   onUpgrade,
   onSignInGoogle,
   onSignOut,
+  onOpenAccount,
   activeJobsCount = 0,
 }: SidebarProps) {
   const [locked, setLocked] = useState<boolean>(() => {
@@ -49,11 +52,31 @@ export function Sidebar({
   }, []);
 
   const credits = profile?.credits ?? 0;
-  const tier = profile?.tier ?? "free";
-  const capacity = tier === "free" ? 5000 : 50000;
-  const pct = Math.min(100, (credits / capacity) * 100);
+  const tier = (profile?.tier ?? "free").toLowerCase();
+  const PLAN_CAP: Record<string, number> = {
+    free: pricing.plans.free.credits_monthly,
+    starter: pricing.plans.starter.credits_monthly,
+    creator: pricing.plans.creator.credits_monthly,
+    pro: pricing.plans.pro.credits_monthly,
+    studio: pricing.plans.studio.credits_monthly,
+    agency: 100000,
+    enterprise: 500000,
+  };
+  const capacity = PLAN_CAP[tier] ?? 5000;
+  const pct = Math.min(100, (credits / Math.max(1, capacity)) * 100);
   const initial = (email || tier)[0]?.toUpperCase() ?? "U";
   const userName = email?.split("@")[0] || "Anônimo";
+
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onDoc = (e: MouseEvent) => {
+      if (!menuRef.current?.contains(e.target as Node)) setMenuOpen(false);
+    };
+    document.addEventListener("mousedown", onDoc);
+    return () => document.removeEventListener("mousedown", onDoc);
+  }, [menuOpen]);
 
   return (
     <aside className={"sidebar-v2" + (locked ? " locked" : "")}>
@@ -118,19 +141,31 @@ export function Sidebar({
       <div className="sb-foot">
         <div className="sb-credits">
           <div className="sb-credits-head">
-            <span className="sb-credits-plan">Plano {tier.toUpperCase()}</span>
+            <button
+              className="sb-credits-plan sb-credits-plan-btn"
+              onClick={() => onOpenAccount("plan")}
+              title="Ver plano e créditos"
+            >
+              Plano {tier.toUpperCase()}
+            </button>
             <span className="sb-credits-count">
-              <span className="current">{credits}</span>
+              <span className="current">{credits.toLocaleString("pt-BR")}</span>
               <span className="separator">/</span>
-              <span className="max">{capacity}</span>
+              <span className="max">{capacity.toLocaleString("pt-BR")}</span>
             </span>
           </div>
           <div className="sb-credits-bar"><i style={{ width: `${pct}%` }} /></div>
           <span className="sb-credits-renewal">Renova em 30 dias</span>
-          <button className="sb-upgrade" onClick={onUpgrade}>Upgrade Pro</button>
+          <button className="sb-upgrade" onClick={() => onOpenAccount("plan")}>
+            {tier === "free" ? "Fazer upgrade" : "Gerenciar plano"}
+          </button>
         </div>
 
-        <button className="sb-credits-mini" onClick={onUpgrade} title={`Créditos: ${credits}/${capacity}`}>
+        <button
+          className="sb-credits-mini"
+          onClick={() => onOpenAccount("plan")}
+          title={`Créditos: ${credits}/${capacity}`}
+        >
           <span className="sb-credits-mini-text">{Math.round(pct)}%</span>
           <span className="sb-credits-mini-bar" style={{ width: `${pct}%` }} />
         </button>
@@ -147,17 +182,41 @@ export function Sidebar({
           </button>
         ) : null}
 
-        <button
-          className="sb-profile"
-          onClick={isAnonymous ? undefined : onSignOut}
-          title={isAnonymous ? "" : "Clique pra sair"}
-        >
-          <span className="sb-avatar">{initial}</span>
-          <span className="sb-profile-info">
-            <span className="sb-profile-name">{userName}</span>
-            <span className="sb-profile-email">{email || "Anônimo"}</span>
-          </span>
-        </button>
+        <div className="sb-profile-wrap" ref={menuRef}>
+          <button
+            className={"sb-profile" + (menuOpen ? " open" : "")}
+            onClick={() => setMenuOpen((v) => !v)}
+            title="Conta"
+          >
+            <span className="sb-avatar">{initial}</span>
+            <span className="sb-profile-info">
+              <span className="sb-profile-name">{userName}</span>
+              <span className="sb-profile-email">{email || "Anônimo"}</span>
+            </span>
+          </button>
+
+          {menuOpen && (
+            <div className="sb-menu" role="menu">
+              <button className="sb-menu-item" onClick={() => { setMenuOpen(false); onOpenAccount("profile"); }}>
+                <User size={14} weight="bold" /> Minha conta
+              </button>
+              <button className="sb-menu-item" onClick={() => { setMenuOpen(false); onOpenAccount("plan"); }}>
+                <CreditCard size={14} weight="bold" /> Plano e créditos
+              </button>
+              <button className="sb-menu-item" onClick={() => { setMenuOpen(false); onOpenAccount("usage"); }}>
+                <Gear size={14} weight="bold" /> Uso recente
+              </button>
+              {!isAnonymous && (
+                <>
+                  <div className="sb-menu-sep" />
+                  <button className="sb-menu-item sb-menu-danger" onClick={() => { setMenuOpen(false); onSignOut(); }}>
+                    <SignOut size={14} weight="bold" /> Sair
+                  </button>
+                </>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </aside>
   );

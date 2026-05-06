@@ -194,8 +194,8 @@ export async function runReplaceBg(o: { sourceUrl: string; prompt: string; aspec
   const r = await startReplaceBg({ image_url: o.sourceUrl, prompt: o.prompt, aspect_ratio: o.aspect });
   return ie(r.generation_id);
 }
-export async function runStyleTransferTool(o: { sourceUrl: string; styleUrl?: string; prompt?: string; aspect?: string }) {
-  const r = await startStyleTransfer({ image_url: o.sourceUrl, style_url: o.styleUrl, prompt: o.prompt, aspect_ratio: o.aspect });
+export async function runStyleTransferTool(o: { sourceUrl: string; styleUrl?: string; prompt?: string; aspect?: string; stylePreset?: string; strength?: number }) {
+  const r = await startStyleTransfer({ image_url: o.sourceUrl, style_url: o.styleUrl, prompt: o.prompt, aspect_ratio: o.aspect, style_preset: o.stylePreset, strength: o.strength });
   return ie(r.generation_id);
 }
 export async function runExpand(o: { sourceUrl: string; prompt?: string; left?: number; right?: number; top?: number; bottom?: number }) {

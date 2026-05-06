@@ -58,6 +58,42 @@ export type Database = {
           },
         ]
       }
+      credit_transactions: {
+        Row: {
+          amount: number
+          balance_after: number
+          created_at: string
+          generation_id: string | null
+          id: string
+          metadata: Json | null
+          reason: string | null
+          type: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          balance_after: number
+          created_at?: string
+          generation_id?: string | null
+          id?: string
+          metadata?: Json | null
+          reason?: string | null
+          type: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          balance_after?: number
+          created_at?: string
+          generation_id?: string | null
+          id?: string
+          metadata?: Json | null
+          reason?: string | null
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       face_swap_logs: {
         Row: {
           created_at: string
@@ -285,6 +321,45 @@ export type Database = {
         }
         Relationships: []
       }
+      plans: {
+        Row: {
+          active: boolean
+          created_at: string
+          credits_monthly: number
+          credits_yearly: number
+          features: Json
+          id: string
+          name: string
+          price_monthly_brl: number
+          price_yearly_brl: number
+          sort_order: number
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          credits_monthly?: number
+          credits_yearly?: number
+          features?: Json
+          id: string
+          name: string
+          price_monthly_brl?: number
+          price_yearly_brl?: number
+          sort_order?: number
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          credits_monthly?: number
+          credits_yearly?: number
+          features?: Json
+          id?: string
+          name?: string
+          price_monthly_brl?: number
+          price_yearly_brl?: number
+          sort_order?: number
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -396,6 +471,75 @@ export type Database = {
         }
         Relationships: []
       }
+      topup_purchases: {
+        Row: {
+          created_at: string
+          credits: number
+          expires_at: string
+          id: string
+          package_id: string
+          price_brl: number
+          status: string
+          stripe_payment_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          credits: number
+          expires_at?: string
+          id?: string
+          package_id: string
+          price_brl: number
+          status?: string
+          stripe_payment_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          credits?: number
+          expires_at?: string
+          id?: string
+          package_id?: string
+          price_brl?: number
+          status?: string
+          stripe_payment_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_credits: {
+        Row: {
+          balance: number
+          last_reset_at: string | null
+          next_reset_at: string | null
+          plan_credits: number
+          rollover_credits: number
+          topup_credits: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          balance?: number
+          last_reset_at?: string | null
+          next_reset_at?: string | null
+          plan_credits?: number
+          rollover_credits?: number
+          topup_credits?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          balance?: number
+          last_reset_at?: string | null
+          next_reset_at?: string | null
+          plan_credits?: number
+          rollover_credits?: number
+          topup_credits?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -416,6 +560,59 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      user_subscriptions: {
+        Row: {
+          billing_cycle: string
+          cancel_at_period_end: boolean
+          created_at: string
+          current_period_end: string
+          current_period_start: string
+          id: string
+          plan_id: string
+          status: string
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          billing_cycle?: string
+          cancel_at_period_end?: boolean
+          created_at?: string
+          current_period_end?: string
+          current_period_start?: string
+          id?: string
+          plan_id: string
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          billing_cycle?: string
+          cancel_at_period_end?: boolean
+          created_at?: string
+          current_period_end?: string
+          current_period_start?: string
+          id?: string
+          plan_id?: string
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_subscriptions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_tos_accepts: {
         Row: {
@@ -452,6 +649,26 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      credit_user_credits: {
+        Args: {
+          p_amount: number
+          p_generation_id?: string
+          p_metadata?: Json
+          p_reason: string
+          p_type: string
+          p_user_id: string
+        }
+        Returns: Json
+      }
+      debit_user_credits: {
+        Args: {
+          p_amount: number
+          p_generation_id?: string
+          p_reason: string
+          p_user_id: string
+        }
+        Returns: Json
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -459,6 +676,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      reset_monthly_credits: { Args: never; Returns: number }
     }
     Enums: {
       app_role: "admin" | "creator" | "agency"

@@ -79,9 +79,50 @@ const FAQ = [
 export function PricingPage() {
   const navigate = useNavigate();
   const [cycle, setCycle] = useState<BillingCycle>("monthly");
+  const [loadingKey, setLoadingKey] = useState<string | null>(null);
 
   const plans = useMemo(() => PLAN_ORDER.map((id) => (pricing as any).plans[id]).filter(Boolean), []);
   const topups = useMemo(() => Object.values((pricing as any).topup_packages || {}) as any[], []);
+
+  const startCheckout = async (planId: string) => {
+    if (planId === "free") { navigate("/signup"); return; }
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) { navigate(`/signup?next=/pricing`); return; }
+    const planKey = `${planId}_${cycle}`;
+    setLoadingKey(`plan:${planKey}`);
+    try {
+      const { data, error } = await supabase.functions.invoke("create-checkout", {
+        body: { plan: planKey },
+      });
+      if (error) throw error;
+      const url = (data as any)?.url;
+      if (url) window.location.href = url;
+      else throw new Error("Sem URL de checkout");
+    } catch (e: any) {
+      alert("Erro: " + (e?.message || "checkout falhou"));
+    } finally {
+      setLoadingKey(null);
+    }
+  };
+
+  const startTopup = async (topupKey: string) => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) { navigate(`/signup?next=/pricing`); return; }
+    setLoadingKey(`topup:${topupKey}`);
+    try {
+      const { data, error } = await supabase.functions.invoke("create-checkout", {
+        body: { topup: topupKey },
+      });
+      if (error) throw error;
+      const url = (data as any)?.url;
+      if (url) window.location.href = url;
+      else throw new Error("Sem URL de checkout");
+    } catch (e: any) {
+      alert("Erro: " + (e?.message || "checkout falhou"));
+    } finally {
+      setLoadingKey(null);
+    }
+  };
 
   return (
     <div className="pricing-page">

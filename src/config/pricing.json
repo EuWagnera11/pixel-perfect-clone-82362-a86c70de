@@ -1,0 +1,264 @@
+{
+  "_meta": {
+    "version": "1.0.0",
+    "currency": "BRL",
+    "credit_value_brl": 0.0033,
+    "description": "Configuração completa de preços e consumo de créditos do Refine. Importar e usar como fonte de verdade para o sistema de cobrança."
+  },
+
+  "plans": {
+    "free": {
+      "id": "free",
+      "name": "Free",
+      "price_monthly_brl": 0,
+      "price_yearly_brl": 0,
+      "credits_monthly": 500,
+      "credits_yearly": 6000,
+      "features": {
+        "watermark": true,
+        "commercial_license": false,
+        "max_concurrent_generations": 1,
+        "rate_limit_per_day": 5,
+        "priority_queue": false,
+        "api_access": false,
+        "custom_styles_limit": 0,
+        "characters_limit": 0,
+        "team_seats": 1
+      }
+    },
+    "starter": {
+      "id": "starter",
+      "name": "Starter",
+      "price_monthly_brl": 27,
+      "price_yearly_brl": 259,
+      "credits_monthly": 8000,
+      "credits_yearly": 105600,
+      "features": {
+        "watermark": false,
+        "commercial_license": true,
+        "max_concurrent_generations": 2,
+        "rate_limit_per_day": null,
+        "priority_queue": false,
+        "api_access": false,
+        "custom_styles_limit": 3,
+        "characters_limit": 1,
+        "team_seats": 1,
+        "topup_enabled": false
+      }
+    },
+    "creator": {
+      "id": "creator",
+      "name": "Creator",
+      "price_monthly_brl": 59,
+      "price_yearly_brl": 566,
+      "credits_monthly": 19000,
+      "credits_yearly": 250800,
+      "features": {
+        "watermark": false,
+        "commercial_license": true,
+        "max_concurrent_generations": 3,
+        "rate_limit_per_day": null,
+        "priority_queue": false,
+        "api_access": false,
+        "custom_styles_limit": 10,
+        "characters_limit": 5,
+        "team_seats": 1,
+        "topup_enabled": true,
+        "rollover_percent": 25
+      }
+    },
+    "pro": {
+      "id": "pro",
+      "name": "Pro",
+      "price_monthly_brl": 129,
+      "price_yearly_brl": 1238,
+      "credits_monthly": 48000,
+      "credits_yearly": 633600,
+      "features": {
+        "watermark": false,
+        "commercial_license": true,
+        "max_concurrent_generations": 5,
+        "rate_limit_per_day": null,
+        "priority_queue": true,
+        "api_access": true,
+        "custom_styles_limit": 25,
+        "characters_limit": 15,
+        "team_seats": 1,
+        "topup_enabled": true,
+        "rollover_percent": 25,
+        "early_access_features": true
+      }
+    },
+    "studio": {
+      "id": "studio",
+      "name": "Studio",
+      "price_monthly_brl": 749,
+      "price_yearly_brl": 7190,
+      "credits_monthly": 320000,
+      "credits_yearly": 4224000,
+      "features": {
+        "watermark": false,
+        "commercial_license": true,
+        "max_concurrent_generations": 10,
+        "rate_limit_per_day": null,
+        "priority_queue": true,
+        "api_access": true,
+        "custom_styles_limit": -1,
+        "characters_limit": -1,
+        "team_seats": 5,
+        "topup_enabled": true,
+        "rollover_percent": 25,
+        "early_access_features": true,
+        "dedicated_support": true,
+        "custom_models_training": true
+      }
+    }
+  },
+
+  "topup_packages": {
+    "mini": {
+      "id": "topup_mini",
+      "name": "Mini",
+      "price_brl": 19,
+      "credits": 5000,
+      "available_for_plans": ["creator", "pro", "studio"]
+    },
+    "medium": {
+      "id": "topup_medium",
+      "name": "Médio",
+      "price_brl": 39,
+      "credits": 11500,
+      "available_for_plans": ["creator", "pro", "studio"]
+    },
+    "large": {
+      "id": "topup_large",
+      "name": "Grande",
+      "price_brl": 89,
+      "credits": 30000,
+      "available_for_plans": ["creator", "pro", "studio"]
+    },
+    "mega": {
+      "id": "topup_mega",
+      "name": "Mega",
+      "price_brl": 199,
+      "credits": 75000,
+      "available_for_plans": ["creator", "pro", "studio"]
+    }
+  },
+
+  "models": {
+    "image": [
+      { "id": "flux-1-fast", "name": "Flux.1 Fast", "credits_min": 5, "credits_max": 5, "tier": "ultra-fast", "category": "fast" },
+      { "id": "z-image", "name": "Z-Image", "credits_min": 5, "credits_max": 5, "tier": "ultra-fast", "category": "fast" },
+      { "id": "flux-2-klein", "name": "Flux.2 Klein", "credits_min": 10, "credits_max": 40, "tier": "fast", "category": "fast" },
+      { "id": "flux-1", "name": "Flux.1", "credits_min": 10, "credits_max": 65, "tier": "fast", "category": "fast", "deprecated": true },
+      { "id": "qwen", "name": "Qwen", "credits_min": 25, "credits_max": 40, "tier": "fast", "category": "fast" },
+      { "id": "flux-1-realism", "name": "Flux.1 Realism", "credits_min": 35, "credits_max": 35, "tier": "fast", "category": "fast" },
+      { "id": "google-nano-banana", "name": "Google Nano Banana", "credits_min": 40, "credits_max": 40, "tier": "fast", "category": "premium" },
+      { "id": "seedream-4", "name": "Seedream 4", "credits_min": 42, "credits_max": 42, "tier": "standard", "category": "standard" },
+      { "id": "seedream-5-lite", "name": "Seedream 5 Lite", "credits_min": 42, "credits_max": 42, "tier": "standard", "category": "premium", "featured": true },
+      { "id": "imagen-4-fast", "name": "Google Imagen 4 Fast", "credits_min": 42, "credits_max": 42, "tier": "fast", "category": "premium" },
+      { "id": "seedream-4-4k", "name": "Seedream 4 4K", "credits_min": 45, "credits_max": 45, "tier": "standard", "category": "premium" },
+      { "id": "seedream-4-5", "name": "Seedream 4.5", "credits_min": 45, "credits_max": 45, "tier": "standard", "category": "premium" },
+      { "id": "flux-1-1", "name": "Flux.1.1", "credits_min": 45, "credits_max": 45, "tier": "fast", "category": "fast" },
+      { "id": "mystic-2-5", "name": "Mystic 2.5", "credits_min": 45, "credits_max": 85, "tier": "standard", "category": "standard" },
+      { "id": "flux-2-pro", "name": "Flux.2 Pro", "credits_min": 45, "credits_max": 150, "tier": "premium", "category": "premium", "featured": true },
+      { "id": "ideogram", "name": "Ideogram", "credits_min": 50, "credits_max": 50, "tier": "standard", "category": "design" },
+      { "id": "recraft-v4", "name": "Recraft V4", "credits_min": 50, "credits_max": 50, "tier": "standard", "category": "design" },
+      { "id": "grok", "name": "Grok", "credits_min": 60, "credits_max": 65, "tier": "standard", "category": "standard" },
+      { "id": "google-nano-banana-2", "name": "Google Nano Banana 2", "credits_min": 60, "credits_max": 125, "tier": "premium", "category": "premium", "featured": true },
+      { "id": "google-nano-banana-pro", "name": "Google Nano Banana Pro", "credits_min": 60, "credits_max": 125, "tier": "premium", "category": "premium", "featured": true },
+      { "id": "cinematic", "name": "Cinematic", "credits_min": 65, "credits_max": 130, "tier": "premium", "category": "premium" },
+      { "id": "mystic-2-5-flexible", "name": "Mystic 2.5 Flexible", "credits_min": 70, "credits_max": 70, "tier": "standard", "category": "standard" },
+      { "id": "mystic-2-5-fluid", "name": "Mystic 2.5 Fluid", "credits_min": 70, "credits_max": 70, "tier": "standard", "category": "standard" },
+      { "id": "flux-2-flex", "name": "Flux.2 Flex", "credits_min": 70, "credits_max": 240, "tier": "standard", "category": "standard" },
+      { "id": "flux-1-kontext-pro", "name": "Flux.1 Kontext Pro", "credits_min": 85, "credits_max": 85, "tier": "standard", "category": "premium" },
+      { "id": "imagen-4", "name": "Google Imagen 4", "credits_min": 85, "credits_max": 85, "tier": "standard", "category": "premium" },
+      { "id": "flux-2-max", "name": "Flux.2 Max", "credits_min": 120, "credits_max": 625, "tier": "ultra", "category": "premium" },
+      { "id": "gpt", "name": "GPT", "credits_min": 125, "credits_max": 380, "tier": "premium", "category": "premium" },
+      { "id": "flux-1-kontext-max", "name": "Flux.1 Kontext Max", "credits_min": 130, "credits_max": 130, "tier": "premium", "category": "premium" },
+      { "id": "imagen-4-ultra", "name": "Google Imagen 4 Ultra", "credits_min": 130, "credits_max": 130, "tier": "premium", "category": "premium" },
+      { "id": "gpt-1-hq", "name": "GPT 1 - HQ", "credits_min": 130, "credits_max": 130, "tier": "premium", "category": "premium" },
+      { "id": "recraft-v4-pro", "name": "Recraft V4 Pro", "credits_min": 150, "credits_max": 150, "tier": "premium", "category": "design" },
+      { "id": "runway-image", "name": "Runway", "credits_min": 175, "credits_max": 175, "tier": "premium", "category": "premium" },
+      { "id": "gpt-2", "name": "GPT 2", "credits_min": 22, "credits_max": 1850, "tier": "variable", "category": "premium", "featured": true },
+      { "id": "gpt-1-5", "name": "GPT 1.5", "credits_min": 440, "credits_max": 440, "tier": "ultra", "category": "premium" },
+      { "id": "gpt-1-5-high", "name": "GPT 1.5 - High", "credits_min": 440, "credits_max": 440, "tier": "ultra", "category": "premium" }
+    ],
+
+    "video": [
+      { "id": "minimax-hailuo-02", "name": "MiniMax Hailuo 02", "credits_min": 52, "credits_max": 620, "duration_min": 6, "duration_max": 6, "resolution": "1080p", "audio": false },
+      { "id": "grok-video", "name": "Grok", "credits_min": 70, "credits_max": 1050, "duration_min": 1, "duration_max": 15, "resolution": "720p", "audio": false },
+      { "id": "pixverse-6", "name": "PixVerse 6", "credits_min": 88, "credits_max": 2600, "duration_min": 1, "duration_max": 15, "resolution": "1080p", "audio": true },
+      { "id": "kling-2-6-motion", "name": "Kling 2.6 Motion Control", "credits_min": 130, "credits_max": 650, "duration_min": 3, "duration_max": 10, "resolution": "1080p", "audio": false },
+      { "id": "veo-3-1-lite", "name": "Google Veo 3.1 Lite", "credits_min": 140, "credits_max": 450, "duration_min": 4, "duration_max": 8, "resolution": "1080p", "audio": true, "new": true },
+      { "id": "seedance-1-5-pro", "name": "Seedance 1.5 Pro", "credits_min": 155, "credits_max": 2300, "duration_min": 4, "duration_max": 12, "resolution": "1080p", "audio": false },
+      { "id": "kling-3-0", "name": "Kling 3.0", "credits_min": 180, "credits_max": 5200, "duration_min": 3, "duration_max": 15, "resolution": "4K", "audio": true, "featured": true },
+      { "id": "kling-3-0-omni", "name": "Kling 3.0 Omni", "credits_min": 180, "credits_max": 5200, "duration_min": 3, "duration_max": 15, "resolution": "4K", "audio": true, "featured": true },
+      { "id": "kling-2-6", "name": "Kling 2.6", "credits_min": 195, "credits_max": 700, "duration_min": 5, "duration_max": 10, "resolution": "1080p", "audio": true },
+      { "id": "kling-o1", "name": "Kling O1", "credits_min": 195, "credits_max": 1300, "duration_min": 3, "duration_max": 10, "resolution": "1080p", "audio": false },
+      { "id": "kling-2-1", "name": "Kling 2.1", "credits_min": 240, "credits_max": 825, "duration_min": 5, "duration_max": 10, "resolution": "1080p", "audio": false },
+      { "id": "runway-act-two", "name": "Runway Act Two", "credits_min": 260, "credits_max": 2600, "duration_min": 3, "duration_max": 30, "resolution": "720p", "audio": false },
+      { "id": "kling-3-0-motion", "name": "Kling 3.0 Motion Control", "credits_min": 285, "credits_max": 1950, "duration_min": 3, "duration_max": 15, "resolution": "1080p", "audio": false, "featured": true },
+      { "id": "veo-3-1-fast", "name": "Google Veo 3.1 Fast", "credits_min": 345, "credits_max": 830, "duration_min": 4, "duration_max": 8, "resolution": "4K", "audio": true },
+      { "id": "wan-2-7", "name": "Wan 2.7", "credits_min": 345, "credits_max": 3900, "duration_min": 2, "duration_max": 15, "resolution": "1080p", "audio": true, "new": true },
+      { "id": "veed-fabric-1", "name": "Veed Fabric 1.0", "credits_min": 365, "credits_max": 67800, "duration_min": 3, "duration_max": 300, "resolution": "720p", "audio": false, "new": true },
+      { "id": "seedance-2-0-fast", "name": "Seedance 2.0 Fast", "credits_min": 410, "credits_max": 3970, "duration_min": 4, "duration_max": 15, "resolution": "720p", "audio": false, "featured": true },
+      { "id": "ltx-2-fast", "name": "LTX 2 Fast", "credits_min": 415, "credits_max": 5560, "duration_min": 6, "duration_max": 20, "resolution": "2160p", "audio": true },
+      { "id": "runway-gen-4", "name": "Runway Gen 4", "credits_min": 435, "credits_max": 870, "duration_min": 5, "duration_max": 10, "resolution": "720p", "audio": false },
+      { "id": "pixverse-5-5", "name": "PixVerse 5.5", "credits_min": 435, "credits_max": 1740, "duration_min": 5, "duration_max": 10, "resolution": "1080p", "audio": true },
+      { "id": "wan-2-5", "name": "Wan 2.5", "credits_min": 435, "credits_max": 2600, "duration_min": 5, "duration_max": 10, "resolution": "1080p", "audio": true },
+      { "id": "omni-human-1-5", "name": "Omni Human 1.5", "credits_min": 470, "credits_max": 4690, "duration_min": 3, "duration_max": 30, "resolution": "1080p", "audio": false },
+      { "id": "veed-fabric-1-fast", "name": "Veed Fabric 1.0 Fast", "credits_min": 470, "credits_max": 91200, "duration_min": 3, "duration_max": 300, "resolution": "720p", "audio": false, "new": true },
+      { "id": "seedance-2-0", "name": "Seedance 2.0", "credits_min": 485, "credits_max": 11380, "duration_min": 4, "duration_max": 15, "resolution": "1080p", "audio": false, "featured": true },
+      { "id": "minimax-live-illustrations", "name": "MiniMax Live Illustrations", "credits_min": 520, "credits_max": 520, "duration_min": 5, "duration_max": 5, "resolution": "720p", "audio": false },
+      { "id": "openai-sora-2", "name": "OpenAI Sora 2", "credits_min": 520, "credits_max": 2600, "duration_min": 4, "duration_max": 20, "resolution": "720p", "audio": true, "featured": true },
+      { "id": "wan-2-2-animate", "name": "Wan 2.2 Animate Move", "credits_min": 520, "credits_max": 10420, "duration_min": 3, "duration_max": 30, "resolution": "720p", "audio": false },
+      { "id": "ltx-2-pro", "name": "LTX 2 Pro", "credits_min": 625, "credits_max": 4170, "duration_min": 6, "duration_max": 10, "resolution": "2160p", "audio": true },
+      { "id": "veo-3-1", "name": "Google Veo 3.1", "credits_min": 695, "credits_max": 2085, "duration_min": 4, "duration_max": 8, "resolution": "4K", "audio": true, "featured": true },
+      { "id": "happy-horse", "name": "Happy Horse", "credits_min": 730, "credits_max": 7170, "duration_min": 3, "duration_max": 15, "resolution": "1080p", "audio": false },
+      { "id": "wan-2-6", "name": "Wan 2.6", "credits_min": 870, "credits_max": 3910, "duration_min": 5, "duration_max": 15, "resolution": "1080p", "audio": true },
+      { "id": "runway-gen-4-5", "name": "Runway Gen-4.5", "credits_min": 955, "credits_max": 1910, "duration_min": 5, "duration_max": 10, "resolution": "720p", "audio": false },
+      { "id": "kling-2-1-master", "name": "Kling 2.1 Master", "credits_min": 1215, "credits_max": 2430, "duration_min": 5, "duration_max": 10, "resolution": "1080p", "audio": false },
+      { "id": "openai-sora-2-pro", "name": "OpenAI Sora 2 Pro", "credits_min": 1565, "credits_max": 19120, "duration_min": 4, "duration_max": 20, "resolution": "1080p", "audio": true, "featured": true }
+    ],
+
+    "edit": [
+      { "id": "background-remove", "name": "Background Remove", "credits": 35 },
+      { "id": "reimagine-flux", "name": "Reimagine (Flux)", "credits": 55 },
+      { "id": "inpainting-ideogram", "name": "Inpainting (Ideogram)", "credits": 75 },
+      { "id": "skin-enhancer", "name": "Skin Enhancer", "credits": 90 },
+      { "id": "relight", "name": "Relight", "credits": 110 },
+      { "id": "change-camera", "name": "Change Camera", "credits": 145 },
+      { "id": "upscale-2k", "name": "Upscale 2K", "credits": 145 },
+      { "id": "upscale-4k", "name": "Upscale 4K", "credits": 290 }
+    ],
+
+    "audio": [
+      { "id": "voiceover-standard", "name": "Voiceover Standard", "unit": "1000_chars", "credits_per_unit": 280 },
+      { "id": "voiceover-premium", "name": "Voiceover Premium", "unit": "1000_chars", "credits_per_unit": 560 },
+      { "id": "audio-isolation", "name": "Audio Isolation", "unit": "minute", "credits_per_unit": 185 },
+      { "id": "sound-effects", "name": "Sound Effects", "unit": "generation", "credits_per_unit": 95 },
+      { "id": "lip-sync", "name": "Lip Sync", "unit": "second", "credits_per_unit": 95 }
+    ]
+  },
+
+  "rules": {
+    "free_tier_default": "free",
+    "credits_decimal_places": 0,
+    "rollover_max_percent": 25,
+    "rollover_eligible_plans": ["creator", "pro", "studio"],
+    "failed_generation_charge": false,
+    "topup_credits_expire_days": 1095,
+    "trial_days": 0
+  },
+
+  "ui_strings": {
+    "credit_singular": "crédito",
+    "credit_plural": "créditos",
+    "credit_abbr": "cr",
+    "currency_symbol": "R$",
+    "low_balance_threshold_percent": 10,
+    "warning_balance_threshold_percent": 20
+  }
+}

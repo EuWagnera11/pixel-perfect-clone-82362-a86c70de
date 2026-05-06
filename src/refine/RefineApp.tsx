@@ -6,6 +6,9 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { BrowserRouter, Routes, Route, Navigate, useNavigate, useParams } from "react-router-dom";
 import { Toaster as SonnerToaster, toast } from "sonner";
+import { AuthProvider } from "@/lib/auth";
+import Landing from "@/pages/Landing";
+import AuthPage from "@/pages/Auth";
 import { useAuth } from "./hooks/useAuth";
 import { useGenerations } from "./hooks/useGenerations";
 import { useToast } from "./hooks/useToast";
@@ -412,22 +415,27 @@ function Workspace() {
 export default function RefineApp() {
   return (
     <BrowserRouter>
-      <JobsProvider
-        onCompleted={(job) => {
-          const label = job.mediaType === "video" ? "Vídeo pronto" : job.mediaType === "audio" ? "Áudio pronto" : "Imagem pronta";
-          toast.success(label, {
-            description: job.prompt?.slice(0, 80) || job.tool,
-            action: job.resultUrl ? { label: "Abrir", onClick: () => window.open(job.resultUrl, "_blank") } : undefined,
-          });
-        }}
-      >
-        <Routes>
-          <Route path="/" element={<Navigate to="/home" replace />} />
-          <Route path="/:tool" element={<Workspace />} />
-          <Route path="*" element={<Navigate to="/home" replace />} />
-        </Routes>
-        <SonnerToaster position="bottom-right" richColors theme="dark" />
-      </JobsProvider>
+      <AuthProvider>
+        <JobsProvider
+          onCompleted={(job) => {
+            const label = job.mediaType === "video" ? "Vídeo pronto" : job.mediaType === "audio" ? "Áudio pronto" : "Imagem pronta";
+            toast.success(label, {
+              description: job.prompt?.slice(0, 80) || job.tool,
+              action: job.resultUrl ? { label: "Abrir", onClick: () => window.open(job.resultUrl, "_blank") } : undefined,
+            });
+          }}
+        >
+          <Routes>
+            <Route path="/" element={<Landing />} />
+            <Route path="/login" element={<AuthPage mode="login" />} />
+            <Route path="/signup" element={<AuthPage mode="signup" />} />
+            <Route path="/app" element={<Navigate to="/home" replace />} />
+            <Route path="/:tool" element={<Workspace />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+          <SonnerToaster position="bottom-right" richColors theme="dark" />
+        </JobsProvider>
+      </AuthProvider>
     </BrowserRouter>
   );
 }

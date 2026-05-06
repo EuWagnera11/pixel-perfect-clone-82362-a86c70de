@@ -15,6 +15,7 @@ export type ToolExtras = {
   skin_target?: "enhance_everything" | "smooth_skin" | "remove_blemishes";
   style_preset?: string;
   style_strength?: number;
+  style_url?: string;
 };
 
 export type ToolOptions = {

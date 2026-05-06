@@ -323,3 +323,60 @@ function UsageTab() {
     </div>
   );
 }
+
+function TransactionsTab() {
+  const [items, setItems] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      const { data: u } = await supabase.auth.getUser();
+      if (!u.user) { setLoading(false); return; }
+      const { data } = await supabase
+        .from("credit_transactions")
+        .select("id, type, amount, balance_after, reason, created_at, metadata")
+        .eq("user_id", u.user.id)
+        .order("created_at", { ascending: false })
+        .limit(50);
+      setItems(data ?? []);
+      setLoading(false);
+    })();
+  }, []);
+
+  const labelOf = (t: string) => ({
+    debit: "Consumo", credit: "Crédito", refund: "Reembolso",
+    topup: "Top-up", reset: "Renovação",
+  } as Record<string, string>)[t] ?? t;
+
+  return (
+    <div className="account-card">
+      <h2>Transações</h2>
+      <p className="account-card-sub">Últimas 50 movimentações de créditos.</p>
+
+      {loading ? (
+        <div className="account-empty"><Loader2 size={16} className="spin" /></div>
+      ) : items.length === 0 ? (
+        <div className="account-empty">Sem transações ainda.</div>
+      ) : (
+        <div className="usage-table">
+          <div className="usage-row usage-head">
+            <span>Quando</span><span>Tipo</span><span>Motivo</span><span className="right">Variação</span><span className="right">Saldo</span>
+          </div>
+          {items.map((it) => {
+            const isOut = it.type === "debit";
+            const sign = isOut ? "−" : "+";
+            return (
+              <div className="usage-row" key={it.id}>
+                <span className="muted">{new Date(it.created_at).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" })}</span>
+                <span><span className={"status-pill status-" + it.type}>{labelOf(it.type)}</span></span>
+                <span className="muted">{it.reason || "—"}</span>
+                <span className="right" style={{ color: isOut ? "#e85d3a" : "#16a34a" }}>{sign}{(it.amount ?? 0).toLocaleString("pt-BR")}</span>
+                <span className="right">{(it.balance_after ?? 0).toLocaleString("pt-BR")}</span>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}

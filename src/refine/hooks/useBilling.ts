@@ -71,7 +71,7 @@ export function useBilling(userId: string | null | undefined) {
   useEffect(() => {
     if (!userId) return;
     const channel = supabase
-      .channel(`billing-${userId}`)
+      .channel(`billing-${userId}-${Math.random().toString(36).slice(2, 8)}`)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "user_credits", filter: `user_id=eq.${userId}` },

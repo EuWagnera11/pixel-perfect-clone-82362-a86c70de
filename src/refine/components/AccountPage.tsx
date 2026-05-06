@@ -90,6 +90,7 @@ export function AccountPage({ profile, userId, email, isAnonymous, onUpgrade, on
       )}
       {tab === "usage" && <UsageTab />}
       {tab === "transactions" && <TransactionsTab />}
+      {tab === "invoices" && <InvoicesTab />}
     </div>
   );
 }

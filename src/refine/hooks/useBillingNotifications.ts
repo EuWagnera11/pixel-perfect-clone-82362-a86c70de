@@ -40,7 +40,7 @@ export function useBillingNotifications(userId: string | null | undefined, capac
     if (!userId) return;
 
     const channel = supabase
-      .channel(`billing-notif-${userId}`)
+      .channel(`billing-notif-${userId}-${Math.random().toString(36).slice(2, 8)}`)
       .on(
         "postgres_changes",
         { event: "UPDATE", schema: "public", table: "user_credits", filter: `user_id=eq.${userId}` },

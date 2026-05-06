@@ -8,6 +8,7 @@ import { adminClient, requireUserId } from "../_shared/gates.ts";
 import { magnificFetch } from "../_shared/magnific.ts";
 import { freepikFetch } from "../_shared/freepik.ts";
 import { urlToRefObject } from "../_shared/engines.ts";
+import { refundCredits } from "../_shared/credits.ts";
 
 const REPLACE_BG_TIMEOUT_MS: Record<string, number> = {
   "nano-banana-pro-flash": 5 * 60_000,
@@ -222,6 +223,8 @@ Deno.serve(async (req) => {
       error_message: data?.error || "Falha na Freepik.",
       completed_at: new Date().toISOString(),
     }).eq("generation_id", generationId);
+    const cost = (gen.metadata as any)?.credits_used ?? 0;
+    if (cost > 0) await refundCredits(userId, cost, "Generation failed at provider", generationId);
     return json({ generation_id: generationId, status: "FAILED", error: data?.error });
   }
 

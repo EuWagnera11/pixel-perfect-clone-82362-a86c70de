@@ -3,6 +3,7 @@
 import { corsHeaders, json } from "../_shared/cors.ts";
 import { requireAuth } from "../_shared/auth.ts";
 import { magnificFetch, extractUrls, normalizeStatus } from "../_shared/magnific.ts";
+import { refundCredits } from "../_shared/credits.ts";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
@@ -68,7 +69,9 @@ Deno.serve(async (req) => {
       error_message: errMsg,
       completed_at: new Date().toISOString(),
     }).eq("id", generationId);
-    // Return 200 with failed row so frontend handles gracefully (no blank screen).
+    if ((gen.credits_used ?? 0) > 0) {
+      await refundCredits(auth.userId, gen.credits_used, "Provider failed: " + errMsg.slice(0, 120), generationId);
+    }
     return json({ ...gen, status: "failed", error_message: errMsg });
   }
 
@@ -139,6 +142,10 @@ Deno.serve(async (req) => {
       "Geração rejeitada pelo provedor (possível filtro de conteúdo, marca registrada ou prompt inválido).";
     update.error_message = typeof reason === "string" ? reason : JSON.stringify(reason);
     update.completed_at = new Date().toISOString();
+  }
+  // Refund credits if generation ultimately failed (failed_generation_charge: false)
+  if ((update.status === "failed") && (gen.credits_used ?? 0) > 0) {
+    await refundCredits(auth.userId, gen.credits_used, "Generation failed", generationId);
   }
   await auth.admin.from("generations").update(update).eq("id", generationId);
 

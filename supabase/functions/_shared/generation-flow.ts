@@ -3,21 +3,33 @@
 import { magnificFetch, extractTaskId } from "./magnific.ts";
 import { json } from "./cors.ts";
 import { buildBody, getEngine, urlToRefObject, type BuildInput, type MediaKind } from "./engines.ts";
+import { calculateCost, debitCredits, refundCredits } from "./credits.ts";
 
 export type StartArgs = {
   auth: any;
   engineId: string;
-  tool: string;          // "image" | "video" | "edit" | "upscale" | "audio"
-  op: string;            // "t2i" | "i2i" | "t2v" | "i2v" | "edit" | "upscale" | "music" | "sfx"
+  tool: string;
+  op: string;
   input: BuildInput;
   mediaType: MediaKind;
+  /** Optional: extra cost params (duration for video, etc.). */
+  costParams?: { quality?: string; duration?: number; units?: number };
 };
 
 export async function startGeneration(args: StartArgs): Promise<Response> {
   const engine = getEngine(args.engineId);
   if (!engine) return json({ error: "Unknown engine", detail: args.engineId }, 400);
 
-  // Insert pending row
+  // ----- COST CALCULATION + ATOMIC DEBIT (before any external work) -----
+  const variations = Math.max(1, args.input.num ?? 1);
+  const cost = calculateCost(args.engineId, {
+    quality: args.costParams?.quality,
+    duration: args.costParams?.duration,
+    units: args.costParams?.units,
+    variations,
+  });
+
+  // Insert pending row (so generationId can be linked to debit txn)
   const { data: gen, error: insErr } = await args.auth.admin
     .from("generations")
     .insert({
@@ -35,10 +47,29 @@ export async function startGeneration(args: StartArgs): Promise<Response> {
       num_variations: args.input.num,
       media_type: args.mediaType,
       prompt: args.input.prompt,
+      credits_used: cost,
     })
     .select()
     .single();
   if (insErr) return json({ error: "DB insert failed", detail: insErr.message }, 500);
+
+  if (cost > 0) {
+    const debit = await debitCredits(
+      args.auth.userId,
+      cost,
+      `${args.tool}/${args.op} · ${engine.id}`,
+      gen.id,
+    );
+    if (!debit.ok) {
+      await args.auth.admin.from("generations").update({
+        status: "failed", error_message: debit.message, completed_at: new Date().toISOString(),
+      }).eq("id", gen.id);
+      return json({
+        error: debit.code, message: debit.message,
+        balance: debit.balance, required: cost, generation_id: gen.id,
+      }, debit.status);
+    }
+  }
 
   // Pre-fetch reference images as base64 (Freepik requires {image, mime_type} objects)
   if (args.input.refs?.length && !args.input.refsB64) {
@@ -48,6 +79,7 @@ export async function startGeneration(args: StartArgs): Promise<Response> {
       await args.auth.admin.from("generations").update({
         status: "failed", error_message: `Ref fetch failed: ${(e as Error).message}`,
       }).eq("id", gen.id);
+      await refundCredits(args.auth.userId, cost, "Ref fetch failed", gen.id);
       return json({ error: "Ref fetch failed", detail: (e as Error).message, generation_id: gen.id }, 502);
     }
   }
@@ -79,6 +111,7 @@ export async function startGeneration(args: StartArgs): Promise<Response> {
       status: "failed",
       error_message: msg,
     }).eq("id", gen.id);
+    await refundCredits(args.auth.userId, cost, "Magnific error before task creation", gen.id);
     return json({ error: "Magnific error", detail: fp.body, status: fp.status, generation_id: gen.id }, 502);
   }
 
@@ -126,6 +159,7 @@ export async function startGeneration(args: StartArgs): Promise<Response> {
       error_message: "Magnific did not return a task id",
       metadata: { magnific_response: fp.body },
     }).eq("id", gen.id);
+    await refundCredits(args.auth.userId, cost, "No task id from provider", gen.id);
     return json({ error: "Missing task id", detail: fp.body, generation_id: gen.id }, 502);
   }
 

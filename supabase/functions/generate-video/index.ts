@@ -80,6 +80,8 @@ Deno.serve(async (req) => {
     return json({ error: "prompt required for text-to-video engines" }, 400);
   }
 
+  const durationStr = body.duration || (engineId.startsWith("hailuo") ? "6" : "5");
+  const durationNum = parseInt(String(durationStr), 10) || undefined;
   return await startGeneration({
     auth,
     engineId,
@@ -91,9 +93,10 @@ Deno.serve(async (req) => {
       aspect: body.aspect_ratio || "16:9",
       refs,
       num: 1,
-      duration: body.duration || (engineId.startsWith("hailuo") ? "6" : "5"),
+      duration: durationStr,
       lastImageUrl,
       extra: extras,
     },
+    costParams: { duration: durationNum, quality: body.resolution },
   });
 });

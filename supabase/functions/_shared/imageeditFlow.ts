@@ -11,6 +11,7 @@ import { json } from "./cors.ts";
 import { adminClient, requireUserId, checkRateLimit, checkTosAccepted } from "./gates.ts";
 import { freepikFetch } from "./freepik.ts";
 import { toMagnificAspect } from "./engines.ts";
+import { calculateCost, debitCredits, refundCredits } from "./credits.ts";
 
 // Endpoints que exigem aspect no formato magnific (square_1_1, ...).
 // Mantemos o mapeamento apenas para motores que realmente aceitam esses tokens.
@@ -65,6 +66,9 @@ export async function startImageEditJob(args: StartImageEditArgs): Promise<Respo
   }
 
   const sb = adminClient();
+
+  // Cost calc + atomic debit
+  const cost = calculateCost(args.model, {});
   const { data: gen, error: insErr } = await sb
     .from("imageedit_generations")
     .insert({
@@ -73,13 +77,26 @@ export async function startImageEditJob(args: StartImageEditArgs): Promise<Respo
       model: args.model,
       status: "PENDING",
       input_urls: args.inputUrls,
-      metadata: args.metadata ?? {},
+      metadata: { ...(args.metadata ?? {}), credits_used: cost },
     })
     .select()
     .single();
 
   if (insErr || !gen) {
     return json({ error: { code: "DB_ERROR", message: insErr?.message || "Falha ao criar geração." } }, 500);
+  }
+
+  if (cost > 0) {
+    const debit = await debitCredits(userId, cost, `${args.tool} · ${args.model}`, gen.generation_id);
+    if (!debit.ok) {
+      await sb.from("imageedit_generations").update({
+        status: "FAILED", error_message: debit.message, completed_at: new Date().toISOString(),
+      }).eq("generation_id", gen.generation_id);
+      return json({
+        error: { code: debit.code, message: debit.message, balance: debit.balance, required: cost },
+        generation_id: gen.generation_id,
+      }, debit.status);
+    }
   }
 
   // Normaliza aspect_ratio pro formato esperado pelo endpoint
@@ -120,6 +137,7 @@ export async function startImageEditJob(args: StartImageEditArgs): Promise<Respo
     await sb.from("imageedit_generations").update({
       status: "FAILED", error_message: msg, completed_at: new Date().toISOString(),
     }).eq("generation_id", gen.generation_id);
+    if (cost > 0) await refundCredits(userId, cost, "Freepik error: " + msg.slice(0, 120), gen.generation_id);
     return json({
       error: { code: "FREEPIK_ERROR", message: msg },
       generation_id: gen.generation_id,
@@ -161,6 +179,7 @@ export async function startImageEditJob(args: StartImageEditArgs): Promise<Respo
       completed_at: new Date().toISOString(),
       metadata: { ...(args.metadata ?? {}), freepik_response: fp.body, freepik_endpoint: args.endpoint },
     }).eq("generation_id", gen.generation_id);
+    if (cost > 0) await refundCredits(userId, cost, "No task_id from Freepik", gen.generation_id);
     return json({
       error: { code: "NO_TASK_ID", message: "Freepik não retornou task_id." },
       generation_id: gen.generation_id,

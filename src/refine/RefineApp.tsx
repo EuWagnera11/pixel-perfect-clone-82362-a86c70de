@@ -31,6 +31,7 @@ import {
   MODEL_ID_TO_LABEL,
   DEFAULT_MODEL_BY_TAB,
 } from "./lib/models";
+import { calculateCost } from "./lib/credits";
 import { tabRequiresUpload, tabPromptOptional } from "./tools";
 // @ts-ignore — mockup-views.ts tem ts-nocheck (JS bruto)
 import { VIEWS, TAB_CONFIG as MOCKUP_TAB_CFG } from "./lib/mockup-views";
@@ -404,6 +405,12 @@ function Workspace() {
                   onRatioChange={setRatio}
                   isGenerating={false}
                   onGenerate={handleGenerate}
+                  costLabel={(() => {
+                    const modelId = MODEL_LABEL_TO_ID[modelLabel] || modelLabel;
+                    const dur = toolOptions.videoDuration ? parseInt(String(toolOptions.videoDuration), 10) : undefined;
+                    const c = calculateCost(modelId, { quality, variations, duration: dur });
+                    return c > 0 ? `${c.toLocaleString("pt-BR")} cr` : "—";
+                  })()}
                   placeholder={tabConfig.placeholder}
                   onAttach={handleAttach}
                   hasAttachment={!!sourceUrl}

@@ -251,6 +251,8 @@ export function ToolWorkspace({
     if (cfg.requiresRef && refs.length === 0) { showToast("Anexe uma imagem fonte"); return; }
 
     const n = Math.max(1, variations);
+    // Feedback otimista: mostra toast IMEDIATAMENTE, antes do round-trip de start.
+    showToast(n > 1 ? `${n} ${cfg.ctaPlural.toLowerCase()} em paralelo` : "Geração iniciada");
     const promises = Array.from({ length: n }).map(() =>
       enqueue({
         tab, prompt: prompt.trim(), aspect: ratio,
@@ -274,7 +276,6 @@ export function ToolWorkspace({
     const results = await Promise.all(promises);
     const fail = results.find((r) => !r.ok);
     if (fail) showToast("Erro: " + (fail.error || "falha"));
-    else showToast(n > 1 ? `${n} ${cfg.ctaPlural.toLowerCase()} em paralelo` : "Geração iniciada");
   }, [cfg, prompt, refs, variations, ratio, modelId, quality, toolOptions, enqueue, showToast, tab]);
 
   const ctaLabel = variations > 1 ? `${cfg.ctaPlural} (${variations})` : cfg.ctaSingular;

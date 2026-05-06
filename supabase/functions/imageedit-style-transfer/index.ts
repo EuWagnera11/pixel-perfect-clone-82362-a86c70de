@@ -1,12 +1,27 @@
 // POST /imageedit-style-transfer
-// Body: { image_url: string, style_url?: string, prompt?: string, strength?: number, aspect_ratio?: string, model?: string }
-// Transfere o estilo de style_url (ou descrição em prompt) para image_url.
+// Body: { image_url: string, style_url?: string, style_preset?: string, prompt?: string, strength?: number, aspect_ratio?: string, model?: string }
+// Transfere o estilo (preset, style_url ou descrição em prompt) para image_url.
 import { corsHeaders, json } from "../_shared/cors.ts";
 import { validateImageUrl } from "../_shared/validateImage.ts";
 import { sanitizeUserText } from "../_shared/sanitize.ts";
 import { startImageEditJob } from "../_shared/imageeditFlow.ts";
 import { getModel, TOOL_MODEL_WHITELIST, defaultModelForTool } from "../_shared/freepikModels.ts";
 import { urlToRefObject } from "../_shared/engines.ts";
+
+const STYLE_PRESETS: Record<string, string> = {
+  "anime": "Anime / manga illustration, clean line art, cel shading, expressive eyes, vibrant colors.",
+  "oil-painting": "Classical oil painting, visible brush strokes, rich color depth, canvas texture.",
+  "watercolor": "Watercolor painting, soft washes, paper grain, organic edges, transparent layers.",
+  "pencil-sketch": "Detailed pencil sketch, graphite shading, hatching, crisp paper texture, monochrome.",
+  "comic-book": "Comic book illustration, bold ink outlines, halftone dots, dynamic flat colors.",
+  "pop-art": "Pop art, Lichtenstein-inspired, bold flat colors, halftone dots, thick black outlines.",
+  "cyberpunk": "Cyberpunk neon aesthetic, magenta-cyan rim lighting, high contrast, futuristic.",
+  "vaporwave": "Vaporwave aesthetic, pastel pink/cyan palette, retro 80s/90s, dreamy glow.",
+  "renaissance": "Renaissance oil painting, chiaroscuro lighting, rich warm tones, classical composition.",
+  "ukiyo-e": "Ukiyo-e Japanese woodblock print, flat colors, bold outlines, traditional patterns.",
+  "claymation": "Claymation/clay sculpt, fingerprint texture, soft studio lighting, stop-motion feel.",
+  "low-poly": "Low-poly 3D render, faceted geometry, flat shading, clean colors.",
+};
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });

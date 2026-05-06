@@ -26,12 +26,14 @@ export function Sidebar({
   currentTab,
   onTabChange,
   profile,
+  userId,
   email,
   isAnonymous,
   onUpgrade,
   onSignInGoogle,
   onSignOut,
   onOpenAccount,
+  onOpenTopup,
   activeJobsCount = 0,
 }: SidebarProps) {
   const [locked, setLocked] = useState<boolean>(() => {

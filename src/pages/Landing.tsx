@@ -368,11 +368,11 @@ export default function Landing() {
         <div className="container-suite">
           <div className="mb-14 flex flex-col items-start justify-between gap-6 lg:flex-row lg:items-end">
             <div className="max-w-2xl">
-              <div className="eyebrow eyebrow-dot mb-4">Templates curados</div>
+              <div className="eyebrow eyebrow-dot mb-4">Galeria de exemplos</div>
               <h2 className="display-1">
-                59+ cenários <span className="text-gradient-copper">clusterizados</span>.
+                Resultados <span className="text-gradient-copper">reais</span>.
                 <br />
-                Geradas em 1 clique.
+                Gerados na própria suite.
               </h2>
             </div>
             <Link to={ctaTo} className="btn-pill-ghost">

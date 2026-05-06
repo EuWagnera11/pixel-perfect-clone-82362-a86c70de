@@ -36,5 +36,6 @@ Deno.serve(async (req) => {
     op: refs.length ? "i2i" : "t2i",
     mediaType: "image",
     input: { prompt, aspect, refs, num, resolution: body.resolution },
+    costParams: { quality: body.resolution },
   });
 });

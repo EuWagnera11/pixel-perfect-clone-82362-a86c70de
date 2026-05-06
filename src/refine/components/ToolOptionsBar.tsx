@@ -537,29 +537,10 @@ export function ToolOptionsBar({ tab, value, onChange, extra, onSuggestPrompt, s
       <div className="st-opts">
         <div className="st-opts-row">
           <span className="st-opts-label">Preset</span>
-          <div className="st-opts-select">
-            <select
-              value={(value.extras?.style_preset as string) || ""}
-              onChange={(e) => setExtra({ style_preset: e.target.value || undefined })}
-            >
-              <option value="">— sem preset —</option>
-              {Object.entries(
-                STYLE_PRESETS.reduce<Record<string, typeof STYLE_PRESETS>>((acc, p) => {
-                  (acc[p.category] ||= []).push(p);
-                  return acc;
-                }, {}),
-              ).map(([cat, list]) => (
-                <optgroup key={cat} label={cat}>
-                  {list.map((p) => (
-                    <option key={p.id} value={p.id}>{p.display_name}</option>
-                  ))}
-                </optgroup>
-              ))}
-            </select>
-            <svg className="st-opts-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M6 9l6 6 6-6" />
-            </svg>
-          </div>
+          <StylePresetPicker
+            value={(value.extras?.style_preset as string) || undefined}
+            onChange={(id) => setExtra({ style_preset: id })}
+          />
         </div>
         <div className="st-opts-row">
           <span className="st-opts-label">Força</span>

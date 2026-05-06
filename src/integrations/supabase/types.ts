@@ -776,6 +776,10 @@ export type Database = {
           tier: string
         }[]
       }
+      admin_refund_generation: {
+        Args: { p_generation_id: string; p_reason?: string }
+        Returns: Json
+      }
       cleanup_rate_limit_buckets: { Args: never; Returns: number }
       consume_rate_limit: {
         Args: {

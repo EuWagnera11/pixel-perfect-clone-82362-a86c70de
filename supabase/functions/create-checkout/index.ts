@@ -33,7 +33,7 @@ serve(async (req) => {
     const user = userData.user;
 
     const body = await req.json().catch(() => ({}));
-    const { plan, topup } = body as { plan?: string; topup?: string };
+    const { plan, topup, coupon_code } = body as { plan?: string; topup?: string; coupon_code?: string };
 
     let priceId: string | undefined;
     let mode: "subscription" | "payment";

@@ -24,6 +24,7 @@ import { ImageWorkspace } from "./components/ImageWorkspace";
 import { VideoWorkspace } from "./components/VideoWorkspace";
 import { ToolWorkspace, tabHasToolWorkspace } from "./components/ToolWorkspace";
 import { AccountPage } from "./components/AccountPage";
+import { AdminDashboard } from "./components/AdminDashboard";
 import { TopupModal } from "./components/TopupModal";
 import { PricingPage } from "./components/PricingPage";
 import PaymentSuccess from "./components/PaymentSuccess";
@@ -44,7 +45,7 @@ import { supabase } from "@/integrations/supabase/client";
 const VALID_TABS = new Set([
   "home", "explore", "projects", "image", "video", "cinema", "edit", "audio",
   "upscale", "ecommerce", "product", "r3d", "assets", "depth", "character",
-  "marketing", "styletransfer", "all", "account",
+  "marketing", "styletransfer", "all", "account", "admin",
 ]);
 
 async function uploadFile(file: File): Promise<string> {
@@ -343,7 +344,12 @@ function Workspace() {
               />
             </div>
           )}
-          {currentTab !== "account" && (() => {
+          {currentTab === "admin" && (
+            <div className="canvas no-dock">
+              <AdminDashboard />
+            </div>
+          )}
+          {currentTab !== "account" && currentTab !== "admin" && (() => {
             const useWorkspace = currentTab === "image" || currentTab === "video" || tabHasToolWorkspace(currentTab);
             if (!useWorkspace) return null;
             const wsProps = {
@@ -390,7 +396,7 @@ function Workspace() {
             if (currentTab === "video") return <VideoWorkspace {...wsProps} />;
             return <ToolWorkspace tab={currentTab} {...wsProps} />;
           })()}
-          {currentTab !== "account" && !(currentTab === "image" || currentTab === "video" || tabHasToolWorkspace(currentTab)) && (
+          {currentTab !== "account" && currentTab !== "admin" && !(currentTab === "image" || currentTab === "video" || tabHasToolWorkspace(currentTab)) && (
             <>
               <div className={"canvas" + (noDock ? " no-dock" : "")}>
                 <div ref={viewRef} dangerouslySetInnerHTML={{ __html: viewHtml }} />
@@ -436,7 +442,7 @@ function Workspace() {
           )}
         </section>
 
-        {currentTab !== "account" && !noRail && !(currentTab === "image" || currentTab === "video" || tabHasToolWorkspace(currentTab)) && (
+        {currentTab !== "account" && currentTab !== "admin" && !noRail && !(currentTab === "image" || currentTab === "video" || tabHasToolWorkspace(currentTab)) && (
           <Rail generations={history} onItemClick={handleHistoryClick} currentTab={currentTab} />
         )}
       </div>

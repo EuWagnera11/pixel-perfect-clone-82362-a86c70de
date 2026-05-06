@@ -58,6 +58,9 @@ export function AccountPage({ profile, userId, email, isAnonymous, onUpgrade, on
         <button className={"account-tab" + (tab === "usage" ? " active" : "")} onClick={() => setTab("usage")}>
           <Activity size={14} /> Uso recente
         </button>
+        <button className={"account-tab" + (tab === "transactions" ? " active" : "")} onClick={() => setTab("transactions")}>
+          <Receipt size={14} /> Transações
+        </button>
       </div>
 
       {tab === "profile" && (
@@ -75,11 +78,15 @@ export function AccountPage({ profile, userId, email, isAnonymous, onUpgrade, on
           rolloverCredits={billing.credits?.rollover_credits ?? 0}
           topupCredits={billing.credits?.topup_credits ?? 0}
           topupEnabled={billing.currentPlan?.features?.topup_enabled === true}
+          isPaidSubscription={!!billing.subscription?.stripe_customer_id || (billing.currentPlan?.price_monthly_brl ?? 0) > 0}
+          cancelAtPeriodEnd={!!(billing.subscription as any)?.cancel_at_period_end}
           onUpgrade={onUpgrade}
           onOpenTopup={onOpenTopup}
+          onRefresh={billing.refresh}
         />
       )}
       {tab === "usage" && <UsageTab />}
+      {tab === "transactions" && <TransactionsTab />}
     </div>
   );
 }

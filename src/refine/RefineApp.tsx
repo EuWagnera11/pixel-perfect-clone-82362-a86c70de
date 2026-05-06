@@ -405,6 +405,12 @@ function Workspace() {
                   onRatioChange={setRatio}
                   isGenerating={false}
                   onGenerate={handleGenerate}
+                  costLabel={(() => {
+                    const modelId = MODEL_LABEL_TO_ID[modelLabel] || modelLabel;
+                    const dur = toolOptions.videoDuration ? parseInt(String(toolOptions.videoDuration), 10) : undefined;
+                    const c = calculateCost(modelId, { quality, variations, duration: dur });
+                    return c > 0 ? `${c.toLocaleString("pt-BR")} cr` : "—";
+                  })()}
                   placeholder={tabConfig.placeholder}
                   onAttach={handleAttach}
                   hasAttachment={!!sourceUrl}

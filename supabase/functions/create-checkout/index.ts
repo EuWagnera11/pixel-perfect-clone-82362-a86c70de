@@ -56,16 +56,40 @@ serve(async (req) => {
 
     const origin = req.headers.get("origin") || req.headers.get("referer")?.split("/").slice(0, 3).join("/") || "";
 
-    const session = await stripe.checkout.sessions.create({
+    // Validate coupon (if provided) using authed supabase client RPC
+    let validatedCoupon: any = null;
+    if (coupon_code && typeof coupon_code === "string") {
+      const ctx = plan ? "subscription" : "topup";
+      const { data: cpRes } = await supabase.rpc("validate_coupon", { p_code: coupon_code.trim(), p_context: ctx });
+      if (!cpRes || (cpRes as any).valid !== true) {
+        throw new Error(`Cupom inválido: ${(cpRes as any)?.error ?? "unknown"}`);
+      }
+      validatedCoupon = cpRes;
+    }
+
+    const sessionParams: any = {
       customer: customerId,
       customer_email: customerId ? undefined : user.email!,
       line_items: [{ price: priceId, quantity: 1 }],
       mode,
       client_reference_id: user.id,
-      metadata: { user_id: user.id, kind: plan ? "subscription" : "topup", key: (plan ?? topup)! },
+      metadata: {
+        user_id: user.id,
+        kind: plan ? "subscription" : "topup",
+        key: (plan ?? topup)!,
+        ...(validatedCoupon ? { coupon_id: validatedCoupon.coupon_id, coupon_code: validatedCoupon.code, coupon_type: validatedCoupon.type, coupon_value: String(validatedCoupon.value) } : {}),
+      },
       success_url: `${origin}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/pricing?canceled=1`,
-    });
+    };
+
+    if (validatedCoupon?.type === "percent_off" && validatedCoupon.stripe_coupon_id) {
+      sessionParams.discounts = [{ coupon: validatedCoupon.stripe_coupon_id }];
+    } else if (mode === "payment") {
+      sessionParams.allow_promotion_codes = true;
+    }
+
+    const session = await stripe.checkout.sessions.create(sessionParams);
 
     return new Response(JSON.stringify({ url: session.url }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

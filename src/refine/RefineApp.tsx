@@ -309,12 +309,14 @@ function Workspace() {
           currentTab={currentTab}
           onTabChange={(k) => navigate(`/${k}`)}
           profile={profile}
+          userId={userId}
           email={session?.user?.email ?? null}
           isAnonymous={isAnonymous}
           onUpgrade={() => navigate("/account?tab=plan")}
           onSignInGoogle={signInWithGoogle}
           onSignOut={signOut}
           onOpenAccount={(t) => navigate(`/account${t ? `?tab=${t}` : ""}`)}
+          onOpenTopup={() => setTopupOpen(true)}
           activeJobsCount={activeJobsCount}
         />
 

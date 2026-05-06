@@ -84,6 +84,6 @@ Deno.serve(async (req) => {
       aspect_ratio: body?.aspect_ratio || "1:1",
     },
     inputUrls: refUrls,
-    metadata: { strength, has_style_ref: !!styleUrl },
+    metadata: { strength, has_style_ref: !!styleUrl, style_preset: stylePreset || null },
   });
 });

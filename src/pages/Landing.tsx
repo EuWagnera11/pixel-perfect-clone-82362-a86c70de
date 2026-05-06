@@ -197,17 +197,15 @@ export default function Landing() {
             </div>
 
             <h1 className="display-hero">
-              Crie influencers de IA com
+              Toda a criação visual com IA,
               <br />
-              <span className="text-gradient-copper">qualidade editorial</span>
-              <br />
-              em minutos.
+              <span className="text-gradient-copper">num só studio</span>.
             </h1>
 
             <p className="lead mt-7 text-foreground-dim">
-              Pipeline 4K. Identidade fixa garantida. Carrosséis automáticos.
+              Imagem, vídeo, edição, upscale, áudio, 3D e assets — com os melhores modelos do mercado.
               <br className="hidden md:block" />
-              A suite completa que rivaliza Aitana e Olivia Roa.
+              Nano-Banana Pro, Kling 2.5, Magnific, Suno V4 e mais. Jobs rodam em paralelo.
             </p>
 
             <div className="mt-9 flex flex-wrap items-center gap-3">

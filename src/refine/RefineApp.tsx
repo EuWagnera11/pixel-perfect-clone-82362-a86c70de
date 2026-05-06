@@ -6,6 +6,9 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { BrowserRouter, Routes, Route, Navigate, useNavigate, useParams } from "react-router-dom";
 import { Toaster as SonnerToaster, toast } from "sonner";
+import { AuthProvider } from "@/lib/auth";
+import Landing from "@/pages/Landing";
+import AuthPage from "@/pages/Auth";
 import { useAuth } from "./hooks/useAuth";
 import { useGenerations } from "./hooks/useGenerations";
 import { useToast } from "./hooks/useToast";

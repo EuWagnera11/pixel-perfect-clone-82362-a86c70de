@@ -562,7 +562,8 @@ export default function Landing() {
                   ))}
                 </ul>
               </motion.div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>

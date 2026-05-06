@@ -171,6 +171,16 @@ const TAB_CFG: Record<string, TabCfg> = {
     ctaSingular: "Gerar peça", ctaPlural: "Gerar peças",
     defaultRatio: "1:1",
   },
+  styletransfer: {
+    title: "Style Transfer",
+    eyebrow: "WORKSPACE · STYLE TRANSFER",
+    subtitle: "Aplique um estilo (preset, referência ou prompt) preservando composição.",
+    output: "image", showRefs: true, requiresRef: true, promptRequired: false,
+    showModel: false, showOutput: true,
+    placeholder: "Descreva o estilo (opcional, se não usar preset/ref)…",
+    ctaSingular: "Aplicar estilo", ctaPlural: "Aplicar variações",
+    defaultRatio: "1:1",
+  },
 };
 
 export function tabHasToolWorkspace(tab: string): boolean {

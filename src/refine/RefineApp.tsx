@@ -33,7 +33,7 @@ import { supabase } from "@/integrations/supabase/client";
 const VALID_TABS = new Set([
   "home", "explore", "projects", "image", "video", "cinema", "edit", "audio",
   "upscale", "ecommerce", "product", "r3d", "assets", "depth", "character",
-  "marketing", "all",
+  "marketing", "styletransfer", "all",
 ]);
 
 async function uploadFile(file: File): Promise<string> {

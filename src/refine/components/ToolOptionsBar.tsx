@@ -15,6 +15,7 @@ export type ToolExtras = {
   skin_target?: "enhance_everything" | "smooth_skin" | "remove_blemishes";
   style_preset?: string;
   style_strength?: number;
+  style_url?: string;
 };
 
 export type ToolOptions = {
@@ -437,9 +438,44 @@ export function ToolOptionsBar({ tab, value, onChange, extra, onSuggestPrompt, s
       </div>
     );
   }
+  if (tab === "styletransfer") {
+    return (
+      <div style={wrap}>
+        <span style={label}>Preset</span>
+        <Seg
+          options={[
+            { id: "", label: "—" },
+            { id: "anime", label: "Anime" },
+            { id: "oil-painting", label: "Óleo" },
+            { id: "watercolor", label: "Aquarela" },
+            { id: "pencil-sketch", label: "Lápis" },
+            { id: "comic-book", label: "Quadrinho" },
+            { id: "pop-art", label: "Pop art" },
+            { id: "cyberpunk", label: "Cyberpunk" },
+            { id: "vaporwave", label: "Vaporwave" },
+            { id: "renaissance", label: "Renascença" },
+            { id: "ukiyo-e", label: "Ukiyo-e" },
+            { id: "claymation", label: "Argila" },
+            { id: "low-poly", label: "Low-poly" },
+          ]}
+          value={(value.extras?.style_preset as string) || ""}
+          onChange={(v) => setExtra({ style_preset: v || undefined })}
+        />
+        <span style={label}>Força</span>
+        <NumInput val={value.extras?.style_strength} onChange={(n) => setExtra({ style_strength: n })} min={0.1} max={1} step={0.05} ph="0.7" />
+        <span style={label}>Ref. estilo (URL opcional)</span>
+        <input
+          type="url" placeholder="https://… imagem de estilo"
+          value={(value.extras as any)?.style_url || ""}
+          onChange={(e) => setExtra({ style_url: e.target.value || undefined } as any)}
+          style={inputStyle}
+        />
+      </div>
+    );
+  }
   return null;
 }
 
 export function tabHasOptions(tab: string): boolean {
-  return ["video", "edit", "upscale", "audio", "r3d", "assets", "depth"].includes(tab);
+  return ["video", "edit", "upscale", "audio", "r3d", "assets", "depth", "styletransfer"].includes(tab);
 }

@@ -273,12 +273,19 @@ export async function dispatchTool(input: DispatchInput): Promise<EnqueueResult>
       style_image: input.extras?.assetsStyleImage as any,
     });
     case "marketing":  return runMarketing({ prompt: p, aspect: input.aspect, refs, model });
+    case "styletransfer": return runStyleTransferTool({
+      sourceUrl: input.sourceUrl!,
+      styleUrl: (input.extras?.style_url as string) || undefined,
+      prompt: p, aspect: input.aspect,
+      stylePreset: (input.extras?.style_preset as string) || undefined,
+      strength: (input.extras?.style_strength as number) || undefined,
+    });
     default:           return runImage({ prompt: p, aspect: input.aspect, refs, model, numVariations: num, quality: input.quality });
   }
 }
 
 export function tabRequiresUpload(tab: string): boolean {
-  return ["upscale", "edit", "ecommerce", "product", "video", "depth"].includes(tab);
+  return ["upscale", "edit", "ecommerce", "product", "video", "depth", "styletransfer"].includes(tab);
 }
 export function tabPromptOptional(tab: string): boolean {
   return ["upscale"].includes(tab);

@@ -364,8 +364,8 @@ const VIDEO: Record<string, EngineEntry> = {
     id: "kling-v3-pro", kind: "video", path: "/v1/ai/video/kling-v3-pro", aspectStyle: "none",
     build: (i) => {
       const d = Number(i.duration || "5");
-      const dur = Math.min(15, Math.max(3, isFinite(d) ? d : 5));
-      const body: Record<string, unknown> = { duration: dur };
+      const dur = Math.min(15, Math.max(3, isFinite(d) ? Math.round(d) : 5));
+      const body: Record<string, unknown> = { duration: String(dur) };
       if (i.prompt) body.prompt = i.prompt;
       if (i.aspect) body.aspect_ratio = i.aspect;
       const list: Array<Record<string, string>> = [];
@@ -379,8 +379,8 @@ const VIDEO: Record<string, EngineEntry> = {
     id: "kling-v3-std", kind: "video", path: "/v1/ai/video/kling-v3-std", aspectStyle: "none",
     build: (i) => {
       const d = Number(i.duration || "5");
-      const dur = Math.min(15, Math.max(3, isFinite(d) ? d : 5));
-      const body: Record<string, unknown> = { duration: dur };
+      const dur = Math.min(15, Math.max(3, isFinite(d) ? Math.round(d) : 5));
+      const body: Record<string, unknown> = { duration: String(dur) };
       if (i.prompt) body.prompt = i.prompt;
       if (i.aspect) body.aspect_ratio = i.aspect;
       const list: Array<Record<string, string>> = [];

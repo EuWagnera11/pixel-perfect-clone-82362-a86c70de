@@ -196,6 +196,40 @@ export function PricingPage() {
             <span className="cycle-badge">−20%</span>
           </button>
         </div>
+
+        <div style={{ marginTop: 18, display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+          <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+            <input
+              type="text"
+              placeholder="Cupom (opcional)"
+              value={couponCode}
+              onChange={(e) => { setCouponCode(e.target.value.toUpperCase()); setCouponState(null); }}
+              style={{
+                padding: "8px 12px", borderRadius: 8, border: "1px solid hsl(var(--border))",
+                background: "hsl(var(--surface) / 0.4)", color: "inherit", fontSize: 13,
+                width: 200, textTransform: "uppercase", letterSpacing: 1,
+              }}
+              maxLength={48}
+            />
+            <button
+              type="button"
+              onClick={() => validateCoupon("subscription")}
+              disabled={!couponCode.trim() || validatingCoupon}
+              style={{
+                padding: "8px 14px", borderRadius: 8, border: "1px solid hsl(var(--border))",
+                background: "transparent", color: "inherit", fontSize: 13, cursor: "pointer",
+                opacity: validatingCoupon ? 0.6 : 1,
+              }}
+            >
+              {validatingCoupon ? "..." : "Aplicar"}
+            </button>
+          </div>
+          {couponState && (
+            <div style={{ fontSize: 12, color: couponState.valid ? "#10b981" : "#ef4444" }}>
+              {couponState.msg}
+            </div>
+          )}
+        </div>
       </section>
 
       {/* Plan cards */}

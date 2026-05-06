@@ -296,13 +296,13 @@ export default function Landing() {
             <div className="max-w-2xl">
               <div className="eyebrow eyebrow-dot mb-4">A Suite Refine</div>
               <h2 className="display-1">
-                9 ferramentas. <span className="text-gradient-copper">Uma suite.</span>
+                12 ferramentas. <span className="text-gradient-copper">Uma suite.</span>
                 <br />
-                O que estúdios usam — sem o estúdio.
+                O stack completo de criação visual.
               </h2>
             </div>
             <p className="lead lg:max-w-sm lg:text-right">
-              Imagem, vídeo, face swap, drive import. Toda criação de IA influencer num só lugar.
+              Image, Video, Cinema, Edit, Upscale, Audio, E-commerce, 3D, Assets, Depth, Character e Marketing.
             </p>
           </div>
 

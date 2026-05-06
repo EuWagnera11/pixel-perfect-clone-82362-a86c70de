@@ -3,6 +3,7 @@
 import { corsHeaders, json } from "../_shared/cors.ts";
 import { requireAuth } from "../_shared/auth.ts";
 import { magnificFetch, extractUrls, normalizeStatus } from "../_shared/magnific.ts";
+import { refundCredits } from "../_shared/credits.ts";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });

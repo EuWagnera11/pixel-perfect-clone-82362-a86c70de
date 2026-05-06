@@ -204,12 +204,20 @@ serve(async (req) => {
             ? sub.status
             : "canceled";
 
+        // Snapshot do plano anterior pra detectar troca
+        const { data: prevSub } = await admin
+          .from("user_subscriptions")
+          .select("id, user_id, plan_id, billing_cycle")
+          .or(`stripe_subscription_id.eq.${sub.id},stripe_customer_id.eq.${customerId}`)
+          .maybeSingle();
+
         const update: Record<string, unknown> = {
           status,
           current_period_start: periodStart,
           current_period_end: periodEnd,
           cancel_at_period_end: sub.cancel_at_period_end ?? false,
           stripe_customer_id: customerId,
+          stripe_subscription_id: sub.id,
           updated_at: new Date().toISOString(),
         };
         if (meta && meta.kind === "subscription") {
@@ -217,13 +225,98 @@ serve(async (req) => {
           update.billing_cycle = meta.billing_cycle;
         }
 
-        const { data, error } = await admin
+        const { error } = await admin
           .from("user_subscriptions")
           .update(update)
-          .or(`stripe_subscription_id.eq.${sub.id},stripe_customer_id.eq.${customerId}`)
-          .select("user_id");
+          .or(`stripe_subscription_id.eq.${sub.id},stripe_customer_id.eq.${customerId}`);
         if (error) { log("update sub error", { err: error.message }); break; }
-        log("subscription synced", { ids: data?.map(d => d.user_id), status });
+        log("subscription synced", { userId: prevSub?.user_id, status });
+
+        // ─── Proration imediata: se o plano mudou no meio do ciclo,
+        // ajusta créditos pra o novo plano sem esperar invoice.paid.
+        // Idempotente via stripe_event_id.
+        if (
+          event.type === "customer.subscription.updated" &&
+          prevSub?.user_id &&
+          meta?.kind === "subscription" &&
+          (prevSub.plan_id !== meta.plan_id || prevSub.billing_cycle !== meta.billing_cycle)
+        ) {
+          const { data: dup } = await admin
+            .from("credit_transactions")
+            .select("id")
+            .eq("user_id", prevSub.user_id)
+            .filter("metadata->>stripe_event_id", "eq", event.id)
+            .maybeSingle();
+
+          if (!dup) {
+            const { data: plan } = await admin
+              .from("plans")
+              .select("credits_monthly, credits_yearly")
+              .eq("id", meta.plan_id)
+              .maybeSingle();
+
+            if (plan) {
+              const newPlanCredits = meta.billing_cycle === "yearly" ? plan.credits_yearly : plan.credits_monthly;
+              const { data: cur } = await admin
+                .from("user_credits")
+                .select("balance, plan_credits, topup_credits, rollover_credits")
+                .eq("user_id", prevSub.user_id)
+                .maybeSingle();
+
+              const isUpgrade = newPlanCredits > (cur?.plan_credits ?? 0);
+              const topup = cur?.topup_credits ?? 0;
+              const rollover = cur?.rollover_credits ?? 0;
+              // Upgrade: dá o saldo cheio do novo plano. Downgrade: cap no novo plano.
+              const newPlanBalance = isUpgrade ? newPlanCredits : Math.min(cur?.plan_credits ?? 0, newPlanCredits);
+              const newBalance = newPlanBalance + rollover + topup;
+              const delta = newBalance - (cur?.balance ?? 0);
+
+              await admin.from("user_credits").update({
+                balance: newBalance,
+                plan_credits: newPlanBalance,
+                last_reset_at: new Date().toISOString(),
+                next_reset_at: periodEnd,
+                updated_at: new Date().toISOString(),
+              }).eq("user_id", prevSub.user_id);
+
+              await admin.from("credit_transactions").insert({
+                user_id: prevSub.user_id,
+                type: delta >= 0 ? "credit" : "debit",
+                amount: Math.abs(delta),
+                balance_after: newBalance,
+                reason: `${isUpgrade ? "Upgrade" : "Downgrade"} ${prevSub.plan_id}→${meta.plan_id} (${meta.billing_cycle})`,
+                metadata: { stripe_event_id: event.id, plan_change: true, from: prevSub.plan_id, to: meta.plan_id },
+              });
+
+              await admin.from("profiles").update({
+                credits: newBalance,
+                updated_at: new Date().toISOString(),
+              }).eq("id", prevSub.user_id);
+
+              log("plan changed mid-cycle", { userId: prevSub.user_id, from: prevSub.plan_id, to: meta.plan_id, delta });
+            }
+          }
+        }
+        break;
+      }
+
+      case "invoice.payment_failed": {
+        const invoice = event.data.object as Stripe.Invoice;
+        const subId = typeof (invoice as any).subscription === "string"
+          ? (invoice as any).subscription
+          : (invoice as any).subscription?.id;
+        const customerId = typeof invoice.customer === "string" ? invoice.customer : invoice.customer?.id;
+        if (!subId && !customerId) break;
+
+        const orFilter = subId
+          ? `stripe_subscription_id.eq.${subId},stripe_customer_id.eq.${customerId}`
+          : `stripe_customer_id.eq.${customerId}`;
+
+        await admin
+          .from("user_subscriptions")
+          .update({ status: "past_due", updated_at: new Date().toISOString() })
+          .or(orFilter);
+        log("payment failed → past_due", { subId, customerId });
         break;
       }
 

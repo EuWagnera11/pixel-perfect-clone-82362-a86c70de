@@ -45,6 +45,10 @@ Deno.serve(async (req) => {
   let statusPath = rawPath as string;
   const m = /^(\/v1\/ai\/skin-enhancer)\/(creative|faithful|flexible)$/.exec(statusPath);
   if (m) statusPath = m[1];
+  // Kling V3: POST em /v1/ai/video/kling-v3-{pro,std} mas GET em /v1/ai/video/kling-v3/{id}
+  if (/^\/v1\/ai\/video\/kling-v3-(pro|std)$/.test(statusPath)) {
+    statusPath = "/v1/ai/video/kling-v3";
+  }
 
   const fp = await magnificFetch(`${statusPath}/${taskId}`, {
     method: "GET",

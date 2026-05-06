@@ -195,9 +195,12 @@ export function PricingPage() {
 
               <button
                 className={`plan-cta ${isHighlighted ? "primary" : ""}`}
-                onClick={() => navigate("/signup")}
+                onClick={() => startCheckout(plan.id)}
+                disabled={loadingKey === `plan:${plan.id}_${cycle}`}
               >
-                {isFree ? "Começar grátis" : `Assinar ${plan.name}`}
+                {loadingKey === `plan:${plan.id}_${cycle}`
+                  ? "Abrindo…"
+                  : isFree ? "Começar grátis" : `Assinar ${plan.name}`}
                 <ArrowRight weight="bold" size={14} />
               </button>
 

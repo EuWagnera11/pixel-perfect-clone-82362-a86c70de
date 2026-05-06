@@ -140,14 +140,14 @@ export function Sidebar({
       </nav>
 
       <div className="sb-foot">
-        <div className="sb-credits">
+        <div className={"sb-credits" + (level === "low" ? " low" : level === "warn" ? " warn" : "")} data-level={level}>
           <div className="sb-credits-head">
             <button
               className="sb-credits-plan sb-credits-plan-btn"
               onClick={() => onOpenAccount("plan")}
               title="Ver plano e créditos"
             >
-              Plano {tier.toUpperCase()}
+              Plano {planName}
             </button>
             <span className="sb-credits-count">
               <span className="current">{credits.toLocaleString("pt-BR")}</span>
@@ -156,7 +156,14 @@ export function Sidebar({
             </span>
           </div>
           <div className="sb-credits-bar"><i style={{ width: `${pct}%` }} /></div>
-          <span className="sb-credits-renewal">Renova em 30 dias</span>
+          <div className="sb-credits-foot">
+            <span className="sb-credits-renewal">
+              {daysToReset !== null ? `Renova em ${daysToReset} ${daysToReset === 1 ? "dia" : "dias"}` : "—"}
+            </span>
+            {topupEnabled && onOpenTopup && (
+              <button className="sb-credits-topup" onClick={onOpenTopup}>+ Comprar</button>
+            )}
+          </div>
           <button className="sb-upgrade" onClick={() => onOpenAccount("plan")}>
             {tier === "free" ? "Fazer upgrade" : "Gerenciar plano"}
           </button>

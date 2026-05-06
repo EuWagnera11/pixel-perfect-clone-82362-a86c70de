@@ -455,25 +455,25 @@ export function ToolOptionsBar({ tab, value, onChange, extra, onSuggestPrompt, s
     return (
       <div style={wrap}>
         <span style={label}>Preset</span>
-        <Seg
-          options={[
-            { id: "", label: "—" },
-            { id: "anime", label: "Anime" },
-            { id: "oil-painting", label: "Óleo" },
-            { id: "watercolor", label: "Aquarela" },
-            { id: "pencil-sketch", label: "Lápis" },
-            { id: "comic-book", label: "Quadrinho" },
-            { id: "pop-art", label: "Pop art" },
-            { id: "cyberpunk", label: "Cyberpunk" },
-            { id: "vaporwave", label: "Vaporwave" },
-            { id: "renaissance", label: "Renascença" },
-            { id: "ukiyo-e", label: "Ukiyo-e" },
-            { id: "claymation", label: "Argila" },
-            { id: "low-poly", label: "Low-poly" },
-          ]}
+        <select
           value={(value.extras?.style_preset as string) || ""}
-          onChange={(v) => setExtra({ style_preset: v || undefined })}
-        />
+          onChange={(e) => setExtra({ style_preset: e.target.value || undefined })}
+          style={{ ...inputStyle, minWidth: 220 }}
+        >
+          <option value="">— sem preset —</option>
+          {Object.entries(
+            STYLE_PRESETS.reduce<Record<string, typeof STYLE_PRESETS>>((acc, p) => {
+              (acc[p.category] ||= []).push(p);
+              return acc;
+            }, {}),
+          ).map(([cat, list]) => (
+            <optgroup key={cat} label={cat}>
+              {list.map((p) => (
+                <option key={p.id} value={p.id}>{p.display_name}</option>
+              ))}
+            </optgroup>
+          ))}
+        </select>
         <span style={label}>Força</span>
         <NumInput val={value.extras?.style_strength} onChange={(n) => setExtra({ style_strength: n })} min={0.1} max={1} step={0.05} ph="0.7" />
         <span style={label}>Ref. estilo (URL opcional)</span>

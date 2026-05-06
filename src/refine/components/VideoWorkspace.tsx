@@ -203,6 +203,7 @@ export function VideoWorkspace({
     const extras: Record<string, unknown> = {};
     if ((isLipSync || isOmniHuman) && lipSyncAudioUrl) extras.audio_url = lipSyncAudioUrl;
 
+    const durStr = String(parseInt(duration, 10) || 5);
     const promises = Array.from({ length: n }).map(() =>
       enqueue({
         tab: "video",
@@ -212,6 +213,7 @@ export function VideoWorkspace({
         model: modelId,
         thumb: source || undefined,
         quality,
+        duration: durStr,
         numVariations: 1,
         extras: Object.keys(extras).length ? extras : undefined,
       })

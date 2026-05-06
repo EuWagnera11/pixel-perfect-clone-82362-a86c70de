@@ -402,7 +402,7 @@ function Workspace() {
         )}
       </div>
 
-      {!(currentTab === "image" || currentTab === "video" || tabHasToolWorkspace(currentTab)) && <JobsPanel onOpenResult={handleJobOpen} />}
+      <JobsPanel onOpenResult={handleJobOpen} />
       <Toast msg={msg} show={show} />
     </>
   );

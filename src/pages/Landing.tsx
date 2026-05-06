@@ -120,7 +120,7 @@ const tiers = [
 const trustBrands = ["CUBO", "SOPHIA", "LUMEN", "ATELIER", "NORTE", "VERBO", "COSTA", "EFEMERA", "MIRA", "STUDIO 21"];
 
 const stats = [
-  { num: "12", label: "Ferramentas no studio" },
+  { num: "40+", label: "Ferramentas no studio" },
   { num: "4K", label: "Resolução máxima" },
   { num: "20+", label: "Modelos integrados" },
   { num: "∞", label: "Jobs em paralelo" },

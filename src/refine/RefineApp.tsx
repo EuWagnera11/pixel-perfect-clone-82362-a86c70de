@@ -316,7 +316,19 @@ function Workspace() {
         />
 
         <section className="workspace">
-          {(() => {
+          {currentTab === "account" && (
+            <div className="canvas no-dock">
+              <AccountPage
+                profile={profile}
+                email={session?.user?.email ?? null}
+                isAnonymous={isAnonymous}
+                onUpgrade={() => upgradeTo("starter_monthly")}
+                onSignOut={signOut}
+                refreshProfile={refreshProfile}
+              />
+            </div>
+          )}
+          {currentTab !== "account" && (() => {
             const useWorkspace = currentTab === "image" || currentTab === "video" || tabHasToolWorkspace(currentTab);
             if (!useWorkspace) return null;
             const wsProps = {

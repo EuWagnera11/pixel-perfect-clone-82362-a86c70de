@@ -21,6 +21,7 @@ import { ToolOptionsBar, tabHasOptions, type ToolOptions } from "./components/To
 import { ImageWorkspace } from "./components/ImageWorkspace";
 import { VideoWorkspace } from "./components/VideoWorkspace";
 import { ToolWorkspace, tabHasToolWorkspace } from "./components/ToolWorkspace";
+import { AccountPage } from "./components/AccountPage";
 import { JobsProvider, useJobs, type Job } from "./lib/jobs";
 import { TAB_CONFIG } from "./lib/nav";
 import {

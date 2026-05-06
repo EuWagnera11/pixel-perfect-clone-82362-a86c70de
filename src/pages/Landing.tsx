@@ -1,4 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import {
   ArrowRight, ArrowUpRight, Image as ImageIcon, Video, Film, Pencil,
@@ -46,8 +47,10 @@ const templates = [
 const tiers = [
   {
     name: "Free",
-    price: "R$ 0",
-    credits: "500 créditos / mês",
+    priceMonthly: "R$ 0",
+    priceYearly: "R$ 0",
+    creditsMonthly: "500 créditos / mês",
+    creditsYearly: "6.000 créditos / ano",
     features: [
       "Com marca d'água",
       "1 geração simultânea",
@@ -58,8 +61,11 @@ const tiers = [
   },
   {
     name: "Starter",
-    price: "R$ 27",
-    credits: "8.000 créditos / mês",
+    priceMonthly: "R$ 27",
+    priceYearly: "R$ 21,58",
+    yearlyTotal: "R$ 259 / ano",
+    creditsMonthly: "8.000 créditos / mês",
+    creditsYearly: "105.600 créditos / ano",
     features: [
       "Sem marca d'água",
       "Licença comercial",
@@ -71,8 +77,11 @@ const tiers = [
   },
   {
     name: "Creator",
-    price: "R$ 59",
-    credits: "19.000 créditos / mês",
+    priceMonthly: "R$ 59",
+    priceYearly: "R$ 47,17",
+    yearlyTotal: "R$ 566 / ano",
+    creditsMonthly: "19.000 créditos / mês",
+    creditsYearly: "250.800 créditos / ano",
     features: [
       "3 gerações simultâneas",
       "5 personagens",
@@ -85,8 +94,11 @@ const tiers = [
   },
   {
     name: "Pro",
-    price: "R$ 129",
-    credits: "48.000 créditos / mês",
+    priceMonthly: "R$ 129",
+    priceYearly: "R$ 103,17",
+    yearlyTotal: "R$ 1.238 / ano",
+    creditsMonthly: "48.000 créditos / mês",
+    creditsYearly: "633.600 créditos / ano",
     features: [
       "5 gerações simultâneas",
       "Fila prioritária",
@@ -99,8 +111,11 @@ const tiers = [
   },
   {
     name: "Studio",
-    price: "R$ 749",
-    credits: "320.000 créditos / mês",
+    priceMonthly: "R$ 749",
+    priceYearly: "R$ 599,17",
+    yearlyTotal: "R$ 7.190 / ano",
+    creditsMonthly: "320.000 créditos / mês",
+    creditsYearly: "4.224.000 créditos / ano",
     features: [
       "10 gerações simultâneas",
       "Personagens ilimitados",
@@ -133,6 +148,7 @@ export default function Landing() {
   const navigate = useNavigate();
   const ctaTo = user ? "/app" : "/signup";
   const ctaLabel = user ? "Abrir studio" : "Começar grátis";
+  const [billing, setBilling] = useState<"monthly" | "yearly">("monthly");
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -467,10 +483,36 @@ export default function Landing() {
             <p className="lead mx-auto mt-5">
               3 fotos grátis para testar. Sem cartão. Sem compromisso.
             </p>
+
+            {/* Billing toggle */}
+            <div className="mx-auto mt-8 inline-flex items-center gap-1 rounded-full border border-border bg-surface/40 p-1">
+              <button
+                onClick={() => setBilling("monthly")}
+                className={`rounded-full px-4 py-2 text-xs font-medium transition-all ${
+                  billing === "monthly" ? "bg-white/10 text-foreground" : "text-foreground-muted hover:text-foreground"
+                }`}
+              >
+                Mensal
+              </button>
+              <button
+                onClick={() => setBilling("yearly")}
+                className={`flex items-center gap-2 rounded-full px-4 py-2 text-xs font-medium transition-all ${
+                  billing === "yearly" ? "bg-white/10 text-foreground" : "text-foreground-muted hover:text-foreground"
+                }`}
+              >
+                Anual
+                <span className="rounded-full gradient-copper px-2 py-0.5 font-mono text-[9px] uppercase tracking-wider text-white">
+                  -20%
+                </span>
+              </button>
+            </div>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-            {tiers.map((t, i) => (
+            {tiers.map((t, i) => {
+              const price = billing === "yearly" ? t.priceYearly : t.priceMonthly;
+              const credits = billing === "yearly" ? t.creditsYearly : t.creditsMonthly;
+              return (
               <motion.div
                 key={t.name}
                 initial={{ opacity: 0, y: 16 }}
@@ -490,10 +532,13 @@ export default function Landing() {
                 )}
                 <div className="mb-2 font-mono text-[11px] uppercase tracking-wider text-foreground-muted">{t.name}</div>
                 <div className="mb-1 flex items-baseline gap-1">
-                  <span className="text-4xl font-semibold tracking-tight">{t.price}</span>
-                  {t.price !== "Custom" && <span className="text-sm text-foreground-muted">/mês</span>}
+                  <span className="text-4xl font-semibold tracking-tight">{price}</span>
+                  <span className="text-sm text-foreground-muted">/mês</span>
                 </div>
-                <div className="mb-7 text-sm text-foreground-muted">{t.credits}</div>
+                {billing === "yearly" && t.yearlyTotal && (
+                  <div className="mb-1 text-[11px] text-foreground-muted">cobrado {t.yearlyTotal}</div>
+                )}
+                <div className="mb-7 text-sm text-foreground-muted">{credits}</div>
 
                 <Link
                   to={ctaTo}
@@ -517,7 +562,8 @@ export default function Landing() {
                   ))}
                 </ul>
               </motion.div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>

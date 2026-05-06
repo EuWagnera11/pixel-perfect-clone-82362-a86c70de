@@ -260,7 +260,14 @@ export async function dispatchTool(input: DispatchInput): Promise<EnqueueResult>
     case "character":  return runCharacter({ prompt: p, aspect: input.aspect, refs, model });
     case "r3d":        return runR3D({ prompt: p, aspect: input.aspect, sourceUrl: input.sourceUrl, model });
     case "depth":      return runDepth({ sourceUrl: input.sourceUrl });
-    case "assets":     return runAssets({ prompt: p, aspect: input.aspect, refs });
+    case "assets":     return runAssets({
+      prompt: p, aspect: input.aspect, refs,
+      kind: input.extras?.assetsKind as any,
+      background: input.extras?.assetsBackground as any,
+      style_mode: input.extras?.assetsStyleMode as any,
+      style_preset: input.extras?.assetsStylePreset as any,
+      style_image: input.extras?.assetsStyleImage as any,
+    });
     case "marketing":  return runMarketing({ prompt: p, aspect: input.aspect, refs, model });
     default:           return runImage({ prompt: p, aspect: input.aspect, refs, model, numVariations: num, quality: input.quality });
   }

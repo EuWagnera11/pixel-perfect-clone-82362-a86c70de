@@ -200,6 +200,8 @@ export function AdminDashboard() {
               ))}
             </div>
           </div>
+
+          <AdminCoupons />
         </>
       )}
     </div>

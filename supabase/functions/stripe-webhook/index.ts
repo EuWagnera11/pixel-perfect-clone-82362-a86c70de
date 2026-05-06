@@ -228,10 +228,63 @@ serve(async (req) => {
       }
 
       case "checkout.session.completed": {
-        // Fallback: se for top-up e verify-payment não tiver rodado, credita aqui.
         const session = event.data.object as Stripe.Checkout.Session;
-        if (session.mode !== "payment") break;
         const userId = session.client_reference_id || (session.metadata as any)?.user_id;
+        const md = (session.metadata ?? {}) as Record<string, string>;
+
+        // ─── Coupon redemption (subscription OR payment) ───
+        if (md.coupon_id && userId) {
+          const { data: existsRedemption } = await admin
+            .from("coupon_redemptions")
+            .select("id")
+            .eq("coupon_id", md.coupon_id)
+            .eq("user_id", userId)
+            .maybeSingle();
+
+          if (!existsRedemption) {
+            const couponType = md.coupon_type;
+            const couponValue = Number(md.coupon_value ?? 0);
+            let creditsGranted: number | null = null;
+            let discountBrl: number | null = null;
+
+            if (couponType === "credits_bonus" && couponValue > 0) {
+              const { error: cErr } = await admin.rpc("credit_user_credits", {
+                p_user_id: userId,
+                p_amount: couponValue,
+                p_type: "credit",
+                p_reason: `Bônus cupom ${md.coupon_code}`,
+                p_generation_id: null,
+                p_metadata: { coupon_id: md.coupon_id, coupon_code: md.coupon_code, stripe_session_id: session.id },
+              });
+              if (cErr) log("coupon bonus credit error", { err: cErr.message });
+              else creditsGranted = couponValue;
+            } else if (couponType === "percent_off") {
+              const totalCents = (session.amount_subtotal ?? 0) - (session.amount_total ?? 0);
+              discountBrl = totalCents > 0 ? totalCents / 100 : null;
+            }
+
+            await admin.from("coupon_redemptions").insert({
+              coupon_id: md.coupon_id,
+              user_id: userId,
+              stripe_session_id: session.id,
+              credits_granted: creditsGranted,
+              discount_amount_brl: discountBrl,
+            });
+
+            // increment counter (best-effort)
+            const { data: cp } = await admin.from("coupons").select("redemptions_count").eq("id", md.coupon_id).maybeSingle();
+            if (cp) {
+              await admin.from("coupons").update({
+                redemptions_count: (cp.redemptions_count ?? 0) + 1,
+                updated_at: new Date().toISOString(),
+              }).eq("id", md.coupon_id);
+            }
+            log("coupon redeemed", { userId, coupon: md.coupon_code });
+          }
+        }
+
+        // Fallback: se for top-up e verify-payment não tiver rodado, credita aqui.
+        if (session.mode !== "payment") break;
         if (!userId) { log("no user_id in session", { id: session.id }); break; }
 
         const full = await stripe.checkout.sessions.retrieve(session.id, { expand: ["line_items"] });

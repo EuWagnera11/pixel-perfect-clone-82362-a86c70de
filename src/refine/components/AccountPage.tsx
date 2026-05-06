@@ -3,44 +3,40 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { User, CreditCard, Activity, ArrowLeft, Check, Sparkles, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Profile } from "../hooks/useAuth";
+import { useBilling } from "../hooks/useBilling";
 import pricing from "@/config/pricing.json";
 
 type Tab = "profile" | "plan" | "usage";
 
 type Props = {
   profile: Profile | null;
+  userId: string | null;
   email: string | null;
   isAnonymous: boolean;
   onUpgrade: () => void;
   onSignOut: () => void;
   refreshProfile: () => void;
+  onOpenTopup?: () => void;
 };
 
-const PLAN_META: Record<string, { name: string; credits: number; priceM: number; priceY: number }> = {
-  free:     { name: "Free",     credits: pricing.plans.free.credits_monthly,     priceM: 0,    priceY: 0 },
-  starter:  { name: "Starter",  credits: pricing.plans.starter.credits_monthly,  priceM: 27,   priceY: 259 },
-  creator:  { name: "Creator",  credits: pricing.plans.creator.credits_monthly,  priceM: 59,   priceY: 566 },
-  pro:      { name: "Pro",      credits: pricing.plans.pro.credits_monthly,      priceM: 129,  priceY: 1238 },
-  studio:   { name: "Studio",   credits: pricing.plans.studio.credits_monthly,   priceM: 749,  priceY: 7190 },
-  agency:   { name: "Agency",   credits: 100000, priceM: 299, priceY: 2870 },
-  enterprise: { name: "Enterprise", credits: 500000, priceM: 0, priceY: 0 },
-};
-
-export function AccountPage({ profile, email, isAnonymous, onUpgrade, onSignOut, refreshProfile }: Props) {
+export function AccountPage({ profile, userId, email, isAnonymous, onUpgrade, onSignOut, refreshProfile, onOpenTopup }: Props) {
   const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
   const initial = (params.get("tab") as Tab) || "profile";
   const [tab, setTab] = useState<Tab>(initial);
+  const billing = useBilling(userId);
 
   useEffect(() => {
     setParams({ tab }, { replace: true });
   }, [tab]);
 
-  const tier = (profile?.tier ?? "free").toLowerCase();
-  const meta = PLAN_META[tier] ?? PLAN_META.free;
-  const credits = profile?.credits ?? 0;
-  const capacity = meta.credits;
+  const planName = billing.currentPlan?.name ?? (profile?.tier ?? "Free");
+  const credits = billing.balance ?? profile?.credits ?? 0;
+  const capacity = billing.capacity || 500;
   const pct = Math.min(100, (credits / Math.max(1, capacity)) * 100);
+  const cycle = billing.subscription?.billing_cycle ?? "monthly";
+  const priceM = billing.currentPlan?.price_monthly_brl ?? 0;
+  const periodEnd = billing.subscription?.current_period_end;
 
   return (
     <div className="account-page">
@@ -68,7 +64,20 @@ export function AccountPage({ profile, email, isAnonymous, onUpgrade, onSignOut,
         <ProfileTab email={email} isAnonymous={isAnonymous} onSignOut={onSignOut} refreshProfile={refreshProfile} />
       )}
       {tab === "plan" && (
-        <PlanTab tier={tier} meta={meta} credits={credits} capacity={capacity} pct={pct} onUpgrade={onUpgrade} />
+        <PlanTab
+          planName={planName}
+          cycle={cycle}
+          priceM={priceM}
+          credits={credits}
+          capacity={capacity}
+          pct={pct}
+          periodEnd={periodEnd}
+          rolloverCredits={billing.credits?.rollover_credits ?? 0}
+          topupCredits={billing.credits?.topup_credits ?? 0}
+          topupEnabled={billing.currentPlan?.features?.topup_enabled === true}
+          onUpgrade={onUpgrade}
+          onOpenTopup={onOpenTopup}
+        />
       )}
       {tab === "usage" && <UsageTab />}
     </div>

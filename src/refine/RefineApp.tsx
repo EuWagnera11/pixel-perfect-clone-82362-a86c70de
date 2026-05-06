@@ -411,7 +411,17 @@ function Workspace() {
 export default function RefineApp() {
   return (
     <BrowserRouter>
-      <JobsProvider>
+      <JobsProvider
+        onCompleted={(job) => {
+          const label = job.mediaType === "video" ? "Vídeo pronto" : job.mediaType === "audio" ? "Áudio pronto" : "Imagem pronta";
+          import("sonner").then(({ toast }) => {
+            toast.success(label, {
+              description: job.prompt?.slice(0, 80) || job.tool,
+              action: job.resultUrl ? { label: "Abrir", onClick: () => window.open(job.resultUrl, "_blank") } : undefined,
+            });
+          });
+        }}
+      >
         <Routes>
           <Route path="/" element={<Navigate to="/home" replace />} />
           <Route path="/:tool" element={<Workspace />} />

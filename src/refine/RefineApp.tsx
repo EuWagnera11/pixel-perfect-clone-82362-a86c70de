@@ -241,7 +241,8 @@ function Workspace() {
     const n = Math.max(1, variations);
     const promises = Array.from({ length: n }).map(() =>
       enqueue({
-        tab: currentTab, prompt: trimmed, aspect: ratio,
+        tab: currentTab, prompt: trimmed,
+        aspect: (toolOptions.videoAspect as AspectRatio) || ratio,
         sourceUrl, model: modelId, thumb: sourceUrl || undefined,
         quality, numVariations: 1, stylePack,
         duration: toolOptions.videoDuration,
@@ -397,7 +398,7 @@ function Workspace() {
         </section>
 
         {!noRail && !(currentTab === "image" || currentTab === "video" || tabHasToolWorkspace(currentTab)) && (
-          <Rail generations={history} onItemClick={handleHistoryClick} />
+          <Rail generations={history} onItemClick={handleHistoryClick} currentTab={currentTab} />
         )}
       </div>
 

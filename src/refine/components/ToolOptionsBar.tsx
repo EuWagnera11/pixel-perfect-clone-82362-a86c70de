@@ -22,6 +22,7 @@ export type ToolExtras = {
 export type ToolOptions = {
   // video
   videoDuration?: "5s" | "6s" | "10s";
+  videoAspect?: "16:9" | "9:16" | "1:1";
   // edit
   editOp?:
     | "remove-bg" | "replace-bg" | "relight" | "expand" | "style-transfer"
@@ -169,6 +170,16 @@ export function ToolOptionsBar({ tab, value, onChange, extra, onSuggestPrompt, s
           options={[{ id: "5s", label: "5s" }, { id: "6s", label: "6s" }, { id: "10s", label: "10s" }]}
           value={value.videoDuration || "5s"}
           onChange={(v) => onChange({ videoDuration: v })}
+        />
+        <span style={label}>Formato</span>
+        <Seg
+          options={[
+            { id: "16:9", label: "16:9" },
+            { id: "9:16", label: "9:16" },
+            { id: "1:1", label: "1:1" },
+          ]}
+          value={(value.videoAspect as any) || "16:9"}
+          onChange={(v) => onChange({ videoAspect: v as any })}
         />
         {extra}
       </div>

@@ -261,7 +261,14 @@ export function ToolWorkspace({
         editOp: toolOptions.editOp,
         upscaleEngine: toolOptions.upscaleEngine,
         audioKind: toolOptions.audioKind,
-        extras: toolOptions.extras,
+        extras: {
+          ...(toolOptions.extras || {}),
+          assetsKind: toolOptions.assetsKind,
+          assetsBackground: toolOptions.assetsBackground,
+          assetsStyleMode: toolOptions.assetsStyleMode,
+          assetsStylePreset: toolOptions.assetsStylePreset,
+          assetsStyleImage: toolOptions.assetsStyleImage,
+        },
       })
     );
     const results = await Promise.all(promises);

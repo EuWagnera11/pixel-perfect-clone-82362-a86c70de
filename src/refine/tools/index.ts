@@ -97,7 +97,11 @@ export async function runEdit(opts: {
     return runReplaceBg({ sourceUrl: opts.sourceUrl, prompt: opts.prompt });
   }
   if (op === "style-transfer") {
-    return runStyleTransferTool({ sourceUrl: opts.sourceUrl, styleUrl: opts.styleUrl, prompt: opts.prompt });
+    return runStyleTransferTool({
+      sourceUrl: opts.sourceUrl, styleUrl: opts.styleUrl, prompt: opts.prompt,
+      stylePreset: (opts.extras as any)?.style_preset,
+      strength: (opts.extras as any)?.style_strength,
+    });
   }
   if (op === "ideogram-edit" && !(opts.extras as any)?.mask_url) {
     throw new Error("Inpaint exige uma máscara (URL)");
@@ -158,9 +162,20 @@ export async function runDepth(o: { sourceUrl?: string | null; mode?: "grayscale
   const r = await startDepthMap({ image_url: o.sourceUrl, mode: o.mode || "grayscale" });
   return ie(r.generation_id);
 }
-export async function runAssets(o: { prompt: string; aspect: string; refs?: string[]; kind?: "icon"|"sprite"|"prop"|"ui" }) {
+export async function runAssets(o: {
+  prompt: string; aspect: string; refs?: string[];
+  kind?: "icon"|"sprite"|"prop"|"ui";
+  background?: "transparente"|"branco"|"preto";
+  style_mode?: "preset"|"reference";
+  style_preset?: string;
+  style_image?: string;
+}) {
   if (!o.prompt.trim()) throw new Error("Descreva o asset");
-  const r = await startAssetsGen({ prompt: o.prompt, refs: o.refs, kind: o.kind || "icon", aspect_ratio: o.aspect });
+  const r = await startAssetsGen({
+    prompt: o.prompt, refs: o.refs, kind: o.kind || "icon", aspect_ratio: o.aspect,
+    background: o.background, style_mode: o.style_mode,
+    style_preset: o.style_preset, style_image: o.style_image,
+  });
   return ie(r.generation_id);
 }
 export async function runMarketing(o: { prompt: string; aspect: string; refs?: string[]; model?: string }) {
@@ -179,8 +194,8 @@ export async function runReplaceBg(o: { sourceUrl: string; prompt: string; aspec
   const r = await startReplaceBg({ image_url: o.sourceUrl, prompt: o.prompt, aspect_ratio: o.aspect });
   return ie(r.generation_id);
 }
-export async function runStyleTransferTool(o: { sourceUrl: string; styleUrl?: string; prompt?: string; aspect?: string }) {
-  const r = await startStyleTransfer({ image_url: o.sourceUrl, style_url: o.styleUrl, prompt: o.prompt, aspect_ratio: o.aspect });
+export async function runStyleTransferTool(o: { sourceUrl: string; styleUrl?: string; prompt?: string; aspect?: string; stylePreset?: string; strength?: number }) {
+  const r = await startStyleTransfer({ image_url: o.sourceUrl, style_url: o.styleUrl, prompt: o.prompt, aspect_ratio: o.aspect, style_preset: o.stylePreset, strength: o.strength });
   return ie(r.generation_id);
 }
 export async function runExpand(o: { sourceUrl: string; prompt?: string; left?: number; right?: number; top?: number; bottom?: number }) {
@@ -249,7 +264,14 @@ export async function dispatchTool(input: DispatchInput): Promise<EnqueueResult>
     case "character":  return runCharacter({ prompt: p, aspect: input.aspect, refs, model });
     case "r3d":        return runR3D({ prompt: p, aspect: input.aspect, sourceUrl: input.sourceUrl, model });
     case "depth":      return runDepth({ sourceUrl: input.sourceUrl });
-    case "assets":     return runAssets({ prompt: p, aspect: input.aspect, refs });
+    case "assets":     return runAssets({
+      prompt: p, aspect: input.aspect, refs,
+      kind: input.extras?.assetsKind as any,
+      background: input.extras?.assetsBackground as any,
+      style_mode: input.extras?.assetsStyleMode as any,
+      style_preset: input.extras?.assetsStylePreset as any,
+      style_image: input.extras?.assetsStyleImage as any,
+    });
     case "marketing":  return runMarketing({ prompt: p, aspect: input.aspect, refs, model });
     default:           return runImage({ prompt: p, aspect: input.aspect, refs, model, numVariations: num, quality: input.quality });
   }

@@ -13,6 +13,8 @@ export type ToolExtras = {
   vertical_tilt?: number;
   zoom?: number;
   skin_target?: "enhance_everything" | "smooth_skin" | "remove_blemishes";
+  style_preset?: string;
+  style_strength?: number;
 };
 
 export type ToolOptions = {
@@ -33,6 +35,10 @@ export type ToolOptions = {
   r3dStyle?: "figurine" | "toy" | "sculpture" | "clay";
   // assets
   assetsKind?: "icon" | "sprite" | "prop" | "ui";
+  assetsBackground?: "transparente" | "branco" | "preto";
+  assetsStyleMode?: "preset" | "reference";
+  assetsStylePreset?: "ultra-realista" | "cyberpunk" | "pixel-art" | "lowpoly" | "watercolor" | "ink" | "isometric" | "claymation";
+  assetsStyleImage?: string;
   // depth
   depthMode?: "grayscale" | "colored";
   // generic extras (mask url, audio url, voice, sliders…)
@@ -253,6 +259,31 @@ export function ToolOptionsBar({ tab, value, onChange, extra, onSuggestPrompt, s
             />
           </>
         )}
+        {op === "style-transfer" && (
+          <>
+            <span style={label}>Preset</span>
+            <Seg
+              options={[
+                { id: "anime", label: "Anime" },
+                { id: "oil-painting", label: "Óleo" },
+                { id: "watercolor", label: "Aquarela" },
+                { id: "pencil-sketch", label: "Lápis" },
+                { id: "comic-book", label: "Quadrinho" },
+                { id: "pop-art", label: "Pop art" },
+                { id: "cyberpunk", label: "Cyberpunk" },
+                { id: "vaporwave", label: "Vaporwave" },
+                { id: "renaissance", label: "Renascença" },
+                { id: "ukiyo-e", label: "Ukiyo-e" },
+                { id: "claymation", label: "Argila" },
+                { id: "low-poly", label: "Low-poly" },
+              ]}
+              value={(value.extras?.style_preset as string) || ""}
+              onChange={(v) => setExtra({ style_preset: v })}
+            />
+            <span style={label}>Força</span>
+            <NumInput val={value.extras?.style_strength} onChange={(n) => setExtra({ style_strength: n })} min={0.1} max={1} step={0.05} ph="0.7" />
+          </>
+        )}
       </div>
     );
   }
@@ -332,6 +363,7 @@ export function ToolOptionsBar({ tab, value, onChange, extra, onSuggestPrompt, s
     );
   }
   if (tab === "assets") {
+    const styleMode = value.assetsStyleMode || "preset";
     return (
       <div style={wrap}>
         <span style={label}>Asset</span>
@@ -345,6 +377,48 @@ export function ToolOptionsBar({ tab, value, onChange, extra, onSuggestPrompt, s
           value={value.assetsKind || "icon"}
           onChange={(v) => { onChange({ assetsKind: v }); suggest(ASSETS_PROMPTS[v]); }}
         />
+        <span style={label}>Fundo</span>
+        <Seg
+          options={[
+            { id: "transparente", label: "Transparente" },
+            { id: "branco", label: "Branco" },
+            { id: "preto", label: "Preto" },
+          ]}
+          value={value.assetsBackground || "transparente"}
+          onChange={(v) => onChange({ assetsBackground: v })}
+        />
+        <span style={label}>Estilo</span>
+        <Seg
+          options={[
+            { id: "preset", label: "Preset" },
+            { id: "reference", label: "Referência" },
+          ]}
+          value={styleMode}
+          onChange={(v) => onChange({ assetsStyleMode: v })}
+        />
+        {styleMode === "preset" ? (
+          <Seg
+            options={[
+              { id: "ultra-realista", label: "Ultra-real" },
+              { id: "cyberpunk", label: "Cyberpunk" },
+              { id: "pixel-art", label: "Pixel" },
+              { id: "lowpoly", label: "Low-poly" },
+              { id: "watercolor", label: "Aquarela" },
+              { id: "ink", label: "Tinta" },
+              { id: "isometric", label: "Isométrico" },
+              { id: "claymation", label: "Argila" },
+            ]}
+            value={value.assetsStylePreset || "ultra-realista"}
+            onChange={(v) => onChange({ assetsStylePreset: v })}
+          />
+        ) : (
+          <input
+            type="url" placeholder="https://… imagem de estilo"
+            value={value.assetsStyleImage || ""}
+            onChange={(e) => onChange({ assetsStyleImage: e.target.value })}
+            style={inputStyle}
+          />
+        )}
       </div>
     );
   }

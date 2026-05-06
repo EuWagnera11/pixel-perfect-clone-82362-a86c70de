@@ -97,7 +97,11 @@ export async function runEdit(opts: {
     return runReplaceBg({ sourceUrl: opts.sourceUrl, prompt: opts.prompt });
   }
   if (op === "style-transfer") {
-    return runStyleTransferTool({ sourceUrl: opts.sourceUrl, styleUrl: opts.styleUrl, prompt: opts.prompt });
+    return runStyleTransferTool({
+      sourceUrl: opts.sourceUrl, styleUrl: opts.styleUrl, prompt: opts.prompt,
+      stylePreset: (opts.extras as any)?.style_preset,
+      strength: (opts.extras as any)?.style_strength,
+    });
   }
   if (op === "ideogram-edit" && !(opts.extras as any)?.mask_url) {
     throw new Error("Inpaint exige uma máscara (URL)");

@@ -79,6 +79,7 @@ export async function startGeneration(args: StartArgs): Promise<Response> {
       await args.auth.admin.from("generations").update({
         status: "failed", error_message: `Ref fetch failed: ${(e as Error).message}`,
       }).eq("id", gen.id);
+      await refundCredits(args.auth.userId, cost, "Ref fetch failed", gen.id);
       return json({ error: "Ref fetch failed", detail: (e as Error).message, generation_id: gen.id }, 502);
     }
   }

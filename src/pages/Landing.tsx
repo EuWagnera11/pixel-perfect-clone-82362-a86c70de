@@ -148,6 +148,7 @@ export default function Landing() {
   const navigate = useNavigate();
   const ctaTo = user ? "/app" : "/signup";
   const ctaLabel = user ? "Abrir studio" : "Começar grátis";
+  const [billing, setBilling] = useState<"monthly" | "yearly">("monthly");
 
   return (
     <div className="min-h-screen bg-background text-foreground">

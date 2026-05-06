@@ -24,6 +24,7 @@ import { ImageWorkspace } from "./components/ImageWorkspace";
 import { VideoWorkspace } from "./components/VideoWorkspace";
 import { ToolWorkspace, tabHasToolWorkspace } from "./components/ToolWorkspace";
 import { AccountPage } from "./components/AccountPage";
+import { AdminDashboard } from "./components/AdminDashboard";
 import { TopupModal } from "./components/TopupModal";
 import { PricingPage } from "./components/PricingPage";
 import PaymentSuccess from "./components/PaymentSuccess";

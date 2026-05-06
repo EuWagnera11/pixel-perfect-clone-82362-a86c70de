@@ -111,6 +111,7 @@ export async function startGeneration(args: StartArgs): Promise<Response> {
       status: "failed",
       error_message: msg,
     }).eq("id", gen.id);
+    await refundCredits(args.auth.userId, cost, "Magnific error before task creation", gen.id);
     return json({ error: "Magnific error", detail: fp.body, status: fp.status, generation_id: gen.id }, 502);
   }
 

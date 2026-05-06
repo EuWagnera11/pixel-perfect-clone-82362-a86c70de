@@ -137,6 +137,7 @@ export async function startImageEditJob(args: StartImageEditArgs): Promise<Respo
     await sb.from("imageedit_generations").update({
       status: "FAILED", error_message: msg, completed_at: new Date().toISOString(),
     }).eq("generation_id", gen.generation_id);
+    if (cost > 0) await refundCredits(userId, cost, "Freepik error: " + msg.slice(0, 120), gen.generation_id);
     return json({
       error: { code: "FREEPIK_ERROR", message: msg },
       generation_id: gen.generation_id,

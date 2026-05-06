@@ -2,9 +2,90 @@
  * ToolOptionsBar — barra de opções específicas por ferramenta,
  * renderizada acima do Dock. Cada tab mostra só os controles que fazem sentido.
  */
-import { useState, type CSSProperties } from "react";
+import { useState, useRef, useEffect, type CSSProperties } from "react";
 import { MaskEditor } from "./MaskEditor";
 import { STYLE_PRESETS } from "../lib/style-presets";
+
+function StylePresetPicker({
+  value, onChange,
+}: { value?: string; onChange: (id: string | undefined) => void }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const current = STYLE_PRESETS.find((p) => p.id === value);
+  const grouped = STYLE_PRESETS.reduce<Record<string, typeof STYLE_PRESETS>>((acc, p) => {
+    (acc[p.category] ||= []).push(p);
+    return acc;
+  }, {});
+  useEffect(() => {
+    if (!open) return;
+    const onDoc = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(false); };
+    document.addEventListener("mousedown", onDoc);
+    document.addEventListener("keydown", onKey);
+    return () => { document.removeEventListener("mousedown", onDoc); document.removeEventListener("keydown", onKey); };
+  }, [open]);
+  return (
+    <div className="st-picker" ref={ref}>
+      <button type="button" className="st-picker-trigger" onClick={() => setOpen((o) => !o)} aria-expanded={open}>
+        {current ? (
+          <>
+            <span className="st-picker-swatch" style={{ background: current.color_palette[0] || "#333" }}>
+              {current.color_palette.slice(0, 3).map((c, i) => (
+                <span key={i} style={{ background: c }} />
+              ))}
+            </span>
+            <span className="st-picker-label">{current.display_name}</span>
+            <span className="st-picker-cat">{current.category}</span>
+          </>
+        ) : (
+          <span className="st-picker-label st-picker-placeholder">— sem preset —</span>
+        )}
+        <svg className="st-opts-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M6 9l6 6 6-6" />
+        </svg>
+      </button>
+      {open && (
+        <div className="st-picker-menu" role="listbox">
+          <button
+            type="button"
+            className={`st-picker-item ${!value ? "is-active" : ""}`}
+            onClick={() => { onChange(undefined); setOpen(false); }}
+          >
+            <span className="st-picker-swatch st-picker-swatch--empty" />
+            <span className="st-picker-label">— sem preset —</span>
+          </button>
+          {Object.entries(grouped).map(([cat, list]) => (
+            <div key={cat} className="st-picker-group">
+              <div className="st-picker-group-label">{cat}</div>
+              {list.map((p) => (
+                <button
+                  key={p.id}
+                  type="button"
+                  className={`st-picker-item ${p.id === value ? "is-active" : ""}`}
+                  onClick={() => { onChange(p.id); setOpen(false); }}
+                >
+                  <span className="st-picker-swatch">
+                    {(p.color_palette.length ? p.color_palette : ["#333", "#555", "#777"]).slice(0, 3).map((c, i) => (
+                      <span key={i} style={{ background: c }} />
+                    ))}
+                  </span>
+                  <span className="st-picker-label">{p.display_name}</span>
+                  {p.id === value && (
+                    <svg className="st-picker-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      <path d="M5 12l5 5L20 7" />
+                    </svg>
+                  )}
+                </button>
+              ))}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export type ToolExtras = {
   mask_url?: string;

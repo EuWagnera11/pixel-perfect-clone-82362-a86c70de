@@ -561,7 +561,7 @@ export default function Landing() {
           <div className="lg:col-span-2">
             <CuboLogo />
             <p className="mt-5 max-w-sm text-sm leading-relaxed text-foreground-muted">
-              A suite premium de IA influencer com qualidade editorial. Feita por <a href="https://refinecubo.com.br" className="text-foreground underline-offset-2 hover:underline">Cubo</a> em São Paulo.
+              A suite premium de criação visual com IA. Imagem, vídeo, edição, áudio e 3D num só lugar. Feita por <a href="https://refinecubo.com.br" className="text-foreground underline-offset-2 hover:underline">Cubo</a> em São Paulo.
             </p>
             <div className="mt-6 flex gap-3 font-mono text-[10px] uppercase tracking-wider text-foreground-muted">
               <a href="https://soph.ia.com.br" className="hover:text-foreground">Sophia ↗</a>

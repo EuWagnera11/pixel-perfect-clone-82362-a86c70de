@@ -473,6 +473,11 @@ function Workspace() {
   );
 }
 
+// Preserva ?query e #hash (importante pro callback OAuth: /app#access_token=…)
+function RedirectPreserve({ to }: { to: string }) {
+  return <Navigate to={`${to}${window.location.search}${window.location.hash}`} replace />;
+}
+
 export default function RefineApp() {
   return (
     <BrowserRouter>

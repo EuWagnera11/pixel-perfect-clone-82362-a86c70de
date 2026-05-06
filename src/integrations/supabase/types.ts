@@ -518,6 +518,30 @@ export type Database = {
         }
         Relationships: []
       }
+      rate_limit_buckets: {
+        Row: {
+          bucket_key: string
+          count: number
+          updated_at: string
+          user_id: string
+          window_start: string
+        }
+        Insert: {
+          bucket_key: string
+          count?: number
+          updated_at?: string
+          user_id: string
+          window_start: string
+        }
+        Update: {
+          bucket_key?: string
+          count?: number
+          updated_at?: string
+          user_id?: string
+          window_start?: string
+        }
+        Relationships: []
+      }
       templates: {
         Row: {
           category: string
@@ -751,6 +775,16 @@ export type Database = {
           status: string
           tier: string
         }[]
+      }
+      cleanup_rate_limit_buckets: { Args: never; Returns: number }
+      consume_rate_limit: {
+        Args: {
+          p_bucket: string
+          p_limit: number
+          p_user_id: string
+          p_window_seconds: number
+        }
+        Returns: Json
       }
       credit_user_credits: {
         Args: {

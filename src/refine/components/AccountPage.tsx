@@ -6,7 +6,7 @@ import type { Profile } from "../hooks/useAuth";
 import { useBilling } from "../hooks/useBilling";
 import pricing from "@/config/pricing.json";
 
-type Tab = "profile" | "plan" | "usage" | "transactions";
+type Tab = "profile" | "plan" | "usage" | "transactions" | "invoices";
 
 type Props = {
   profile: Profile | null;

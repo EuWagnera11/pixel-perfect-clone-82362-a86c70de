@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, Loader2, Users, TrendingUp, Zap, AlertTriangle, RefreshCw, ShieldAlert } from "lucide-react";
+import { AdminCoupons } from "./AdminCoupons";
 
 type Stats = {
   period_days: number;
@@ -199,6 +200,8 @@ export function AdminDashboard() {
               ))}
             </div>
           </div>
+
+          <AdminCoupons />
         </>
       )}
     </div>

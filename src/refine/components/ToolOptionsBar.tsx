@@ -336,6 +336,7 @@ export function ToolOptionsBar({ tab, value, onChange, extra, onSuggestPrompt, s
     );
   }
   if (tab === "assets") {
+    const styleMode = value.assetsStyleMode || "preset";
     return (
       <div style={wrap}>
         <span style={label}>Asset</span>
@@ -349,6 +350,48 @@ export function ToolOptionsBar({ tab, value, onChange, extra, onSuggestPrompt, s
           value={value.assetsKind || "icon"}
           onChange={(v) => { onChange({ assetsKind: v }); suggest(ASSETS_PROMPTS[v]); }}
         />
+        <span style={label}>Fundo</span>
+        <Seg
+          options={[
+            { id: "transparente", label: "Transparente" },
+            { id: "branco", label: "Branco" },
+            { id: "preto", label: "Preto" },
+          ]}
+          value={value.assetsBackground || "transparente"}
+          onChange={(v) => onChange({ assetsBackground: v })}
+        />
+        <span style={label}>Estilo</span>
+        <Seg
+          options={[
+            { id: "preset", label: "Preset" },
+            { id: "reference", label: "Referência" },
+          ]}
+          value={styleMode}
+          onChange={(v) => onChange({ assetsStyleMode: v })}
+        />
+        {styleMode === "preset" ? (
+          <Seg
+            options={[
+              { id: "ultra-realista", label: "Ultra-real" },
+              { id: "cyberpunk", label: "Cyberpunk" },
+              { id: "pixel-art", label: "Pixel" },
+              { id: "lowpoly", label: "Low-poly" },
+              { id: "watercolor", label: "Aquarela" },
+              { id: "ink", label: "Tinta" },
+              { id: "isometric", label: "Isométrico" },
+              { id: "claymation", label: "Argila" },
+            ]}
+            value={value.assetsStylePreset || "ultra-realista"}
+            onChange={(v) => onChange({ assetsStylePreset: v })}
+          />
+        ) : (
+          <input
+            type="url" placeholder="https://… imagem de estilo"
+            value={value.assetsStyleImage || ""}
+            onChange={(e) => onChange({ assetsStyleImage: e.target.value })}
+            style={inputStyle}
+          />
+        )}
       </div>
     );
   }

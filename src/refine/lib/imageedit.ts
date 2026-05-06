@@ -74,7 +74,7 @@ export const startProductGen   = (b: { image_url: string; prompt: string; aspect
   call<ImageEditStarted>("imageedit-product-gen", b);
 export const startAssetsGen    = (b: { prompt: string; refs?: string[]; kind?: "icon"|"sprite"|"prop"|"ui"; aspect_ratio?: string; model?: string; background?: "transparente"|"branco"|"preto"; style_mode?: "preset"|"reference"; style_preset?: string; style_image?: string }) =>
   call<ImageEditStarted>("imageedit-assets-gen", b);
-export const startStyleTransfer = (b: { image_url: string; style_url?: string; prompt?: string; strength?: number; aspect_ratio?: string; model?: string }) =>
+export const startStyleTransfer = (b: { image_url: string; style_url?: string; style_preset?: string; prompt?: string; strength?: number; aspect_ratio?: string; model?: string }) =>
   call<ImageEditStarted>("imageedit-style-transfer", b);
 export const startReplaceBg    = (b: { image_url: string; prompt: string; aspect_ratio?: string; model?: string }) =>
   call<ImageEditStarted>("imageedit-replace-bg", b);

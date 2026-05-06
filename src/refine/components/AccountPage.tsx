@@ -384,3 +384,73 @@ function TransactionsTab() {
     </div>
   );
 }
+
+function InvoicesTab() {
+  const [items, setItems] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke("list-invoices");
+        if (error) throw error;
+        setItems((data as any)?.invoices ?? []);
+      } catch (e: any) {
+        setError(e?.message || "Falha ao carregar faturas.");
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
+
+  const fmtMoney = (cents: number, currency: string) =>
+    new Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: (currency || "brl").toUpperCase(),
+    }).format((cents ?? 0) / 100);
+
+  const labelStatus = (s: string) =>
+    ({ paid: "Paga", open: "Em aberto", void: "Anulada", uncollectible: "Não cobrável", draft: "Rascunho" } as Record<string, string>)[s] ?? s;
+
+  return (
+    <div className="account-card">
+      <h2>Faturas</h2>
+      <p className="account-card-sub">Histórico de pagamentos da assinatura e top-ups.</p>
+
+      {loading ? (
+        <div className="account-empty"><Loader2 size={16} className="spin" /></div>
+      ) : error ? (
+        <div className="account-empty">{error}</div>
+      ) : items.length === 0 ? (
+        <div className="account-empty">Nenhuma fatura ainda.</div>
+      ) : (
+        <div className="usage-table">
+          <div className="usage-row usage-head">
+            <span>Quando</span><span>Descrição</span><span>Status</span><span className="right">Valor</span><span className="right">Ações</span>
+          </div>
+          {items.map((it) => (
+            <div className="usage-row" key={it.id}>
+              <span className="muted">{new Date((it.created ?? 0) * 1000).toLocaleDateString("pt-BR")}</span>
+              <span className="muted">{it.description || it.number || "—"}</span>
+              <span><span className={"status-pill status-" + it.status}>{labelStatus(it.status)}</span></span>
+              <span className="right">{fmtMoney(it.amount_paid || it.amount_due, it.currency)}</span>
+              <span className="right" style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+                {it.hosted_invoice_url && (
+                  <a href={it.hosted_invoice_url} target="_blank" rel="noreferrer" className="account-link" title="Ver fatura">
+                    <ExternalLink size={14} />
+                  </a>
+                )}
+                {it.invoice_pdf && (
+                  <a href={it.invoice_pdf} target="_blank" rel="noreferrer" className="account-link" title="Baixar PDF">
+                    <Download size={14} />
+                  </a>
+                )}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}

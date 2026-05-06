@@ -20,7 +20,16 @@ export async function startGeneration(args: StartArgs): Promise<Response> {
   const engine = getEngine(args.engineId);
   if (!engine) return json({ error: "Unknown engine", detail: args.engineId }, 400);
 
-  // Insert pending row
+  // ----- COST CALCULATION + ATOMIC DEBIT (before any external work) -----
+  const variations = Math.max(1, args.input.num ?? 1);
+  const cost = calculateCost(args.engineId, {
+    quality: args.costParams?.quality,
+    duration: args.costParams?.duration,
+    units: args.costParams?.units,
+    variations,
+  });
+
+  // Insert pending row (so generationId can be linked to debit txn)
   const { data: gen, error: insErr } = await args.auth.admin
     .from("generations")
     .insert({
@@ -38,10 +47,29 @@ export async function startGeneration(args: StartArgs): Promise<Response> {
       num_variations: args.input.num,
       media_type: args.mediaType,
       prompt: args.input.prompt,
+      credits_used: cost,
     })
     .select()
     .single();
   if (insErr) return json({ error: "DB insert failed", detail: insErr.message }, 500);
+
+  if (cost > 0) {
+    const debit = await debitCredits(
+      args.auth.userId,
+      cost,
+      `${args.tool}/${args.op} · ${engine.id}`,
+      gen.id,
+    );
+    if (!debit.ok) {
+      await args.auth.admin.from("generations").update({
+        status: "failed", error_message: debit.message, completed_at: new Date().toISOString(),
+      }).eq("id", gen.id);
+      return json({
+        error: debit.code, message: debit.message,
+        balance: debit.balance, required: cost, generation_id: gen.id,
+      }, debit.status);
+    }
+  }
 
   // Pre-fetch reference images as base64 (Freepik requires {image, mime_type} objects)
   if (args.input.refs?.length && !args.input.refsB64) {

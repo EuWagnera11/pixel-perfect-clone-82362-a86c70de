@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
-import { Plus, ArrowRight, Lock } from "@phosphor-icons/react";
+import { useEffect, useRef, useState } from "react";
+import { Plus, ArrowRight, Lock, Gear, CreditCard, SignOut, User } from "@phosphor-icons/react";
 import { NAV } from "../lib/nav";
 import type { Profile } from "../hooks/useAuth";
+import pricing from "@/config/pricing.json";
 
 type SidebarProps = {
   currentTab: string;
@@ -12,6 +13,7 @@ type SidebarProps = {
   onUpgrade: () => void;
   onSignInGoogle: () => void;
   onSignOut: () => void;
+  onOpenAccount: (tab?: "profile" | "plan" | "usage") => void;
   activeJobsCount?: number;
 };
 

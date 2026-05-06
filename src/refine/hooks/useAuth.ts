@@ -126,14 +126,25 @@ export function useAuth() {
 
   const upgradeTo = async (tier: string = "starter_monthly") => {
     try {
-      const r = await api<{ url: string; session_id: string }>("/billing/checkout", {
-        method: "POST",
-        body: { tier },
-      });
-      if (r.url) window.location.href = r.url;
+      const { data, error } = await supabase.functions.invoke<{ url: string }>(
+        "create-checkout",
+        { body: { plan: tier } }
+      );
+      if (error) throw error;
+      if (data?.url) window.location.href = data.url;
     } catch (error: unknown) {
       console.error("[refine] upgrade failed:", error);
       alert("Erro: " + getErrorMessage(error, "checkout falhou"));
+    }
+  };
+
+  const openCustomerPortal = async () => {
+    try {
+      const { data, error } = await supabase.functions.invoke<{ url: string }>("customer-portal");
+      if (error) throw error;
+      if (data?.url) window.location.href = data.url;
+    } catch (error: unknown) {
+      alert("Erro: " + getErrorMessage(error, "portal falhou"));
     }
   };
 
@@ -156,5 +167,5 @@ export function useAuth() {
     window.location.reload();
   };
 
-  return { session, profile, loading, error, refreshProfile, upgradeTo, signInWithGoogle, signOut };
+  return { session, profile, loading, error, refreshProfile, upgradeTo, openCustomerPortal, signInWithGoogle, signOut };
 }

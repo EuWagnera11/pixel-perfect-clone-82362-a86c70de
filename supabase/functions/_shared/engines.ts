@@ -359,9 +359,37 @@ const IMAGE: Record<string, EngineEntry> = {
 
 // =========== VIDEO engines (image-to-video unless noted) ===========
 const VIDEO: Record<string, EngineEntry> = {
-  // Kling V3
-  "kling-v3-pro":          { id: "kling-v3-pro",          kind: "video", path: "/v1/ai/video/kling-v3-pro",                aspectStyle: "none" },
-  "kling-v3-std":          { id: "kling-v3-std",          kind: "video", path: "/v1/ai/video/kling-v3-std",                aspectStyle: "none" },
+  // Kling V3 — POST aceita image_list[{image_url,type}]; GET status em /v1/ai/video/kling-v3/{id}
+  "kling-v3-pro": {
+    id: "kling-v3-pro", kind: "video", path: "/v1/ai/video/kling-v3-pro", aspectStyle: "none",
+    build: (i) => {
+      const d = Number(i.duration || "5");
+      const dur = Math.min(15, Math.max(3, isFinite(d) ? d : 5));
+      const body: Record<string, unknown> = { duration: dur };
+      if (i.prompt) body.prompt = i.prompt;
+      if (i.aspect) body.aspect_ratio = i.aspect;
+      const list: Array<Record<string, string>> = [];
+      if (i.refs[0]) list.push({ image_url: i.refs[0], type: "first_frame" });
+      if (i.lastImageUrl) list.push({ image_url: i.lastImageUrl, type: "end_frame" });
+      if (list.length) body.image_list = list;
+      return body;
+    },
+  },
+  "kling-v3-std": {
+    id: "kling-v3-std", kind: "video", path: "/v1/ai/video/kling-v3-std", aspectStyle: "none",
+    build: (i) => {
+      const d = Number(i.duration || "5");
+      const dur = Math.min(15, Math.max(3, isFinite(d) ? d : 5));
+      const body: Record<string, unknown> = { duration: dur };
+      if (i.prompt) body.prompt = i.prompt;
+      if (i.aspect) body.aspect_ratio = i.aspect;
+      const list: Array<Record<string, string>> = [];
+      if (i.refs[0]) list.push({ image_url: i.refs[0], type: "first_frame" });
+      if (i.lastImageUrl) list.push({ image_url: i.lastImageUrl, type: "end_frame" });
+      if (list.length) body.image_list = list;
+      return body;
+    },
+  },
   "kling-v3-motion-pro":   { id: "kling-v3-motion-pro",   kind: "video", path: "/v1/ai/video/kling-v3-motion-control-pro",  aspectStyle: "none" },
   "kling-v3-motion-std":   { id: "kling-v3-motion-std",   kind: "video", path: "/v1/ai/video/kling-v3-motion-control-std",  aspectStyle: "none" },
   "kling-v3-omni-pro":     { id: "kling-v3-omni-pro",     kind: "video", path: "/v1/ai/video/kling-v3-omni-pro",            aspectStyle: "none" },

@@ -5,6 +5,7 @@
  */
 import { useEffect, useRef, useState, useCallback } from "react";
 import { BrowserRouter, Routes, Route, Navigate, useNavigate, useParams } from "react-router-dom";
+import { Toaster as SonnerToaster, toast } from "sonner";
 import { useAuth } from "./hooks/useAuth";
 import { useGenerations } from "./hooks/useGenerations";
 import { useToast } from "./hooks/useToast";
@@ -414,11 +415,9 @@ export default function RefineApp() {
       <JobsProvider
         onCompleted={(job) => {
           const label = job.mediaType === "video" ? "Vídeo pronto" : job.mediaType === "audio" ? "Áudio pronto" : "Imagem pronta";
-          import("sonner").then(({ toast }) => {
-            toast.success(label, {
-              description: job.prompt?.slice(0, 80) || job.tool,
-              action: job.resultUrl ? { label: "Abrir", onClick: () => window.open(job.resultUrl, "_blank") } : undefined,
-            });
+          toast.success(label, {
+            description: job.prompt?.slice(0, 80) || job.tool,
+            action: job.resultUrl ? { label: "Abrir", onClick: () => window.open(job.resultUrl, "_blank") } : undefined,
           });
         }}
       >
@@ -427,6 +426,7 @@ export default function RefineApp() {
           <Route path="/:tool" element={<Workspace />} />
           <Route path="*" element={<Navigate to="/home" replace />} />
         </Routes>
+        <SonnerToaster position="bottom-right" richColors theme="dark" />
       </JobsProvider>
     </BrowserRouter>
   );

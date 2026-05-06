@@ -496,7 +496,7 @@ export function ToolOptionsBar({ tab, value, onChange, extra, onSuggestPrompt, s
             type="url" placeholder="https://… imagem de estilo"
             value={(value.extras as any)?.style_url || ""}
             onChange={(e) => setExtra({ style_url: e.target.value || undefined } as any)}
-            style={fullInput}
+            
           />
         </div>
       </div>

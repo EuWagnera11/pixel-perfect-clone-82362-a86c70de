@@ -22,6 +22,7 @@ export type ToolExtras = {
 export type ToolOptions = {
   // video
   videoDuration?: "5s" | "6s" | "10s";
+  videoAspect?: "16:9" | "9:16" | "1:1";
   // edit
   editOp?:
     | "remove-bg" | "replace-bg" | "relight" | "expand" | "style-transfer"

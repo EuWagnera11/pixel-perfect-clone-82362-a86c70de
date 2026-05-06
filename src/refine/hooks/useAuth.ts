@@ -71,9 +71,14 @@ export function useAuth() {
           }
           setSession(data.session);
           try {
-            const me = await api<{ tier: string; credits: number }>("/billing/me");
+            const { data: row } = await supabase
+              .from("profiles")
+              .select("tier, credits")
+              .eq("id", data.session.user.id)
+              .maybeSingle();
             if (!mounted) return;
-            setProfile({ tier: me.tier, credits: me.credits });
+            if (row) setProfile({ tier: row.tier, credits: row.credits });
+            else setProfile(null);
           } catch {
             setProfile(null);
           }

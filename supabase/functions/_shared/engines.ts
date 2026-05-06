@@ -368,10 +368,8 @@ const VIDEO: Record<string, EngineEntry> = {
       const body: Record<string, unknown> = { duration: String(dur) };
       if (i.prompt) body.prompt = i.prompt;
       if (i.aspect) body.aspect_ratio = i.aspect;
-      const list: Array<Record<string, string>> = [];
-      if (i.refs[0]) list.push({ image_url: i.refs[0], type: "first_frame" });
-      if (i.lastImageUrl) list.push({ image_url: i.lastImageUrl, type: "end_frame" });
-      if (list.length) body.image_list = list;
+      if (i.refs[0]) body.start_image_url = i.refs[0];
+      if (i.lastImageUrl) body.end_image_url = i.lastImageUrl;
       return body;
     },
   },
@@ -383,10 +381,8 @@ const VIDEO: Record<string, EngineEntry> = {
       const body: Record<string, unknown> = { duration: String(dur) };
       if (i.prompt) body.prompt = i.prompt;
       if (i.aspect) body.aspect_ratio = i.aspect;
-      const list: Array<Record<string, string>> = [];
-      if (i.refs[0]) list.push({ image_url: i.refs[0], type: "first_frame" });
-      if (i.lastImageUrl) list.push({ image_url: i.lastImageUrl, type: "end_frame" });
-      if (list.length) body.image_list = list;
+      if (i.refs[0]) body.start_image_url = i.refs[0];
+      if (i.lastImageUrl) body.end_image_url = i.lastImageUrl;
       return body;
     },
   },

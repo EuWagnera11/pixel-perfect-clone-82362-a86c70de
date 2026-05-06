@@ -375,7 +375,7 @@ function Workspace() {
             if (currentTab === "video") return <VideoWorkspace {...wsProps} />;
             return <ToolWorkspace tab={currentTab} {...wsProps} />;
           })()}
-          {!(currentTab === "image" || currentTab === "video" || tabHasToolWorkspace(currentTab)) && (
+          {currentTab !== "account" && !(currentTab === "image" || currentTab === "video" || tabHasToolWorkspace(currentTab)) && (
             <>
               <div className={"canvas" + (noDock ? " no-dock" : "")}>
                 <div ref={viewRef} dangerouslySetInnerHTML={{ __html: viewHtml }} />

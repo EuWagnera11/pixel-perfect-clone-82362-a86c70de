@@ -52,11 +52,31 @@ export function Sidebar({
   }, []);
 
   const credits = profile?.credits ?? 0;
-  const tier = profile?.tier ?? "free";
-  const capacity = tier === "free" ? 5000 : 50000;
-  const pct = Math.min(100, (credits / capacity) * 100);
+  const tier = (profile?.tier ?? "free").toLowerCase();
+  const PLAN_CAP: Record<string, number> = {
+    free: pricing.plans.free.credits_monthly,
+    starter: pricing.plans.starter.credits_monthly,
+    creator: pricing.plans.creator.credits_monthly,
+    pro: pricing.plans.pro.credits_monthly,
+    studio: pricing.plans.studio.credits_monthly,
+    agency: 100000,
+    enterprise: 500000,
+  };
+  const capacity = PLAN_CAP[tier] ?? 5000;
+  const pct = Math.min(100, (credits / Math.max(1, capacity)) * 100);
   const initial = (email || tier)[0]?.toUpperCase() ?? "U";
   const userName = email?.split("@")[0] || "Anônimo";
+
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onDoc = (e: MouseEvent) => {
+      if (!menuRef.current?.contains(e.target as Node)) setMenuOpen(false);
+    };
+    document.addEventListener("mousedown", onDoc);
+    return () => document.removeEventListener("mousedown", onDoc);
+  }, [menuOpen]);
 
   return (
     <aside className={"sidebar-v2" + (locked ? " locked" : "")}>

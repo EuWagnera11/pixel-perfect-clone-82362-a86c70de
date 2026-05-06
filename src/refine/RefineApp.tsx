@@ -89,6 +89,9 @@ function Workspace() {
   const [topupOpen, setTopupOpen] = useState(false);
   const userId = session?.user?.id ?? null;
 
+  const billing = useBilling(userId);
+  useBillingNotifications(userId, billing.capacity);
+
   // Trocar de aba limpa upload (cada ferramenta tem seu fluxo independente)
   useEffect(() => { setSourceUrl(null); setLastFrameUrl(null); }, [currentTab]);
 

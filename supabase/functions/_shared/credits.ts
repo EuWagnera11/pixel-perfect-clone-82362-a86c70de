@@ -29,6 +29,27 @@ const MODEL_ALIASES: Record<string, string> = {
   "nano-banana-2": "google-nano-banana-2",
   "nano-banana-pro": "google-nano-banana-pro",
   "nano-banana-pro-flash": "google-nano-banana-pro",
+  // Video engine aliases — handler IDs → pricing.json IDs
+  "kling-v3-pro": "kling-3-0",
+  "kling-v3-std": "kling-3-0",
+  "kling-v3-omni-pro": "kling-3-0-omni",
+  "kling-v3-omni-std": "kling-3-0-omni",
+  "kling-v3-motion-pro": "kling-3-0-motion",
+  "kling-v3-motion-std": "kling-3-0-motion",
+  "kling-o1-pro": "kling-o1",
+  "kling-o1-std": "kling-o1",
+  "kling-v2-5-pro": "kling-2-1",
+  "kling-v2-1-master": "kling-2-1-master",
+  "kling-v2-1-pro": "kling-2-1",
+  "kling-v2-1-std": "kling-2-1",
+  "hailuo-02-1080p": "minimax-hailuo-02",
+  "hailuo-2-3-1080p": "minimax-hailuo-02",
+  "runway-4-5": "runway-gen-4-5",
+  "seedance-pro-1080p": "seedance-1-5-pro",
+  "seedance-pro-720p": "seedance-1-5-pro",
+  "pixverse-v5": "pixverse-5-5",
+  "pixverse-v5-transition": "pixverse-5-5",
+  "veo-3-1-lite": "veo-3-1-lite",
 };
 
 export function findModel(idOrLabel: string): AnyModel | null {

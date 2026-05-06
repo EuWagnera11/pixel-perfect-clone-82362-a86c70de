@@ -4,6 +4,7 @@
  */
 import { useState, type CSSProperties } from "react";
 import { MaskEditor } from "./MaskEditor";
+import { STYLE_PRESETS } from "../lib/style-presets";
 
 export type ToolExtras = {
   mask_url?: string;

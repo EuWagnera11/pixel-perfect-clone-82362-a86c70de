@@ -33,6 +33,10 @@ export type ToolOptions = {
   r3dStyle?: "figurine" | "toy" | "sculpture" | "clay";
   // assets
   assetsKind?: "icon" | "sprite" | "prop" | "ui";
+  assetsBackground?: "transparente" | "branco" | "preto";
+  assetsStyleMode?: "preset" | "reference";
+  assetsStylePreset?: "ultra-realista" | "cyberpunk" | "pixel-art" | "lowpoly" | "watercolor" | "ink" | "isometric" | "claymation";
+  assetsStyleImage?: string;
   // depth
   depthMode?: "grayscale" | "colored";
   // generic extras (mask url, audio url, voice, sliders…)

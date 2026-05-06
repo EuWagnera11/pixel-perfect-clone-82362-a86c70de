@@ -66,6 +66,9 @@ export async function startImageEditJob(args: StartImageEditArgs): Promise<Respo
   }
 
   const sb = adminClient();
+
+  // Cost calc + atomic debit
+  const cost = calculateCost(args.model, {});
   const { data: gen, error: insErr } = await sb
     .from("imageedit_generations")
     .insert({
@@ -74,13 +77,26 @@ export async function startImageEditJob(args: StartImageEditArgs): Promise<Respo
       model: args.model,
       status: "PENDING",
       input_urls: args.inputUrls,
-      metadata: args.metadata ?? {},
+      metadata: { ...(args.metadata ?? {}), credits_used: cost },
     })
     .select()
     .single();
 
   if (insErr || !gen) {
     return json({ error: { code: "DB_ERROR", message: insErr?.message || "Falha ao criar geração." } }, 500);
+  }
+
+  if (cost > 0) {
+    const debit = await debitCredits(userId, cost, `${args.tool} · ${args.model}`, gen.generation_id);
+    if (!debit.ok) {
+      await sb.from("imageedit_generations").update({
+        status: "FAILED", error_message: debit.message, completed_at: new Date().toISOString(),
+      }).eq("generation_id", gen.generation_id);
+      return json({
+        error: { code: debit.code, message: debit.message, balance: debit.balance, required: cost },
+        generation_id: gen.generation_id,
+      }, debit.status);
+    }
   }
 
   // Normaliza aspect_ratio pro formato esperado pelo endpoint

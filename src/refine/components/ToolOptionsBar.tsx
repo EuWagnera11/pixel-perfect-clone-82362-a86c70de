@@ -259,6 +259,31 @@ export function ToolOptionsBar({ tab, value, onChange, extra, onSuggestPrompt, s
             />
           </>
         )}
+        {op === "style-transfer" && (
+          <>
+            <span style={label}>Preset</span>
+            <Seg
+              options={[
+                { id: "anime", label: "Anime" },
+                { id: "oil-painting", label: "Óleo" },
+                { id: "watercolor", label: "Aquarela" },
+                { id: "pencil-sketch", label: "Lápis" },
+                { id: "comic-book", label: "Quadrinho" },
+                { id: "pop-art", label: "Pop art" },
+                { id: "cyberpunk", label: "Cyberpunk" },
+                { id: "vaporwave", label: "Vaporwave" },
+                { id: "renaissance", label: "Renascença" },
+                { id: "ukiyo-e", label: "Ukiyo-e" },
+                { id: "claymation", label: "Argila" },
+                { id: "low-poly", label: "Low-poly" },
+              ]}
+              value={(value.extras?.style_preset as string) || ""}
+              onChange={(v) => setExtra({ style_preset: v })}
+            />
+            <span style={label}>Força</span>
+            <NumInput val={value.extras?.style_strength} onChange={(n) => setExtra({ style_strength: n })} min={0.1} max={1} step={0.05} ph="0.7" />
+          </>
+        )}
       </div>
     );
   }

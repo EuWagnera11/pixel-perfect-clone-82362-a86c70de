@@ -240,14 +240,26 @@ export function PricingPage() {
           <p className="section-sub">Disponível pra Creator, Pro e Studio. Top-ups não expiram.</p>
         </div>
         <div className="topups-grid">
-          {topups.map((t: any) => (
-            <div key={t.id} className="topup-card">
-              <div className="topup-name">{t.name}</div>
-              <div className="topup-credits">{formatCredits(t.credits)} <span>cr</span></div>
-              <div className="topup-price">R${t.price_brl}</div>
-              <div className="topup-rate">R${(t.price_brl / t.credits * 1000).toFixed(2)} / 1k créditos</div>
-            </div>
-          ))}
+          {topups.map((t: any) => {
+            const key = String(t.id || "").replace(/^topup_/, "");
+            return (
+              <button
+                key={t.id}
+                className="topup-card"
+                onClick={() => startTopup(key)}
+                disabled={loadingKey === `topup:${key}`}
+                style={{ cursor: "pointer", textAlign: "left", border: "none", background: "transparent", font: "inherit", color: "inherit" }}
+              >
+                <div className="topup-name">{t.name}</div>
+                <div className="topup-credits">{formatCredits(t.credits)} <span>cr</span></div>
+                <div className="topup-price">R${t.price_brl}</div>
+                <div className="topup-rate">R${(t.price_brl / t.credits * 1000).toFixed(2)} / 1k créditos</div>
+                <div style={{ marginTop: 12, fontSize: 12, opacity: 0.7 }}>
+                  {loadingKey === `topup:${key}` ? "Abrindo…" : "Comprar →"}
+                </div>
+              </button>
+            );
+          })}
         </div>
       </section>
 

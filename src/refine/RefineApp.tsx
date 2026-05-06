@@ -397,7 +397,7 @@ function Workspace() {
         </section>
 
         {!noRail && !(currentTab === "image" || currentTab === "video" || tabHasToolWorkspace(currentTab)) && (
-          <Rail generations={history} onItemClick={handleHistoryClick} />
+          <Rail generations={history} onItemClick={handleHistoryClick} currentTab={currentTab} />
         )}
       </div>
 

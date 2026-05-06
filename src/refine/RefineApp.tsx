@@ -429,6 +429,15 @@ function Workspace() {
 
       <JobsPanel onOpenResult={handleJobOpen} />
       <Toast msg={msg} show={show} />
+      <TopupModal
+        open={topupOpen}
+        onClose={() => setTopupOpen(false)}
+        currentPlanId={(profile?.tier ?? "free").toLowerCase()}
+        onPurchase={(pkgId) => {
+          showToast(`Top-up ${pkgId} em breve — checkout será integrado na Fase 4.`);
+          setTopupOpen(false);
+        }}
+      />
     </>
   );
 }

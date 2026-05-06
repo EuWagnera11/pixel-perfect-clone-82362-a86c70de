@@ -56,19 +56,15 @@ export function Sidebar({
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  const credits = profile?.credits ?? 0;
-  const tier = (profile?.tier ?? "free").toLowerCase();
-  const PLAN_CAP: Record<string, number> = {
-    free: pricing.plans.free.credits_monthly,
-    starter: pricing.plans.starter.credits_monthly,
-    creator: pricing.plans.creator.credits_monthly,
-    pro: pricing.plans.pro.credits_monthly,
-    studio: pricing.plans.studio.credits_monthly,
-    agency: 100000,
-    enterprise: 500000,
-  };
-  const capacity = PLAN_CAP[tier] ?? 5000;
+  const billing = useBilling(userId);
+  const tier = (billing.currentPlan?.id ?? profile?.tier ?? "free").toLowerCase();
+  const planName = billing.currentPlan?.name ?? tier.toUpperCase();
+  const credits = billing.balance ?? profile?.credits ?? 0;
+  const capacity = billing.capacity || 500;
   const pct = Math.min(100, (credits / Math.max(1, capacity)) * 100);
+  const level = balanceLevel(credits, capacity);
+  const daysToReset = billing.daysToReset;
+  const topupEnabled = billing.currentPlan?.features?.topup_enabled === true;
   const initial = (email || tier)[0]?.toUpperCase() ?? "U";
   const userName = email?.split("@")[0] || "Anônimo";
 

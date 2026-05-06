@@ -13,6 +13,8 @@ export type ToolExtras = {
   vertical_tilt?: number;
   zoom?: number;
   skin_target?: "enhance_everything" | "smooth_skin" | "remove_blemishes";
+  style_preset?: string;
+  style_strength?: number;
 };
 
 export type ToolOptions = {

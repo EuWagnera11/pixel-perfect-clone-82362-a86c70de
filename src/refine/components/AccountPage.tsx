@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { User, CreditCard, Activity, ArrowLeft, Check, Sparkles, Loader2 } from "lucide-react";
+import { User, CreditCard, Activity, ArrowLeft, Check, Sparkles, Loader2, Receipt, ExternalLink } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Profile } from "../hooks/useAuth";
 import { useBilling } from "../hooks/useBilling";
 import pricing from "@/config/pricing.json";
 
-type Tab = "profile" | "plan" | "usage";
+type Tab = "profile" | "plan" | "usage" | "transactions";
 
 type Props = {
   profile: Profile | null;

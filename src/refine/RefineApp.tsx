@@ -492,7 +492,7 @@ export default function RefineApp() {
             <Route path="/payment-success" element={<PaymentSuccess />} />
             <Route path="/login" element={<AuthPage mode="login" />} />
             <Route path="/signup" element={<AuthPage mode="signup" />} />
-            <Route path="/app" element={<Navigate to="/home" replace />} />
+            <Route path="/app" element={<RedirectPreserve to="/home" />} />
             <Route path="/:tool" element={<Workspace />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

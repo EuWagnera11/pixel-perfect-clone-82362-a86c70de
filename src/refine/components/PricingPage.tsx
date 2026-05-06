@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Check, X, ArrowRight, Sparkle, Lightning, Crown, Rocket, Buildings } from "@phosphor-icons/react";
 import pricing from "@/config/pricing.json";
+import { supabase } from "@/integrations/supabase/client";
 
 type BillingCycle = "monthly" | "yearly";
 

@@ -308,9 +308,10 @@ function Workspace() {
           profile={profile}
           email={session?.user?.email ?? null}
           isAnonymous={isAnonymous}
-          onUpgrade={() => upgradeTo("starter_monthly")}
+          onUpgrade={() => navigate("/account?tab=plan")}
           onSignInGoogle={signInWithGoogle}
           onSignOut={signOut}
+          onOpenAccount={(t) => navigate(`/account${t ? `?tab=${t}` : ""}`)}
           activeJobsCount={activeJobsCount}
         />
 

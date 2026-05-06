@@ -179,6 +179,7 @@ export async function startImageEditJob(args: StartImageEditArgs): Promise<Respo
       completed_at: new Date().toISOString(),
       metadata: { ...(args.metadata ?? {}), freepik_response: fp.body, freepik_endpoint: args.endpoint },
     }).eq("generation_id", gen.generation_id);
+    if (cost > 0) await refundCredits(userId, cost, "No task_id from Freepik", gen.generation_id);
     return json({
       error: { code: "NO_TASK_ID", message: "Freepik não retornou task_id." },
       generation_id: gen.generation_id,

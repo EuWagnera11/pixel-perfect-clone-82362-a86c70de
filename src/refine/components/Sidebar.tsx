@@ -28,6 +28,7 @@ export function Sidebar({
   onUpgrade,
   onSignInGoogle,
   onSignOut,
+  onOpenAccount,
   activeJobsCount = 0,
 }: SidebarProps) {
   const [locked, setLocked] = useState<boolean>(() => {

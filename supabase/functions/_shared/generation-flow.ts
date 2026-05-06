@@ -159,6 +159,7 @@ export async function startGeneration(args: StartArgs): Promise<Response> {
       error_message: "Magnific did not return a task id",
       metadata: { magnific_response: fp.body },
     }).eq("id", gen.id);
+    await refundCredits(args.auth.userId, cost, "No task id from provider", gen.id);
     return json({ error: "Missing task id", detail: fp.body, generation_id: gen.id }, 502);
   }
 

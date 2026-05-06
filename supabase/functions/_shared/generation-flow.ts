@@ -3,14 +3,17 @@
 import { magnificFetch, extractTaskId } from "./magnific.ts";
 import { json } from "./cors.ts";
 import { buildBody, getEngine, urlToRefObject, type BuildInput, type MediaKind } from "./engines.ts";
+import { calculateCost, debitCredits, refundCredits } from "./credits.ts";
 
 export type StartArgs = {
   auth: any;
   engineId: string;
-  tool: string;          // "image" | "video" | "edit" | "upscale" | "audio"
-  op: string;            // "t2i" | "i2i" | "t2v" | "i2v" | "edit" | "upscale" | "music" | "sfx"
+  tool: string;
+  op: string;
   input: BuildInput;
   mediaType: MediaKind;
+  /** Optional: extra cost params (duration for video, etc.). */
+  costParams?: { quality?: string; duration?: number; units?: number };
 };
 
 export async function startGeneration(args: StartArgs): Promise<Response> {

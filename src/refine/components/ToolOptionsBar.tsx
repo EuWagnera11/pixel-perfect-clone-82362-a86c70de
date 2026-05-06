@@ -170,6 +170,16 @@ export function ToolOptionsBar({ tab, value, onChange, extra, onSuggestPrompt, s
           value={value.videoDuration || "5s"}
           onChange={(v) => onChange({ videoDuration: v })}
         />
+        <span style={label}>Formato</span>
+        <Seg
+          options={[
+            { id: "16:9", label: "16:9" },
+            { id: "9:16", label: "9:16" },
+            { id: "1:1", label: "1:1" },
+          ]}
+          value={(value.videoAspect as any) || "16:9"}
+          onChange={(v) => onChange({ videoAspect: v as any })}
+        />
         {extra}
       </div>
     );

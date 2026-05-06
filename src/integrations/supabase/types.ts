@@ -58,6 +58,95 @@ export type Database = {
           },
         ]
       }
+      coupon_redemptions: {
+        Row: {
+          coupon_id: string
+          created_at: string
+          credits_granted: number | null
+          discount_amount_brl: number | null
+          id: string
+          stripe_session_id: string | null
+          user_id: string
+        }
+        Insert: {
+          coupon_id: string
+          created_at?: string
+          credits_granted?: number | null
+          discount_amount_brl?: number | null
+          id?: string
+          stripe_session_id?: string | null
+          user_id: string
+        }
+        Update: {
+          coupon_id?: string
+          created_at?: string
+          credits_granted?: number | null
+          discount_amount_brl?: number | null
+          id?: string
+          stripe_session_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coupon_redemptions_coupon_id_fkey"
+            columns: ["coupon_id"]
+            isOneToOne: false
+            referencedRelation: "coupons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      coupons: {
+        Row: {
+          active: boolean
+          applies_to: Database["public"]["Enums"]["coupon_applies_to"]
+          code: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          expires_at: string | null
+          id: string
+          max_redemptions: number | null
+          redemptions_count: number
+          stripe_coupon_id: string | null
+          type: Database["public"]["Enums"]["coupon_type"]
+          updated_at: string
+          value: number
+        }
+        Insert: {
+          active?: boolean
+          applies_to?: Database["public"]["Enums"]["coupon_applies_to"]
+          code: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          expires_at?: string | null
+          id?: string
+          max_redemptions?: number | null
+          redemptions_count?: number
+          stripe_coupon_id?: string | null
+          type: Database["public"]["Enums"]["coupon_type"]
+          updated_at?: string
+          value: number
+        }
+        Update: {
+          active?: boolean
+          applies_to?: Database["public"]["Enums"]["coupon_applies_to"]
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          expires_at?: string | null
+          id?: string
+          max_redemptions?: number | null
+          redemptions_count?: number
+          stripe_coupon_id?: string | null
+          type?: Database["public"]["Enums"]["coupon_type"]
+          updated_at?: string
+          value?: number
+        }
+        Relationships: []
+      }
       credit_transactions: {
         Row: {
           amount: number
@@ -691,9 +780,15 @@ export type Database = {
         Returns: boolean
       }
       reset_monthly_credits: { Args: never; Returns: number }
+      validate_coupon: {
+        Args: { p_code: string; p_context?: string }
+        Returns: Json
+      }
     }
     Enums: {
       app_role: "admin" | "creator" | "agency"
+      coupon_applies_to: "subscription" | "topup" | "both"
+      coupon_type: "percent_off" | "credits_bonus"
       generation_status:
         | "queued"
         | "processing"
@@ -830,6 +925,8 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "creator", "agency"],
+      coupon_applies_to: ["subscription", "topup", "both"],
+      coupon_type: ["percent_off", "credits_bonus"],
       generation_status: [
         "queued",
         "processing",

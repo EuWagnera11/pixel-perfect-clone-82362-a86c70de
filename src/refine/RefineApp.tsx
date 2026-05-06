@@ -344,7 +344,12 @@ function Workspace() {
               />
             </div>
           )}
-          {currentTab !== "account" && (() => {
+          {currentTab === "admin" && (
+            <div className="canvas no-dock">
+              <AdminDashboard />
+            </div>
+          )}
+          {currentTab !== "account" && currentTab !== "admin" && (() => {
             const useWorkspace = currentTab === "image" || currentTab === "video" || tabHasToolWorkspace(currentTab);
             if (!useWorkspace) return null;
             const wsProps = {

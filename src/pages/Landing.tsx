@@ -535,12 +535,12 @@ export default function Landing() {
             <div className="relative">
               <div className="eyebrow eyebrow-dot mx-auto mb-5 inline-flex">Pronto para criar?</div>
               <h2 className="display-1 mx-auto max-w-3xl">
-                Transforme sua próxima ideia
+                Pare de pular entre apps.
                 <br />
-                em uma <span className="text-gradient-copper">IA influencer</span>.
+                Tudo num <span className="text-gradient-copper">só studio</span>.
               </h2>
               <p className="lead mx-auto mt-5">
-                3 gerações grátis. Veja a qualidade antes de assinar.
+                Comece grátis e teste cada ferramenta da suite.
               </p>
               <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
                 <Link to={ctaTo} className="btn-pill-primary px-8 py-4 text-base">

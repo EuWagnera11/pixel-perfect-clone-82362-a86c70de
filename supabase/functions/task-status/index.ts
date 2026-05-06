@@ -69,7 +69,9 @@ Deno.serve(async (req) => {
       error_message: errMsg,
       completed_at: new Date().toISOString(),
     }).eq("id", generationId);
-    // Return 200 with failed row so frontend handles gracefully (no blank screen).
+    if ((gen.credits_used ?? 0) > 0) {
+      await refundCredits(auth.userId, gen.credits_used, "Provider failed: " + errMsg.slice(0, 120), generationId);
+    }
     return json({ ...gen, status: "failed", error_message: errMsg });
   }
 

@@ -120,7 +120,7 @@ const tiers = [
 const trustBrands = ["CUBO", "SOPHIA", "LUMEN", "ATELIER", "NORTE", "VERBO", "COSTA", "EFEMERA", "MIRA", "STUDIO 21"];
 
 const stats = [
-  { num: "12", label: "Ferramentas no studio" },
+  { num: "40+", label: "Ferramentas no studio" },
   { num: "4K", label: "Resolução máxima" },
   { num: "20+", label: "Modelos integrados" },
   { num: "∞", label: "Jobs em paralelo" },
@@ -296,13 +296,13 @@ export default function Landing() {
             <div className="max-w-2xl">
               <div className="eyebrow eyebrow-dot mb-4">A Suite Refine</div>
               <h2 className="display-1">
-                12 ferramentas. <span className="text-gradient-copper">Uma suite.</span>
+                40+ ferramentas. <span className="text-gradient-copper">Uma suite.</span>
                 <br />
                 O stack completo de criação visual.
               </h2>
             </div>
             <p className="lead lg:max-w-sm lg:text-right">
-              Image, Video, Cinema, Edit, Upscale, Audio, E-commerce, 3D, Assets, Depth, Character e Marketing.
+              Criar, Editar, Transformar, Melhorar, Profissional e Workflow — 6 categorias cobrindo imagem, vídeo, áudio e automação.
             </p>
           </div>
 

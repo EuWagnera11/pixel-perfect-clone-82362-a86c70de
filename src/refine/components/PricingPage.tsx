@@ -80,9 +80,41 @@ export function PricingPage() {
   const navigate = useNavigate();
   const [cycle, setCycle] = useState<BillingCycle>("monthly");
   const [loadingKey, setLoadingKey] = useState<string | null>(null);
+  const [couponCode, setCouponCode] = useState("");
+  const [couponState, setCouponState] = useState<{ valid: boolean; msg: string; data?: any } | null>(null);
+  const [validatingCoupon, setValidatingCoupon] = useState(false);
 
   const plans = useMemo(() => PLAN_ORDER.map((id) => (pricing as any).plans[id]).filter(Boolean), []);
   const topups = useMemo(() => Object.values((pricing as any).topup_packages || {}) as any[], []);
+
+  const validateCoupon = async (context: "subscription" | "topup") => {
+    if (!couponCode.trim()) { setCouponState(null); return null; }
+    setValidatingCoupon(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("validate-coupon", {
+        body: { code: couponCode.trim(), context },
+      });
+      if (error) throw error;
+      const d = data as any;
+      if (d?.valid) {
+        const desc = d.type === "percent_off" ? `${d.value}% de desconto` : `+${d.value} créditos bônus`;
+        setCouponState({ valid: true, msg: `✓ Cupom válido: ${desc}`, data: d });
+        return d;
+      }
+      const errMap: Record<string, string> = {
+        not_found: "Cupom não encontrado", inactive: "Cupom inativo", expired: "Cupom expirado",
+        limit_reached: "Cupom esgotado", wrong_context: "Cupom não se aplica a esta compra",
+        already_used: "Você já usou este cupom", not_authenticated: "Faça login primeiro",
+      };
+      setCouponState({ valid: false, msg: errMap[d?.error] || "Cupom inválido" });
+      return null;
+    } catch (e: any) {
+      setCouponState({ valid: false, msg: e?.message || "Erro ao validar cupom" });
+      return null;
+    } finally {
+      setValidatingCoupon(false);
+    }
+  };
 
   const startCheckout = async (planId: string) => {
     if (planId === "free") { navigate("/signup"); return; }
@@ -91,9 +123,12 @@ export function PricingPage() {
     const planKey = `${planId}_${cycle}`;
     setLoadingKey(`plan:${planKey}`);
     try {
-      const { data, error } = await supabase.functions.invoke("create-checkout", {
-        body: { plan: planKey },
-      });
+      const body: any = { plan: planKey };
+      if (couponCode.trim()) {
+        const cp = await validateCoupon("subscription");
+        if (cp) body.coupon_code = couponCode.trim();
+      }
+      const { data, error } = await supabase.functions.invoke("create-checkout", { body });
       if (error) throw error;
       const url = (data as any)?.url;
       if (url) window.location.href = url;
@@ -110,9 +145,12 @@ export function PricingPage() {
     if (!session) { navigate(`/signup?next=/pricing`); return; }
     setLoadingKey(`topup:${topupKey}`);
     try {
-      const { data, error } = await supabase.functions.invoke("create-checkout", {
-        body: { topup: topupKey },
-      });
+      const body: any = { topup: topupKey };
+      if (couponCode.trim()) {
+        const cp = await validateCoupon("topup");
+        if (cp) body.coupon_code = couponCode.trim();
+      }
+      const { data, error } = await supabase.functions.invoke("create-checkout", { body });
       if (error) throw error;
       const url = (data as any)?.url;
       if (url) window.location.href = url;

@@ -120,16 +120,16 @@ const tiers = [
 const trustBrands = ["CUBO", "SOPHIA", "LUMEN", "ATELIER", "NORTE", "VERBO", "COSTA", "EFEMERA", "MIRA", "STUDIO 21"];
 
 const stats = [
-  { num: "4K", label: "Resolução editorial" },
-  { num: "3min", label: "Geração média" },
-  { num: "59+", label: "Templates curados" },
-  { num: "100%", label: "Identidade fixa" },
+  { num: "12", label: "Ferramentas no studio" },
+  { num: "4K", label: "Resolução máxima" },
+  { num: "20+", label: "Modelos integrados" },
+  { num: "∞", label: "Jobs em paralelo" },
 ];
 
 const stepsProcess = [
-  { num: "01", title: "Crie sua persona", desc: "Upload de 8-12 fotos. A IA aprende seu rosto, ângulo, expressão." },
-  { num: "02", title: "Escolha um template", desc: "59+ cenários: lifestyle, travel, fashion, editorial. Ou crie do zero." },
-  { num: "03", title: "Gere em massa", desc: "1 clique → 12 fotos coerentes. Carrossel pronto em minutos." },
+  { num: "01", title: "Escolha a ferramenta", desc: "Image, Video, Edit, Upscale, Audio, 3D, Assets, Depth — tudo num só studio." },
+  { num: "02", title: "Descreva ou anexe", desc: "Prompt + referências, ou suba a imagem base. Modelo e aspect ratio são automáticos por aba." },
+  { num: "03", title: "Dispara em paralelo", desc: "A fila roda jobs simultâneos sem travar a UI. Você acompanha tudo no painel." },
 ];
 
 export default function Landing() {

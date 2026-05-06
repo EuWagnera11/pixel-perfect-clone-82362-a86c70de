@@ -8,6 +8,7 @@ import { adminClient, requireUserId } from "../_shared/gates.ts";
 import { magnificFetch } from "../_shared/magnific.ts";
 import { freepikFetch } from "../_shared/freepik.ts";
 import { urlToRefObject } from "../_shared/engines.ts";
+import { refundCredits } from "../_shared/credits.ts";
 
 const REPLACE_BG_TIMEOUT_MS: Record<string, number> = {
   "nano-banana-pro-flash": 5 * 60_000,

@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import {
   ArrowRight, ArrowUpRight, Image as ImageIcon, Video, Film, Pencil,
   AudioWaveform, ArrowUpToLine, ShoppingBag, Box, Boxes, Layers,
-  UserCircle2, Send, Play, Check, Star,
+  UserCircle2, Send, Play, Check, Star, Zap,
 } from "lucide-react";
 import { CuboLogo } from "@/components/CuboLogo";
 import { useAuth } from "@/lib/auth";

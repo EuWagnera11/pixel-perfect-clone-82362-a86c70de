@@ -23,6 +23,7 @@ import { VideoWorkspace } from "./components/VideoWorkspace";
 import { ToolWorkspace, tabHasToolWorkspace } from "./components/ToolWorkspace";
 import { AccountPage } from "./components/AccountPage";
 import { TopupModal } from "./components/TopupModal";
+import { PricingPage } from "./components/PricingPage";
 import { JobsProvider, useJobs, type Job } from "./lib/jobs";
 import { TAB_CONFIG } from "./lib/nav";
 import {
@@ -464,6 +465,7 @@ export default function RefineApp() {
         >
           <Routes>
             <Route path="/" element={<Landing />} />
+            <Route path="/pricing" element={<PricingPage />} />
             <Route path="/login" element={<AuthPage mode="login" />} />
             <Route path="/signup" element={<AuthPage mode="signup" />} />
             <Route path="/app" element={<Navigate to="/home" replace />} />
